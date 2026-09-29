@@ -1,0 +1,37 @@
+[
+  {
+    "id": "vitality",
+    "name": "Cœur de néon",
+    "description": "+20 PV max par niveau.",
+    "maxLevel": 5,
+    "perLevel": { "maxHp": 20 }
+  },
+  {
+    "id": "swiftness",
+    "name": "Semelles phasiques",
+    "description": "+8 % de vitesse par niveau.",
+    "maxLevel": 5,
+    "perLevel": { "speed": 0.08 }
+  },
+  {
+    "id": "magnet",
+    "name": "Aimant quantique",
+    "description": "+25 % de rayon de collecte par niveau.",
+    "maxLevel": 5,
+    "perLevel": { "pickupRadius": 0.25 }
+  },
+  {
+    "id": "capacitor",
+    "name": "Condensateur",
+    "description": "-7 % de temps de recharge par niveau.",
+    "maxLevel": 5,
+    "perLevel": { "cooldown": 0.07 }
+  },
+  {
+    "id": "amplifier",
+    "name": "Amplificateur",
+    "description": "+10 % de dégâts par niveau.",
+    "maxLevel": 5,
+    "perLevel": { "damage": 0.1 }
+  }
+]

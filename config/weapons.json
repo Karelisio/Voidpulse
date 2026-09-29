@@ -1,0 +1,86 @@
+[
+  {
+    "id": "ember",
+    "name": "Braise",
+    "description": "Tire des éclats de feu sur l'ennemi le plus proche. Brûle.",
+    "element": "fire",
+    "archetype": "projectile",
+    "color": "#ff7a2f",
+    "base": {
+      "damage": 13,
+      "cooldown": 0.95,
+      "count": 1,
+      "pierce": 0,
+      "speed": 480,
+      "size": 7,
+      "range": 0,
+      "duration": 1.1,
+      "status": 5
+    },
+    "levels": [
+      { "damage": 4 },
+      { "count": 1 },
+      { "pierce": 1, "status": 2 },
+      { "count": 1, "damage": 4 },
+      { "cooldown": -0.15 },
+      { "count": 1 },
+      { "pierce": 1, "damage": 6, "status": 3 }
+    ]
+  },
+  {
+    "id": "frost",
+    "name": "Éclats de givre",
+    "description": "Des éclats gelés tournent autour de toi. Ralentissent puis gèlent.",
+    "element": "frost",
+    "archetype": "orbit",
+    "color": "#7fe8ff",
+    "base": {
+      "damage": 8,
+      "cooldown": 0.55,
+      "count": 2,
+      "pierce": 0,
+      "speed": 3.2,
+      "size": 9,
+      "range": 72,
+      "duration": 0,
+      "status": 0.3
+    },
+    "levels": [
+      { "damage": 3 },
+      { "count": 1 },
+      { "range": 12, "status": 0.05 },
+      { "count": 1, "damage": 3 },
+      { "speed": 0.6 },
+      { "count": 1 },
+      { "damage": 5, "range": 14, "status": 0.1 }
+    ]
+  },
+  {
+    "id": "arc",
+    "name": "Arc voltaïque",
+    "description": "Un éclair rebondit d'ennemi en ennemi. Électrise.",
+    "element": "lightning",
+    "archetype": "chain",
+    "color": "#fff06a",
+    "base": {
+      "damage": 17,
+      "cooldown": 1.35,
+      "count": 3,
+      "pierce": 0,
+      "speed": 0,
+      "size": 4,
+      "range": 260,
+      "duration": 0.14,
+      "status": 2.5
+    },
+    "levels": [
+      { "damage": 5 },
+      { "count": 1 },
+      { "cooldown": -0.15 },
+      { "count": 1, "damage": 5 },
+      { "range": 40 },
+      { "count": 2 },
+      { "damage": 8, "cooldown": -0.15 }
+    ]
+  }
+]

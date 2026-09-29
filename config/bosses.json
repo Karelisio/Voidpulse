@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sentinel",
+    "name": "Sentinelle de la brume",
+    "hp": 5200,
+    "radius": 46,
+    "speed": 58,
+    "contactDamage": 24,
+    "color": "#6ff7ff",
+    "bulletDamage": 11,
+    "bulletSpeed": 165,
+    "summon": "mite",
+    "patternGap": 1.3,
+    "phases": [
+      {
+        "threshold": 0.66,
+        "patterns": ["radial", "summon"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0.25,
+        "patterns": ["charge", "mines", "radial"],
+        "speedMult": 1.1,
+        "cooldownMult": 0.9,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["charge", "spiral", "mines", "summon"],
+        "speedMult": 1.35,
+        "cooldownMult": 0.65,
+        "rage": true
+      }
+    ]
+  }
+]

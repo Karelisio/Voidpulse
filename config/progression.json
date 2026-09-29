@@ -1,0 +1,13 @@
+{
+  "xpCurve": {
+    "a": 2.2,
+    "b": 2.05,
+    "c": 3
+  },
+  "maxWeapons": 6,
+  "maxPassives": 6,
+  "rerolls": 2,
+  "banishes": 1,
+  "locks": 1,
+  "gemMergeThreshold": 500
+}

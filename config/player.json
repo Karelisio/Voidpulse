@@ -1,0 +1,16 @@
+{
+  "maxHp": 100,
+  "speed": 165,
+  "radius": 14,
+  "iFrames": 0.55,
+  "pickupRadius": 90,
+  "magnetSpeed": 540,
+  "critChance": 0.05,
+  "critMult": 1.6,
+  "dash": {
+    "distance": 150,
+    "duration": 0.16,
+    "cooldown": 2.2,
+    "iFrames": 0.25
+  }
+}

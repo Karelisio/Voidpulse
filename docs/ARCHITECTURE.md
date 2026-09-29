@@ -38,7 +38,9 @@ src/
   modes/      campagne, infini, quotidien, hebdo, boss rush, hardcore, entraînement (objets ModeRules)
   meta/       talents, compte/paragon, ascension, reliques, maîtrise, codex, quêtes, série, saison,
               succès, coffre hors ligne, planification des notifications
-  render/     application Pixi, couches, caméra, synchronisation ECS → Particles, FX, chiffres, hud/
+  render/     application Pixi, couches, caméra, atlas néon, synchronisation ECS → Particles, FX, chiffres, HUD
+  game/       colle entre simulation et plateforme : hôte de partie (boucle, rendu, audio), entrées tactiles
+              et clavier, game feel (événements → FX, caméra, hit stop, haptique, audio)
   audio/      engine (contexte, bus, master, ducking), music (worker de décodage, worklet mixeur,
               directeur d'intensité), sfx (banque, voix), compositions/ et sfx-design/ (hors bundle)
   save/       emplacements A/B, migrations, instantané de run, export/import
@@ -88,9 +90,10 @@ consommateurs(événements) ← render FX, audio, haptique, statistiques
 
 ### 5.1 Monde
 
-- bitecs 0.4 ; les composants sont des objets de **TypedArrays pré-alloués** de taille `MAX_ENTITIES` (4096), déclarés dans `src/engine/ecs/components.ts`.
-- Exemples : `Position {x, y, px, py}` (px/py = position au tick précédent, pour l'interpolation), `Velocity`, `Radius`, `Health`, `Team`, `Enemy {type, behavior, eliteMask}`, `Projectile {weapon, pierce, ttl, element}`, `Marks {mask, t0..t5}`, `Render {atlasFrame, layer, tint, scale}`.
-- Les archétypes (ennemi, projectile, gemme, FX de réaction, zone au sol…) ont chacun un **pool** : création = réactivation d'un emplacement libre, destruction = retour au pool. Les ID sont recyclés.
+- Les composants sont des objets de **TypedArrays pré-alloués** de taille `MAX_ENTITIES` (8192), déclarés dans `src/engine/components.ts` : `Pos {x, y, px, py}` (px/py = position au tick précédent, pour l'interpolation), `Vel`, `Body`, `Life`, `Look`, `Foe`, `Status` (dont les marques élémentaires), `Shot`, `Bullet`, `Gem`, `Zone`, `Orbit`…
+- Les archétypes (joueur, boss, ennemis, projectiles, balles ennemies, orbes, gemmes, zones) ont chacun un **pool** (`EntityPool`) créé une fois : plage d'ID réservée, liste dense des actifs (`Int32Array`, retrait par échange), itération à rebours quand on détruit. Création = réactivation d'un emplacement libre, remise à zéro des colonnes par une liste précalculée.
+- bitecs 0.4 ne sert que de registre (création du monde et des ID au démarrage) : son `addEntity`/`addComponent` alloue (Set, closures), incompatible avec la règle « zéro allocation » de la boucle chaude.
+- Les tableaux de composants sont **globaux au module** : une seule `RunSim` active à la fois (les tests et le simulateur d'équilibrage enchaînent les parties, ils ne les entrelacent pas).
 
 ### 5.2 File d'événements
 
@@ -125,7 +128,7 @@ Vérifié par un bench qui mesure le delta de heap sur 10 s de jeu chargé.
 - Application Pixi unique, conservée toute la session (jamais détruite : on cache le canvas et on arrête le ticker dans les menus). Préférence WebGL, antialias désactivé, résolution = DPR × échelle de qualité (plafond 2).
 - **Couches** (ordre z) : sol/biome → zones au sol et télégraphes → ombres → gemmes → ennemis → joueur → projectiles (additif) → FX (additif) → chiffres de dégâts → HUD.
 - Chaque couche massive est un **`ParticleContainer` v8** (objets `Particle`, pas `Sprite`), alimenté par un pool de particules. Un système de synchronisation copie position interpolée, rotation, échelle, teinte et frame depuis l'ECS.
-- **Atlas** généré au build (`scripts/build-atlas.ts`) : sources SVG (vectoriel néon) → resvg → packing → PNG + JSON Pixi. Chaque sprite possède une frame « flash blanc » et un halo néon **pré-calculé** : aucun filtre en temps réel.
+- **Atlas** dessiné au démarrage (`render/atlas.ts`) en Canvas2D : tracés vectoriels néon (halo par `shadowBlur`), packing en étagères sur une page 1024 × 1024 logique à résolution 2, puis une seule texture GPU. Chaque sprite possède une frame « flash blanc » et son halo **pré-calculé** : aucun filtre en temps réel. Choix : aucune dépendance native (resvg) ni fichier binaire à versionner, rendu identique partout, quelques dizaines de ms au lancement.
 - Chiffres de dégâts : glyphes de l'atlas dans un ParticleContainer, agrégés par cible sur une courte fenêtre.
 - Game feel : hit stop (ticks gelés, limité aux gros événements), screen shake (amplitude réglable), flash blanc, knockback, gemmes aspirées, explosions de particules.
 - **Qualité** : particules (off / réduites / complètes), ombres, chiffres de dégâts, échelle de résolution, 30/60 fps.

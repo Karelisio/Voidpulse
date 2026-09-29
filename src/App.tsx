@@ -1,16 +1,30 @@
+import { useState } from 'react';
+import { useUi } from './state/ui';
+import { RunScreen } from './ui/RunScreen';
+import { TitleScreen } from './ui/TitleScreen';
+import './ui/ui.css';
+
 export function App() {
+  const screen = useUi((s) => s.screen);
+  const setScreen = useUi((s) => s.setScreen);
+  const [bench, setBench] = useState(false);
+
+  if (screen === 'run') {
+    return (
+      <RunScreen
+        bench={bench}
+        onQuit={() => {
+          setScreen('title');
+        }}
+      />
+    );
+  }
   return (
-    <main
-      style={{
-        display: 'grid',
-        placeItems: 'center',
-        height: '100%',
-        fontSize: '2rem',
-        letterSpacing: '0.3em',
-        textShadow: '0 0 12px var(--vp-accent), 0 0 32px var(--vp-accent-2)',
+    <TitleScreen
+      onPlay={(b) => {
+        setBench(b);
+        setScreen('run');
       }}
-    >
-      VOIDPULSE
-    </main>
+    />
   );
 }

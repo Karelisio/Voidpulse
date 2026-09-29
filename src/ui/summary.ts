@@ -1,0 +1,39 @@
+/** Résumé de fin de run pour l'écran de fin (statistiques de la simulation). */
+import { REACTIONS } from '../content/data';
+import type { RunSummary } from '../state/ui';
+import { SLOT_EVEIL, SLOT_REACTION } from '../systems/events';
+import type { RunSim } from '../systems/sim';
+
+export function buildSummary(
+  sim: RunSim,
+  iconUrls: Readonly<Partial<Record<string, string>>>,
+): RunSummary {
+  const st = sim.state;
+  return {
+    victory: st.status === 'victory',
+    time: st.time,
+    kills: st.stats.kills,
+    level: st.player.level,
+    xp: st.stats.xpCollected,
+    damageTaken: st.stats.damageTaken,
+    eveils: st.resonance.eveils,
+    weapons: st.weapons.map((w) => ({
+      name: w.def.name,
+      element: w.def.element,
+      damage: st.stats.damageBySlot[w.slot],
+      icon: iconUrls[w.def.id] ?? '',
+    })),
+    reactionDamage: st.stats.damageBySlot[SLOT_REACTION],
+    eveilDamage: st.stats.damageBySlot[SLOT_EVEIL],
+    reactions: REACTIONS.map((r, i) => ({
+      name: r.name,
+      count: st.resonance.countById[i],
+      color: r.color,
+    })).filter((r) => r.count > 0),
+  };
+}
+
+export function formatTime(seconds: number): string {
+  const s = Math.floor(seconds);
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
