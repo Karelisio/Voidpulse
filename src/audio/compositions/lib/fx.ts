@@ -120,3 +120,28 @@ export function softClip(threshold = 0.5): Tone.WaveShaper {
 export function crusher(levels: number): Tone.WaveShaper {
   return new Tone.WaveShaper((x) => Math.round(x * levels) / levels, 4096);
 }
+
+/**
+ * Réverb « shimmer » : réverb longue dont une partie repasse une octave plus haut (halo
+ * cristallin). Entrée et sortie séparées pour s'insérer dans une chaîne.
+ */
+export async function shimmer(
+  decay: number,
+  wet: number,
+  amount = 0.35,
+): Promise<{ input: Tone.Gain; output: Tone.Gain }> {
+  const input = new Tone.Gain(1);
+  const output = new Tone.Gain(1);
+  const dry = new Tone.Gain(1 - wet);
+  const rev = await reverb(decay, 1, 0.03);
+  const up = new Tone.PitchShift({ pitch: 12, windowSize: 0.12 });
+  const upGain = new Tone.Gain(amount);
+  const revGain = new Tone.Gain(wet);
+  input.connect(dry);
+  input.connect(rev);
+  input.connect(up);
+  chain(up, upGain, rev);
+  chain(rev, revGain, output);
+  dry.connect(output);
+  return { input, output };
+}

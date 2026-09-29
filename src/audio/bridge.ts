@@ -2,7 +2,7 @@
  * Pont entre la partie et le moteur audio : événements de la simulation → effets sonores,
  * état de la partie → intensité musicale, scènes musicales (stage, boss, fin de run).
  */
-import { REACTIONS, WEAPONS } from '../content/data';
+import { BOSSES, CAMPAIGN, REACTIONS, WEAPONS } from '../content/data';
 import { Foe, Pos } from '../engine/components';
 import type { EventQueue } from '../engine/events';
 import type { AudioBridge } from '../game/host';
@@ -16,6 +16,11 @@ import {
 import type { RunSim } from '../systems/sim';
 import type { AudioEngine } from './engine';
 import { rawIntensity } from './music/intensity';
+
+/** Boss final de la campagne (Cathédrale) : il a sa propre musique. */
+const FINAL_BOSS = CAMPAIGN[CAMPAIGN.length - 1].boss;
+/** Mode Infini : la musique du boss final prend le relais au-delà de 30 minutes. */
+const ENDLESS_FINAL_AFTER = 30 * 60;
 
 /** Rayon (unités monde) dans lequel les ennemis comptent pour l'intensité. */
 const NEARBY_RADIUS = 420;
@@ -54,21 +59,43 @@ export class GameAudio implements AudioBridge {
   private ended = false;
   /** Faille en cours (son de sortie à sa fin, pas à l'expiration d'une faille inutilisée). */
   private rift = false;
+  /** Numéro du stage (1-8) dont on joue la musique. */
+  private stage = 1;
+  private endless = false;
+  /** File de boss (Boss Rush) : la musique de boss reste entre deux boss. */
+  private bossRush = false;
+  /** Partie sans fin au-delà de 30 min : musique du boss final en continu. */
+  private finalPhase = false;
 
   constructor(readonly engine: AudioEngine) {}
 
-  startRun(): void {
+  startRun(sim: RunSim): void {
     this.ended = false;
     this.rift = false;
     this.engine.setRift(false);
     this.xpCombo = 0;
+    const st = sim.state;
+    // Le prototype (tests, banc de charge) reprend la musique du premier stage.
+    this.stage = Math.max(1, CAMPAIGN.findIndex((s) => s.id === st.stage.id) + 1);
+    this.endless = st.rules.endless !== null;
+    this.bossRush = st.rules.bossQueue.length > 0;
+    this.finalPhase = false;
     const m = this.engine.music;
     if (m) {
       m.intensity.reset(0);
-      void m.play('stage', 1);
-      m.prepare('boss');
+      void m.play('stage', this.stage);
+      m.prepare(this.stage === CAMPAIGN.length ? 'final' : 'boss');
     }
     this.engine.setEveil(false);
+  }
+
+  /** Musique de fond de la partie hors boss (stage, ou boss final en Infini > 30 min). */
+  private playField(): void {
+    const m = this.engine.music;
+    if (!m) return;
+    if (this.finalPhase) void m.play('final');
+    else if (this.bossRush) void m.play('boss');
+    else void m.play('stage', this.stage);
   }
 
   /** Lit la file d'événements de la frame : un seul appel, lecture directe des colonnes. */
@@ -171,7 +198,7 @@ export class GameAudio implements AudioBridge {
         case EV.BOSS_SPAWN:
           sfx.play('boss.spawn');
           e.duck(-6, 0.05, 1, 1.5);
-          void e.music?.play('boss');
+          void e.music?.play(this.finalPhase || BOSSES[a]?.id === FINAL_BOSS ? 'final' : 'boss');
           break;
         case EV.BOSS_PHASE:
           sfx.play(b === 1 ? 'boss.rage' : 'boss.phase');
@@ -180,8 +207,8 @@ export class GameAudio implements AudioBridge {
         case EV.BOSS_DEATH:
           sfx.play('boss.death');
           e.duck(-8, 0.05, 1.5, 2);
-          // Mini-boss vaincu : retour à la musique du stage (le stage 1 sert à tous jusqu'en 4.13).
-          if (b === 1) void e.music?.play('stage', 1);
+          // Retour à la musique du stage (une fin de run qui suivrait l'emporte : RUN_END).
+          this.playField();
           break;
         case EV.STRIKE:
           if (b < FIRE_IDS.length) sfx.play(FIRE_IDS[b], pan, 0.8);
@@ -249,7 +276,7 @@ export class GameAudio implements AudioBridge {
             this.ended = true;
             sfx.play(a === 1 ? 'run.victory' : 'run.defeat');
             e.setEveil(false);
-            void e.music?.play('end');
+            void e.music?.play('end', this.stage, a === 1 ? 'victory' : 'defeat');
           }
           break;
       }
@@ -268,6 +295,10 @@ export class GameAudio implements AudioBridge {
     e.setPaused(paused || menu);
     const m = e.music;
     if (!m || paused || st.status !== 'running') return;
+    if (this.endless && !this.finalPhase && st.time >= ENDLESS_FINAL_AFTER) {
+      this.finalPhase = true;
+      void m.play('final');
+    }
     const p = st.player.eid;
     const px = Pos.x[p];
     const py = Pos.y[p];

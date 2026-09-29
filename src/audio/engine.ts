@@ -4,7 +4,7 @@
  * réglages, suspension en arrière-plan. Voir docs/ARCHITECTURE.md §11.1.
  */
 import tracksJson from '../../assets/audio/music/tracks.json';
-import { MusicDirector } from './music/director';
+import { type EndMode, MusicDirector } from './music/director';
 import { parseManifest } from './music/manifest';
 import { MusicPlayer } from './music/player';
 import { SfxEngine, type BusName, type SfxManifest } from './sfx';
@@ -84,6 +84,7 @@ export class AudioEngine {
   private paused = false;
   private eveil = false;
   private rift = false;
+  private endMode: EndMode | null = null;
   private tone = 0;
   private hidden = false;
 
@@ -165,7 +166,11 @@ export class AudioEngine {
     try {
       const player = await MusicPlayer.create(ctx);
       player.node.connect(engine.musicIn);
-      engine.music = new MusicDirector(player, parseManifest(tracksJson));
+      const music = new MusicDirector(player, parseManifest(tracksJson));
+      music.onEndMode = (mode) => {
+        engine.setEndMode(mode);
+      };
+      engine.music = music;
     } catch (e) {
       console.warn('Musique désactivée :', e);
     }
@@ -231,6 +236,13 @@ export class AudioEngine {
     this.updateMusicFx(on ? 0.08 : 0.4);
   }
 
+  /** Fin de run : victoire = filtre grand ouvert ; défaite = passe-bas, plus de réverb. */
+  setEndMode(mode: EndMode | null): void {
+    if (mode === this.endMode) return;
+    this.endMode = mode;
+    this.updateMusicFx(mode ? 1.2 : 0.4);
+  }
+
   /** Faille temporelle : musique ralentie, feutrée, plus réverbérée. */
   setRift(on: boolean): void {
     if (on === this.rift) return;
@@ -245,12 +257,14 @@ export class AudioEngine {
     let cutoff = 6500 * (20000 / 6500) ** x;
     if (this.eveil) cutoff = 20000;
     if (this.rift) cutoff = 2200;
+    if (this.endMode === 'victory') cutoff = 20000;
+    if (this.endMode === 'defeat') cutoff = 900;
     if (this.paused) cutoff = 650;
     this.lowpass.frequency.setTargetAtTime(cutoff, t, tau);
     this.satWet.gain.setTargetAtTime(this.eveil ? 0.35 : 0, t, tau);
     this.satDry.gain.setTargetAtTime(this.eveil ? 0.8 : 1, t, tau);
     this.reverbWet.gain.setTargetAtTime(
-      this.paused ? 0.3 : this.rift ? 0.34 : 0.16 - 0.08 * x,
+      this.paused ? 0.3 : this.rift || this.endMode === 'defeat' ? 0.34 : 0.16 - 0.08 * x,
       t,
       tau,
     );

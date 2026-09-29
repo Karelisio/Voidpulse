@@ -201,6 +201,809 @@
         "integrated": -14,
         "truePeak": -1.4
       }
+    },
+    {
+      "id": "stage2-calm",
+      "title": "Désert de verre — calme",
+      "layout": "split",
+      "bpm": 112,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Ré phrygien dominant",
+      "gainDb": 0,
+      "loopStart": 8.571438,
+      "loopEnd": 77.142875,
+      "group": "stage2",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage2-calm/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage2-calm/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage2-calm/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage2-calm/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage2-calm/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage2-calm/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage2-calm/drums.ogg",
+          "enterAt": 1,
+          "intro": "stage2-calm/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage2-calm/lead.ogg",
+          "enterAt": 2,
+          "intro": "stage2-calm/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.3,
+        "truePeak": -1.1
+      }
+    },
+    {
+      "id": "stage2-intense",
+      "title": "Désert de verre — intense",
+      "layout": "split",
+      "bpm": 112,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Ré phrygien dominant",
+      "gainDb": 0,
+      "loopStart": 8.571438,
+      "loopEnd": 77.142875,
+      "group": "stage2",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage2-intense/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage2-intense/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage2-intense/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage2-intense/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage2-intense/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage2-intense/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage2-intense/drums.ogg",
+          "enterAt": 0,
+          "intro": "stage2-intense/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage2-intense/lead.ogg",
+          "enterAt": 0,
+          "intro": "stage2-intense/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.1,
+        "truePeak": -1.7
+      }
+    },
+    {
+      "id": "stage3-calm",
+      "title": "Cité engloutie — calme",
+      "layout": "split",
+      "bpm": 90,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Do# mineur",
+      "gainDb": 0,
+      "loopStart": 10.666667,
+      "loopEnd": 96,
+      "group": "stage3",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage3-calm/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage3-calm/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage3-calm/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage3-calm/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage3-calm/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage3-calm/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage3-calm/drums.ogg",
+          "enterAt": 1
+        },
+        {
+          "layer": "lead",
+          "file": "stage3-calm/lead.ogg",
+          "enterAt": 2,
+          "intro": "stage3-calm/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.7
+      }
+    },
+    {
+      "id": "stage3-intense",
+      "title": "Cité engloutie — intense",
+      "layout": "split",
+      "bpm": 90,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Do# mineur",
+      "gainDb": 0,
+      "loopStart": 10.666667,
+      "loopEnd": 96,
+      "group": "stage3",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage3-intense/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage3-intense/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage3-intense/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage3-intense/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage3-intense/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage3-intense/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage3-intense/drums.ogg",
+          "enterAt": 0,
+          "intro": "stage3-intense/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage3-intense/lead.ogg",
+          "enterAt": 0,
+          "intro": "stage3-intense/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.7
+      }
+    },
+    {
+      "id": "stage4-calm",
+      "title": "Volcan — calme",
+      "layout": "split",
+      "bpm": 128,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Fa phrygien",
+      "gainDb": 0,
+      "loopStart": 7.5,
+      "loopEnd": 67.5,
+      "group": "stage4",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage4-calm/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage4-calm/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage4-calm/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage4-calm/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage4-calm/arp.ogg",
+          "enterAt": 0
+        },
+        {
+          "layer": "drums",
+          "file": "stage4-calm/drums.ogg",
+          "enterAt": 1
+        },
+        {
+          "layer": "lead",
+          "file": "stage4-calm/lead.ogg",
+          "enterAt": 2,
+          "intro": "stage4-calm/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.2
+      }
+    },
+    {
+      "id": "stage4-intense",
+      "title": "Volcan — intense",
+      "layout": "split",
+      "bpm": 128,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Fa phrygien",
+      "gainDb": 0,
+      "loopStart": 7.5,
+      "loopEnd": 67.5,
+      "group": "stage4",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage4-intense/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage4-intense/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage4-intense/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage4-intense/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage4-intense/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage4-intense/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage4-intense/drums.ogg",
+          "enterAt": 0,
+          "intro": "stage4-intense/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage4-intense/lead.ogg",
+          "enterAt": 0,
+          "intro": "stage4-intense/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.3
+      }
+    },
+    {
+      "id": "stage5-calm",
+      "title": "Station orbitale — calme",
+      "layout": "split",
+      "bpm": 118,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Sol lydien",
+      "gainDb": 0,
+      "loopStart": 8.135583,
+      "loopEnd": 73.220333,
+      "group": "stage5",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage5-calm/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage5-calm/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage5-calm/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage5-calm/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage5-calm/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage5-calm/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage5-calm/drums.ogg",
+          "enterAt": 1
+        },
+        {
+          "layer": "lead",
+          "file": "stage5-calm/lead.ogg",
+          "enterAt": 2,
+          "intro": "stage5-calm/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.2
+      }
+    },
+    {
+      "id": "stage5-intense",
+      "title": "Station orbitale — intense",
+      "layout": "split",
+      "bpm": 118,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Sol lydien",
+      "gainDb": 0,
+      "loopStart": 8.135583,
+      "loopEnd": 73.220333,
+      "group": "stage5",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage5-intense/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage5-intense/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage5-intense/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage5-intense/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage5-intense/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage5-intense/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage5-intense/drums.ogg",
+          "enterAt": 0,
+          "intro": "stage5-intense/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage5-intense/lead.ogg",
+          "enterAt": 0,
+          "intro": "stage5-intense/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.2
+      }
+    },
+    {
+      "id": "stage6-calm",
+      "title": "Toundra cristalline — calme",
+      "layout": "split",
+      "bpm": 104,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Si mineur",
+      "gainDb": 0,
+      "loopStart": 9.230771,
+      "loopEnd": 83.076917,
+      "group": "stage6",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage6-calm/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage6-calm/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage6-calm/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage6-calm/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage6-calm/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage6-calm/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage6-calm/drums.ogg",
+          "enterAt": 1
+        },
+        {
+          "layer": "lead",
+          "file": "stage6-calm/lead.ogg",
+          "enterAt": 2
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.7
+      }
+    },
+    {
+      "id": "stage6-intense",
+      "title": "Toundra cristalline — intense",
+      "layout": "split",
+      "bpm": 104,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Si mineur",
+      "gainDb": 0,
+      "loopStart": 9.230771,
+      "loopEnd": 83.076917,
+      "group": "stage6",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage6-intense/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage6-intense/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage6-intense/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage6-intense/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage6-intense/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage6-intense/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage6-intense/drums.ogg",
+          "enterAt": 0,
+          "intro": "stage6-intense/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage6-intense/lead.ogg",
+          "enterAt": 0
+        }
+      ],
+      "loudness": {
+        "integrated": -14.1,
+        "truePeak": -1.7
+      }
+    },
+    {
+      "id": "stage7-calm",
+      "title": "Marais toxique — calme",
+      "layout": "split",
+      "bpm": 98,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Sol# phrygien",
+      "gainDb": 0,
+      "loopStart": 9.795917,
+      "loopEnd": 88.163271,
+      "group": "stage7",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage7-calm/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage7-calm/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage7-calm/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage7-calm/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage7-calm/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage7-calm/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage7-calm/drums.ogg",
+          "enterAt": 1
+        },
+        {
+          "layer": "lead",
+          "file": "stage7-calm/lead.ogg",
+          "enterAt": 2,
+          "intro": "stage7-calm/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.4,
+        "truePeak": -1.7
+      }
+    },
+    {
+      "id": "stage7-intense",
+      "title": "Marais toxique — intense",
+      "layout": "split",
+      "bpm": 98,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Sol# phrygien",
+      "gainDb": 0,
+      "loopStart": 9.795917,
+      "loopEnd": 88.163271,
+      "group": "stage7",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage7-intense/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage7-intense/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage7-intense/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage7-intense/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage7-intense/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage7-intense/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage7-intense/drums.ogg",
+          "enterAt": 0,
+          "intro": "stage7-intense/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage7-intense/lead.ogg",
+          "enterAt": 0,
+          "intro": "stage7-intense/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.5
+      }
+    },
+    {
+      "id": "stage8-calm",
+      "title": "Cathédrale du vide — calme",
+      "layout": "split",
+      "bpm": 124,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Ré mineur harmonique",
+      "gainDb": 0,
+      "loopStart": 7.741938,
+      "loopEnd": 69.677417,
+      "group": "stage8",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage8-calm/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage8-calm/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage8-calm/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage8-calm/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage8-calm/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage8-calm/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage8-calm/drums.ogg",
+          "enterAt": 1
+        },
+        {
+          "layer": "lead",
+          "file": "stage8-calm/lead.ogg",
+          "enterAt": 2,
+          "intro": "stage8-calm/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.3,
+        "truePeak": -1.6
+      }
+    },
+    {
+      "id": "stage8-intense",
+      "title": "Cathédrale du vide — intense",
+      "layout": "split",
+      "bpm": 124,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Ré mineur harmonique",
+      "gainDb": 0,
+      "loopStart": 7.741938,
+      "loopEnd": 69.677417,
+      "group": "stage8",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage8-intense/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage8-intense/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage8-intense/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage8-intense/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage8-intense/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage8-intense/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage8-intense/drums.ogg",
+          "enterAt": 0,
+          "intro": "stage8-intense/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage8-intense/lead.ogg",
+          "enterAt": 0,
+          "intro": "stage8-intense/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.6
+      }
+    },
+    {
+      "id": "final-boss",
+      "title": "Boss final — Apothéose",
+      "layout": "split",
+      "bpm": 150,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "La mineur",
+      "gainDb": 0,
+      "loopStart": 6.4,
+      "loopEnd": 57.6,
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "final-boss/pads.ogg",
+          "enterAt": 0,
+          "intro": "final-boss/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "final-boss/bass.ogg",
+          "enterAt": 0,
+          "intro": "final-boss/bass.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "final-boss/drums.ogg",
+          "enterAt": 0,
+          "intro": "final-boss/drums.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "final-boss/arp.ogg",
+          "enterAt": 1,
+          "intro": "final-boss/arp.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "final-boss/lead.ogg",
+          "enterAt": 2,
+          "intro": "final-boss/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.1,
+        "truePeak": -1.8
+      }
+    },
+    {
+      "id": "end-of-run",
+      "title": "Fin de run — Respiration",
+      "layout": "split",
+      "bpm": 84,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "La mineur / Do majeur",
+      "gainDb": 0,
+      "loopStart": 11.428563,
+      "loopEnd": 102.857125,
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "end-of-run/pads.ogg",
+          "enterAt": 0,
+          "intro": "end-of-run/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "end-of-run/bass.ogg",
+          "enterAt": 0,
+          "intro": "end-of-run/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "end-of-run/arp.ogg",
+          "enterAt": 1,
+          "intro": "end-of-run/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "end-of-run/drums.ogg",
+          "enterAt": 1
+        },
+        {
+          "layer": "lead",
+          "file": "end-of-run/lead.ogg",
+          "enterAt": 2
+        }
+      ],
+      "loudness": {
+        "integrated": -14.3,
+        "truePeak": -1.8
+      }
     }
   ],
   "bindings": {
@@ -211,36 +1014,36 @@
         "intense": "stage1-intense"
       },
       "2": {
-        "calm": "stage1-calm",
-        "intense": "stage1-intense"
+        "calm": "stage2-calm",
+        "intense": "stage2-intense"
       },
       "3": {
-        "calm": "stage1-calm",
-        "intense": "stage1-intense"
+        "calm": "stage3-calm",
+        "intense": "stage3-intense"
       },
       "4": {
-        "calm": "stage1-calm",
-        "intense": "stage1-intense"
+        "calm": "stage4-calm",
+        "intense": "stage4-intense"
       },
       "5": {
-        "calm": "stage1-calm",
-        "intense": "stage1-intense"
+        "calm": "stage5-calm",
+        "intense": "stage5-intense"
       },
       "6": {
-        "calm": "stage1-calm",
-        "intense": "stage1-intense"
+        "calm": "stage6-calm",
+        "intense": "stage6-intense"
       },
       "7": {
-        "calm": "stage1-calm",
-        "intense": "stage1-intense"
+        "calm": "stage7-calm",
+        "intense": "stage7-intense"
       },
       "8": {
-        "calm": "stage1-calm",
-        "intense": "stage1-intense"
+        "calm": "stage8-calm",
+        "intense": "stage8-intense"
       }
     },
     "boss": "boss",
-    "finalBoss": "boss",
-    "endOfRun": "menu"
+    "finalBoss": "final-boss",
+    "endOfRun": "end-of-run"
   }
 }

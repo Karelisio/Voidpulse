@@ -19,11 +19,30 @@ describe('tracks.json', () => {
     expect(stageBinding(m, 99)).toEqual(stageBinding(m, 1));
   });
 
+  it('donne à chaque stage, au boss final et à la fin de run leur propre musique', () => {
+    const ids = new Set<string>();
+    for (let n = 1; n <= 8; n++) {
+      const s = stageBinding(m, n);
+      expect(s.calm).toBe(`stage${String(n)}-calm`);
+      expect(s.intense).toBe(`stage${String(n)}-intense`);
+      const calm = trackById(m, s.calm);
+      const intense = trackById(m, s.intense);
+      // Versions jouées en phase : même tempo et mêmes points de boucle.
+      expect([calm.loopStart, calm.loopEnd]).toEqual([intense.loopStart, intense.loopEnd]);
+      ids.add(s.calm).add(s.intense);
+    }
+    expect(ids.size).toBe(16);
+    expect(m.bindings.finalBoss).toBe('final-boss');
+    expect(m.bindings.endOfRun).toBe('end-of-run');
+    expect(m.tracks).toHaveLength(20);
+  });
+
   it('a des boucles d’un nombre entier de mesures', () => {
     for (const t of m.tracks) {
       const bars = ((t.loopEnd - t.loopStart) * 48000) / barFrames(t);
       expect(Math.abs(bars - Math.round(bars))).toBeLessThan(1e-3);
-      expect(((t.loopStart * 48000) / barFrames(t)) % 1).toBeCloseTo(0, 3);
+      const start = (t.loopStart * 48000) / barFrames(t);
+      expect(Math.abs(start - Math.round(start))).toBeLessThan(1e-3);
     }
   });
 

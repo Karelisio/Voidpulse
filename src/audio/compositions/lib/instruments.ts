@@ -167,7 +167,7 @@ export function leadSynth(opts: {
   portamento?: number;
   env?: Env;
   filterEnv?: Env;
-}): Instrument {
+}): Instrument & { synth: Tone.MonoSynth } {
   const type = opts.type ?? 'fatsawtooth';
   const oscillator =
     type === 'fatsawtooth' || type === 'fatsquare'
@@ -190,6 +190,7 @@ export function leadSynth(opts: {
   });
   synth.volume.value = opts.volume;
   return {
+    synth,
     output: synth,
     play: (notes, t, d, v) => {
       if (inWindow(t)) synth.triggerAttackRelease(midiToFreq(notes[0]), d, t, v);
@@ -345,6 +346,108 @@ export function noiseBed(opts: {
     start: (t0, t1, vel) => {
       const w = clipToWindow(t0, t1);
       if (w) noise.triggerAttackRelease(w[1] - w[0], w[0], vel);
+    },
+  };
+}
+
+/** Formants (Hz, gain dB) des voyelles chantées, voix de poitrine. */
+const VOWELS = {
+  a: [
+    [800, 0],
+    [1150, -6],
+    [2900, -14],
+  ],
+  o: [
+    [450, 0],
+    [800, -8],
+    [2830, -18],
+  ],
+  u: [
+    [325, 0],
+    [700, -12],
+    [2530, -22],
+  ],
+  e: [
+    [400, 0],
+    [1600, -10],
+    [2700, -14],
+  ],
+} as const;
+
+/**
+ * Voix à filtres formants : scies désaccordées → passe-bandes parallèles d'une voyelle.
+ * Polyphonique (chœurs) ou monophonique avec portamento (lead « vocodé »).
+ */
+export function formantVoice(opts: {
+  volume: number;
+  vowel?: keyof typeof VOWELS;
+  poly?: boolean;
+  count?: number;
+  spread?: number;
+  portamento?: number;
+  env?: Env;
+}): Instrument {
+  const out = new Tone.Gain(10 ** (14 / 20));
+  const bank = new Tone.Gain(1);
+  for (const [f, g] of VOWELS[opts.vowel ?? 'a']) {
+    const bp = new Tone.Filter({ type: 'bandpass', frequency: f, Q: 5 });
+    const gain = new Tone.Gain(10 ** (g / 20));
+    chainNodes(bank, bp, gain, out);
+  }
+  const osc = { type: 'fatsawtooth' as const, count: opts.count ?? 3, spread: opts.spread ?? 22 };
+  const env = { attack: 0.18, decay: 0.3, sustain: 0.85, release: 0.6, ...opts.env };
+  if (opts.poly !== false) {
+    const synth = new Tone.PolySynth(Tone.Synth, { oscillator: osc, envelope: env });
+    synth.maxPolyphony = 32;
+    synth.volume.value = opts.volume;
+    synth.connect(bank);
+    return {
+      output: out,
+      play: (notes, t, d, v) => {
+        if (inWindow(t)) synth.triggerAttackRelease(freqs(notes), d, t, v);
+      },
+    };
+  }
+  const mono = new Tone.MonoSynth({
+    oscillator: osc,
+    portamento: opts.portamento ?? 0.04,
+    envelope: env,
+    filter: { type: 'lowpass', rolloff: -12, Q: 0.5 },
+    filterEnvelope: { baseFrequency: 6000, octaves: 0 },
+  });
+  mono.volume.value = opts.volume;
+  mono.connect(bank);
+  return {
+    output: out,
+    play: (notes, t, d, v) => {
+      if (inWindow(t)) mono.triggerAttackRelease(midiToFreq(notes[0]), d, t, v);
+    },
+  };
+}
+
+function chainNodes(...nodes: Tone.ToneAudioNode[]): void {
+  for (let i = 0; i < nodes.length - 1; i++) nodes[i].connect(nodes[i + 1]);
+}
+
+/** Percussion métallique (enclume, tôle) : MetalSynth accordé sur la note jouée. */
+export function metalPerc(opts: {
+  volume: number;
+  decay?: number;
+  harmonicity?: number;
+  resonance?: number;
+}): Instrument {
+  const synth = new Tone.MetalSynth({
+    envelope: { attack: 0.001, decay: opts.decay ?? 0.25, release: 0.1 },
+    harmonicity: opts.harmonicity ?? 5.1,
+    modulationIndex: 24,
+    resonance: opts.resonance ?? 3200,
+    octaves: 1.2,
+  });
+  synth.volume.value = opts.volume;
+  return {
+    output: synth,
+    play: (notes, t, d, v) => {
+      if (inWindow(t)) synth.triggerAttackRelease(midiToFreq(notes[0]), d, t, v);
     },
   };
 }

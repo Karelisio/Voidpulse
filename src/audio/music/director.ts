@@ -7,7 +7,13 @@ import { IntensityDirector, stemTargets } from './intensity';
 import { barFrames, stageBinding, trackById, type MusicManifest, type TrackDef } from './manifest';
 import type { MusicPlayer, OpenDeck } from './player';
 
-export type MusicScene = 'menu' | 'stage' | 'boss' | 'end';
+export type MusicScene = 'menu' | 'stage' | 'boss' | 'final' | 'end';
+
+/** Variante de la fin de run : victoire (toutes les couches) ou défaite (feutrée, ralentie). */
+export type EndMode = 'victory' | 'defeat';
+
+/** Défaite : la piste de fin ralentie de 2 demi-tons. */
+export const DEFEAT_RATE = 2 ** (-2 / 12);
 
 /** Demi-ton de l'Éveil. */
 export const EVEIL_RATE = 2 ** (1 / 12);
@@ -39,6 +45,9 @@ export class MusicDirector {
   private raw = 0;
   /** Numéro de transition : une transition plus récente annule l'attente d'une plus ancienne. */
   private generation = 0;
+  private endMode: EndMode | null = null;
+  /** Prévient le moteur (filtre du bus musique) du changement de variante de fin. */
+  onEndMode: ((mode: EndMode | null) => void) | null = null;
 
   constructor(
     private readonly player: MusicPlayer,
@@ -54,6 +63,8 @@ export class MusicDirector {
         return [trackById(m, m.bindings.endOfRun)];
       case 'boss':
         return [trackById(m, m.bindings.boss)];
+      case 'final':
+        return [trackById(m, m.bindings.finalBoss)];
       case 'stage': {
         const b = stageBinding(m, stage);
         return b.calm === b.intense
@@ -82,14 +93,28 @@ export class MusicDirector {
     this.prepared.set(key, this.openDeck(scene, stage, 0));
   }
 
-  /** Passe à la musique d'une scène (fondu enchaîné sur la mesure). */
-  async play(scene: MusicScene, stage = 1): Promise<void> {
+  /**
+   * Passe à la musique d'une scène (fondu enchaîné sur la mesure). `end` : variante de la fin
+   * de run (victoire par défaut).
+   */
+  async play(scene: MusicScene, stage = 1, end: EndMode = 'victory'): Promise<void> {
     const key = this.key(scene, stage);
     this.scene = scene;
-    if (key === this.sceneKey) return;
+    this.setEndMode(scene === 'end' ? end : null);
+    if (key === this.sceneKey) {
+      if (scene === 'end') this.applyTier(end === 'victory' ? 3 : 0, -1, 1);
+      return;
+    }
     this.sceneKey = key;
     const gen = ++this.generation;
-    const tier = scene === 'boss' ? Math.max(1, this.intensity.tier) : this.intensity.tier;
+    const tier =
+      scene === 'end'
+        ? end === 'victory'
+          ? 3
+          : 0
+        : scene === 'boss' || scene === 'final'
+          ? Math.max(1, this.intensity.tier)
+          : this.intensity.tier;
     let deck = this.prepared.get(key);
     this.prepared.delete(key);
     deck ??= this.openDeck(scene, stage, tier);
@@ -160,6 +185,7 @@ export class MusicDirector {
   /** À chaque frame : intensité brute (0-1) → palier appliqué à la mesure. */
   update(raw: number, dt: number): void {
     this.raw = raw;
+    if (this.scene === 'end') return; // couches fixées par la variante de fin
     const tier = this.intensity.update(raw, dt);
     const d = this.current;
     if (!d?.started || tier === this.appliedTier) return;
@@ -187,7 +213,21 @@ export class MusicDirector {
   private riftOn = false;
 
   private applyRate(seconds: number): void {
-    this.player.setRate(this.riftOn ? RIFT_RATE : this.eveilOn ? EVEIL_RATE : 1, seconds);
+    const rate = this.riftOn
+      ? RIFT_RATE
+      : this.eveilOn
+        ? EVEIL_RATE
+        : this.endMode === 'defeat'
+          ? DEFEAT_RATE
+          : 1;
+    this.player.setRate(rate, seconds);
+  }
+
+  private setEndMode(mode: EndMode | null): void {
+    if (mode === this.endMode) return;
+    this.endMode = mode;
+    this.applyRate(mode === 'defeat' ? 2.5 : 0.8);
+    this.onEndMode?.(mode);
   }
 
   get currentScene(): MusicScene | null {

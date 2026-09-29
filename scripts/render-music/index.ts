@@ -272,10 +272,22 @@ function postProcess(meta: TrackMeta, spectro: boolean): TrackEntry {
     lim = periodicLimiterEnvelope(applyGainDb(loopSum, dbfs(scalar)), ceiling);
   }
   const loopGain = lim.gain;
-  const introLim = limiterEnvelope(
-    applyGainDb(mixDown(mixed.map((s) => s.intro)), dbfs(scalar)),
-    ceiling,
-  );
+  // Intro : limitée en tenant compte de la boucle déjà limitée qui la chevauche (queue de
+  // l'intro sur le début de boucle) ; seule l'intro est réduite, la boucle restant périodique.
+  const introSum = mixDown(mixed.map((s) => s.intro));
+  const loopHead = applyEnvelope(loopSum, loopGain, scalar);
+  const introGain = new Float32Array(frameCount(introSum)).fill(1);
+  for (let iter = 0; iter < 4; iter++) {
+    const firstPass = sliceAudio(
+      overlay(applyEnvelope(introSum, introGain, scalar), loopHead, loopStart),
+      0,
+      frameCount(introSum),
+    );
+    const env = limiterEnvelope(firstPass, ceiling * 0.93);
+    if (env.maxReductionDb < 0.05) break;
+    for (let i = 0; i < introGain.length; i++) introGain[i] *= env.gain[i];
+  }
+  const introLim = { gain: introGain };
 
   const outDir = path.join(OUT, meta.id);
   rmSync(outDir, { recursive: true, force: true });
@@ -365,12 +377,12 @@ const DEFAULT_BINDINGS = {
   stages: Object.fromEntries(
     [1, 2, 3, 4, 5, 6, 7, 8].map((n) => [
       String(n),
-      { calm: 'stage1-calm', intense: 'stage1-intense' },
+      { calm: `stage${String(n)}-calm`, intense: `stage${String(n)}-intense` },
     ]),
   ),
   boss: 'boss',
-  finalBoss: 'boss',
-  endOfRun: 'menu',
+  finalBoss: 'final-boss',
+  endOfRun: 'end-of-run',
 };
 
 function writeTracksJson(entries: TrackEntry[], known: readonly string[]): void {
@@ -384,7 +396,33 @@ function writeTracksJson(entries: TrackEntry[], known: readonly string[]): void 
     if (i >= 0) current.tracks[i] = { ...e, gainDb: current.tracks[i].gainDb };
     else current.tracks.push(e);
   }
+  linkRenderedTracks(current);
   writeFileSync(TRACKS_JSON, `${JSON.stringify(current, null, 2)}\n`);
+}
+
+/**
+ * Relie une piste nouvellement rendue à sa scène quand la liaison est encore un repli (stage
+ * non composé → stage 1, boss final → boss, fin de run → menu). Une liaison choisie à la main
+ * (piste importée, par exemple) n'est jamais modifiée.
+ */
+function linkRenderedTracks(file: TracksFile): void {
+  const has = (id: string): boolean => file.tracks.some((t) => t.id === id);
+  const b = file.bindings as {
+    stages: Record<string, { calm: string; intense: string } | undefined>;
+    boss: string;
+    menu: string;
+    finalBoss?: string;
+    endOfRun?: string;
+  };
+  for (const [n, def] of Object.entries(DEFAULT_BINDINGS.stages)) {
+    const cur = b.stages[n];
+    const fallback = !cur || (n !== '1' && cur.calm === 'stage1-calm');
+    if (fallback && has(def.calm) && has(def.intense)) b.stages[n] = def;
+  }
+  if ((b.finalBoss ?? b.boss) === b.boss && has(DEFAULT_BINDINGS.finalBoss))
+    b.finalBoss = DEFAULT_BINDINGS.finalBoss;
+  if ((b.endOfRun ?? b.menu) === b.menu && has(DEFAULT_BINDINGS.endOfRun))
+    b.endOfRun = DEFAULT_BINDINGS.endOfRun;
 }
 
 async function main(): Promise<void> {

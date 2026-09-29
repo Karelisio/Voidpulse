@@ -239,6 +239,8 @@ Les versions calme et intense d'un stage partagent **BPM, durée et points de bo
 - Effets continus : passe-bas qui s'ouvre avec l'intensité, réverb et volume dynamiques.
 - Éveil : montée de filtre, pitch +1 demi-ton, saturation pendant 8 s. Ducking léger sur boss, éveil, level-up.
 - Pause et menus : musique filtrée et atténuée, jamais coupée. Transitions menu ↔ jeu ↔ boss ↔ fin de run par crossfades calés sur la mesure.
+- Scènes (`bridge.ts` → `director.ts`) : musique du stage joué (1-8, le prototype reprend le stage 1) ; boss de stage et mini-boss → piste boss, boss final de la campagne → piste « boss final » ; mode Infini au-delà de 30 min → boss final en continu ; Boss Rush → piste boss entre deux boss ; après un boss vaincu, retour à la musique de fond (une fin de run survenue dans la même frame l'emporte).
+- Fin de run : une seule piste, variée par le moteur. Victoire = toutes les couches (palier 3), filtre grand ouvert ; défaite = nappes + basse (palier 0), passe-bas à 900 Hz, réverb accrue, ralenti de 2 demi-tons (varispeed). Retour au menu : variante annulée.
 
 ### 11.4 `assets/audio/music/tracks.json`
 
