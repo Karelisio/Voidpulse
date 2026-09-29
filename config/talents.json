@@ -1,0 +1,805 @@
+{
+  "branches": [
+    {
+      "id": "assault",
+      "name": "Assaut"
+    },
+    {
+      "id": "bulwark",
+      "name": "Rempart"
+    },
+    {
+      "id": "resonance",
+      "name": "Résonance"
+    },
+    {
+      "id": "fortune",
+      "name": "Fortune"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "assault-impact",
+      "branch": "assault",
+      "name": "Impact",
+      "tier": 0,
+      "col": 0,
+      "stats": {
+        "damage": 0.03
+      },
+      "cost": [15, 24, 33, 42, 51],
+      "requires": []
+    },
+    {
+      "id": "assault-gachette",
+      "branch": "assault",
+      "name": "Gâchette",
+      "tier": 0,
+      "col": 1,
+      "stats": {
+        "cooldown": 0.02
+      },
+      "cost": [15, 24, 33, 42, 51],
+      "requires": []
+    },
+    {
+      "id": "assault-il-de-lynx",
+      "branch": "assault",
+      "name": "Œil de lynx",
+      "tier": 1,
+      "col": 0,
+      "stats": {
+        "critChance": 0.01
+      },
+      "cost": [30, 48, 66, 84, 102],
+      "requires": ["assault-impact", "assault-gachette"]
+    },
+    {
+      "id": "assault-velocite",
+      "branch": "assault",
+      "name": "Vélocité",
+      "tier": 1,
+      "col": 1,
+      "stats": {
+        "projectileSpeed": 0.04
+      },
+      "cost": [30, 48, 66, 84, 102],
+      "requires": ["assault-impact", "assault-gachette"]
+    },
+    {
+      "id": "assault-frappe-lourde",
+      "branch": "assault",
+      "name": "Frappe lourde",
+      "tier": 2,
+      "col": 0,
+      "stats": {
+        "critMult": 0.06
+      },
+      "cost": [50, 80, 110, 140, 170],
+      "requires": ["assault-il-de-lynx", "assault-velocite"]
+    },
+    {
+      "id": "assault-onde-large",
+      "branch": "assault",
+      "name": "Onde large",
+      "tier": 2,
+      "col": 1,
+      "stats": {
+        "area": 0.03
+      },
+      "cost": [50, 80, 110, 140, 170],
+      "requires": ["assault-il-de-lynx", "assault-velocite"]
+    },
+    {
+      "id": "assault-surtension",
+      "branch": "assault",
+      "name": "Surtension",
+      "tier": 3,
+      "col": 0,
+      "stats": {
+        "damage": 0.04
+      },
+      "cost": [80, 128, 176, 224, 272],
+      "requires": ["assault-frappe-lourde", "assault-onde-large"]
+    },
+    {
+      "id": "assault-cadence",
+      "branch": "assault",
+      "name": "Cadence",
+      "tier": 3,
+      "col": 1,
+      "stats": {
+        "cooldown": 0.025
+      },
+      "cost": [80, 128, 176, 224, 272],
+      "requires": ["assault-frappe-lourde", "assault-onde-large"]
+    },
+    {
+      "id": "assault-precision",
+      "branch": "assault",
+      "name": "Précision",
+      "tier": 4,
+      "col": 0,
+      "stats": {
+        "critChance": 0.015
+      },
+      "cost": [130, 208, 286],
+      "requires": ["assault-surtension", "assault-cadence"]
+    },
+    {
+      "id": "assault-portee",
+      "branch": "assault",
+      "name": "Portée",
+      "tier": 4,
+      "col": 1,
+      "stats": {
+        "area": 0.04
+      },
+      "cost": [130, 208, 286],
+      "requires": ["assault-surtension", "assault-cadence"]
+    },
+    {
+      "id": "assault-salve",
+      "branch": "assault",
+      "name": "Salve",
+      "tier": 5,
+      "col": 0,
+      "stats": {
+        "amount": 1
+      },
+      "cost": [400],
+      "requires": ["assault-precision", "assault-portee"]
+    },
+    {
+      "id": "assault-ravage",
+      "branch": "assault",
+      "name": "Ravage",
+      "tier": 5,
+      "col": 1,
+      "stats": {
+        "critMult": 0.1
+      },
+      "cost": [200, 320, 440],
+      "requires": ["assault-precision", "assault-portee"]
+    },
+    {
+      "id": "assault-arsenal",
+      "branch": "assault",
+      "name": "Arsenal",
+      "tier": 6,
+      "col": 0,
+      "stats": {
+        "damage": 0.05
+      },
+      "cost": [320, 512, 704],
+      "requires": ["assault-salve", "assault-ravage"]
+    },
+    {
+      "id": "assault-fureur",
+      "branch": "assault",
+      "name": "Fureur",
+      "tier": 6,
+      "col": 1,
+      "stats": {
+        "cooldown": 0.03
+      },
+      "cost": [320, 512, 704],
+      "requires": ["assault-salve", "assault-ravage"]
+    },
+    {
+      "id": "assault-apex",
+      "branch": "assault",
+      "name": "Apex",
+      "tier": 7,
+      "col": 0,
+      "stats": {
+        "damage": 0.08,
+        "critChance": 0.03
+      },
+      "cost": [1000],
+      "requires": ["assault-arsenal", "assault-fureur"]
+    },
+    {
+      "id": "assault-deluge",
+      "branch": "assault",
+      "name": "Déluge",
+      "tier": 7,
+      "col": 1,
+      "stats": {
+        "amount": 1
+      },
+      "cost": [1000],
+      "requires": ["assault-arsenal", "assault-fureur"]
+    },
+    {
+      "id": "bulwark-carcasse",
+      "branch": "bulwark",
+      "name": "Carcasse",
+      "tier": 0,
+      "col": 0,
+      "stats": {
+        "maxHp": 5
+      },
+      "cost": [15, 24, 33, 42, 51],
+      "requires": []
+    },
+    {
+      "id": "bulwark-reflexes",
+      "branch": "bulwark",
+      "name": "Réflexes",
+      "tier": 0,
+      "col": 1,
+      "stats": {
+        "speed": 0.02
+      },
+      "cost": [15, 24, 33, 42, 51],
+      "requires": []
+    },
+    {
+      "id": "bulwark-plaques",
+      "branch": "bulwark",
+      "name": "Plaques",
+      "tier": 1,
+      "col": 0,
+      "stats": {
+        "armor": 0.5
+      },
+      "cost": [30, 48, 66, 84, 102],
+      "requires": ["bulwark-carcasse", "bulwark-reflexes"]
+    },
+    {
+      "id": "bulwark-nanoreparation",
+      "branch": "bulwark",
+      "name": "Nanoréparation",
+      "tier": 1,
+      "col": 1,
+      "stats": {
+        "regen": 0.1
+      },
+      "cost": [30, 48, 66, 84, 102],
+      "requires": ["bulwark-carcasse", "bulwark-reflexes"]
+    },
+    {
+      "id": "bulwark-aimantation",
+      "branch": "bulwark",
+      "name": "Aimantation",
+      "tier": 2,
+      "col": 0,
+      "stats": {
+        "pickupRadius": 0.06
+      },
+      "cost": [50, 80, 110, 140, 170],
+      "requires": ["bulwark-plaques", "bulwark-nanoreparation"]
+    },
+    {
+      "id": "bulwark-esquive",
+      "branch": "bulwark",
+      "name": "Esquive",
+      "tier": 2,
+      "col": 1,
+      "stats": {
+        "dashCooldown": 0.04
+      },
+      "cost": [50, 80, 110, 140, 170],
+      "requires": ["bulwark-plaques", "bulwark-nanoreparation"]
+    },
+    {
+      "id": "bulwark-bastion",
+      "branch": "bulwark",
+      "name": "Bastion",
+      "tier": 3,
+      "col": 0,
+      "stats": {
+        "maxHp": 8
+      },
+      "cost": [80, 128, 176, 224, 272],
+      "requires": ["bulwark-aimantation", "bulwark-esquive"]
+    },
+    {
+      "id": "bulwark-soins-renforces",
+      "branch": "bulwark",
+      "name": "Soins renforcés",
+      "tier": 3,
+      "col": 1,
+      "stats": {
+        "healMult": 0.06
+      },
+      "cost": [80, 128, 176, 224, 272],
+      "requires": ["bulwark-aimantation", "bulwark-esquive"]
+    },
+    {
+      "id": "bulwark-blindage",
+      "branch": "bulwark",
+      "name": "Blindage",
+      "tier": 4,
+      "col": 0,
+      "stats": {
+        "armor": 0.8
+      },
+      "cost": [130, 208, 286],
+      "requires": ["bulwark-bastion", "bulwark-soins-renforces"]
+    },
+    {
+      "id": "bulwark-sprint",
+      "branch": "bulwark",
+      "name": "Sprint",
+      "tier": 4,
+      "col": 1,
+      "stats": {
+        "speed": 0.03
+      },
+      "cost": [130, 208, 286],
+      "requires": ["bulwark-bastion", "bulwark-soins-renforces"]
+    },
+    {
+      "id": "bulwark-seconde-chance",
+      "branch": "bulwark",
+      "name": "Seconde chance",
+      "tier": 5,
+      "col": 0,
+      "stats": {
+        "revives": 1
+      },
+      "cost": [400],
+      "requires": ["bulwark-blindage", "bulwark-sprint"]
+    },
+    {
+      "id": "bulwark-regeneration",
+      "branch": "bulwark",
+      "name": "Régénération",
+      "tier": 5,
+      "col": 1,
+      "stats": {
+        "regen": 0.2
+      },
+      "cost": [200, 320, 440],
+      "requires": ["bulwark-blindage", "bulwark-sprint"]
+    },
+    {
+      "id": "bulwark-colosse",
+      "branch": "bulwark",
+      "name": "Colosse",
+      "tier": 6,
+      "col": 0,
+      "stats": {
+        "maxHp": 12
+      },
+      "cost": [320, 512, 704],
+      "requires": ["bulwark-seconde-chance", "bulwark-regeneration"]
+    },
+    {
+      "id": "bulwark-dephasage",
+      "branch": "bulwark",
+      "name": "Déphasage",
+      "tier": 6,
+      "col": 1,
+      "stats": {
+        "dashCooldown": 0.06
+      },
+      "cost": [320, 512, 704],
+      "requires": ["bulwark-seconde-chance", "bulwark-regeneration"]
+    },
+    {
+      "id": "bulwark-immortel",
+      "branch": "bulwark",
+      "name": "Immortel",
+      "tier": 7,
+      "col": 0,
+      "stats": {
+        "revives": 1
+      },
+      "cost": [1000],
+      "requires": ["bulwark-colosse", "bulwark-dephasage"]
+    },
+    {
+      "id": "bulwark-forteresse",
+      "branch": "bulwark",
+      "name": "Forteresse",
+      "tier": 7,
+      "col": 1,
+      "stats": {
+        "armor": 1.5,
+        "maxHp": 10
+      },
+      "cost": [500, 800],
+      "requires": ["bulwark-colosse", "bulwark-dephasage"]
+    },
+    {
+      "id": "resonance-catalyse",
+      "branch": "resonance",
+      "name": "Catalyse",
+      "tier": 0,
+      "col": 0,
+      "stats": {
+        "status": 0.04
+      },
+      "cost": [15, 24, 33, 42, 51],
+      "requires": []
+    },
+    {
+      "id": "resonance-harmonique",
+      "branch": "resonance",
+      "name": "Harmonique",
+      "tier": 0,
+      "col": 1,
+      "stats": {
+        "gauge": 0.04
+      },
+      "cost": [15, 24, 33, 42, 51],
+      "requires": []
+    },
+    {
+      "id": "resonance-brasier",
+      "branch": "resonance",
+      "name": "Brasier",
+      "tier": 1,
+      "col": 0,
+      "stats": {
+        "fire": 0.04
+      },
+      "cost": [30, 48, 66, 84, 102],
+      "requires": ["resonance-catalyse", "resonance-harmonique"]
+    },
+    {
+      "id": "resonance-givre-profond",
+      "branch": "resonance",
+      "name": "Givre profond",
+      "tier": 1,
+      "col": 1,
+      "stats": {
+        "frost": 0.04
+      },
+      "cost": [30, 48, 66, 84, 102],
+      "requires": ["resonance-catalyse", "resonance-harmonique"]
+    },
+    {
+      "id": "resonance-tonnerre",
+      "branch": "resonance",
+      "name": "Tonnerre",
+      "tier": 2,
+      "col": 0,
+      "stats": {
+        "lightning": 0.04
+      },
+      "cost": [50, 80, 110, 140, 170],
+      "requires": ["resonance-brasier", "resonance-givre-profond"]
+    },
+    {
+      "id": "resonance-venin",
+      "branch": "resonance",
+      "name": "Venin",
+      "tier": 2,
+      "col": 1,
+      "stats": {
+        "poison": 0.04
+      },
+      "cost": [50, 80, 110, 140, 170],
+      "requires": ["resonance-brasier", "resonance-givre-profond"]
+    },
+    {
+      "id": "resonance-arcanes",
+      "branch": "resonance",
+      "name": "Arcanes",
+      "tier": 3,
+      "col": 0,
+      "stats": {
+        "arcane": 0.04
+      },
+      "cost": [80, 128, 176, 224, 272],
+      "requires": ["resonance-tonnerre", "resonance-venin"]
+    },
+    {
+      "id": "resonance-neant",
+      "branch": "resonance",
+      "name": "Néant",
+      "tier": 3,
+      "col": 1,
+      "stats": {
+        "void": 0.04
+      },
+      "cost": [80, 128, 176, 224, 272],
+      "requires": ["resonance-tonnerre", "resonance-venin"]
+    },
+    {
+      "id": "resonance-hiver-mordant",
+      "branch": "resonance",
+      "name": "Hiver mordant",
+      "tier": 4,
+      "col": 0,
+      "stats": {
+        "frozenBonus": 0.04
+      },
+      "cost": [130, 208, 286],
+      "requires": ["resonance-arcanes", "resonance-neant"]
+    },
+    {
+      "id": "resonance-conduction",
+      "branch": "resonance",
+      "name": "Conduction",
+      "tier": 4,
+      "col": 1,
+      "stats": {
+        "shockBonus": 0.04
+      },
+      "cost": [130, 208, 286],
+      "requires": ["resonance-arcanes", "resonance-neant"]
+    },
+    {
+      "id": "resonance-toxicite",
+      "branch": "resonance",
+      "name": "Toxicité",
+      "tier": 5,
+      "col": 0,
+      "stats": {
+        "toxinMax": 1
+      },
+      "cost": [200, 320],
+      "requires": ["resonance-hiver-mordant", "resonance-conduction"]
+    },
+    {
+      "id": "resonance-echo",
+      "branch": "resonance",
+      "name": "Écho",
+      "tier": 5,
+      "col": 1,
+      "stats": {
+        "gauge": 0.06
+      },
+      "cost": [200, 320, 440],
+      "requires": ["resonance-hiver-mordant", "resonance-conduction"]
+    },
+    {
+      "id": "resonance-maitre-des-statuts",
+      "branch": "resonance",
+      "name": "Maître des statuts",
+      "tier": 6,
+      "col": 0,
+      "stats": {
+        "status": 0.06
+      },
+      "cost": [320, 512, 704],
+      "requires": ["resonance-toxicite", "resonance-echo"]
+    },
+    {
+      "id": "resonance-prisme",
+      "branch": "resonance",
+      "name": "Prisme",
+      "tier": 6,
+      "col": 1,
+      "stats": {
+        "fire": 0.03,
+        "frost": 0.03,
+        "lightning": 0.03,
+        "poison": 0.03,
+        "arcane": 0.03,
+        "void": 0.03
+      },
+      "cost": [320, 512, 704],
+      "requires": ["resonance-toxicite", "resonance-echo"]
+    },
+    {
+      "id": "resonance-symphonie",
+      "branch": "resonance",
+      "name": "Symphonie",
+      "tier": 7,
+      "col": 0,
+      "stats": {
+        "gauge": 0.1,
+        "status": 0.05
+      },
+      "cost": [1000],
+      "requires": ["resonance-maitre-des-statuts", "resonance-prisme"]
+    },
+    {
+      "id": "resonance-singularite",
+      "branch": "resonance",
+      "name": "Singularité",
+      "tier": 7,
+      "col": 1,
+      "stats": {
+        "fire": 0.05,
+        "frost": 0.05,
+        "lightning": 0.05,
+        "poison": 0.05,
+        "arcane": 0.05,
+        "void": 0.05
+      },
+      "cost": [1000],
+      "requires": ["resonance-maitre-des-statuts", "resonance-prisme"]
+    },
+    {
+      "id": "fortune-veine",
+      "branch": "fortune",
+      "name": "Veine",
+      "tier": 0,
+      "col": 0,
+      "stats": {
+        "luck": 0.03
+      },
+      "cost": [15, 24, 33, 42, 51],
+      "requires": []
+    },
+    {
+      "id": "fortune-savoir",
+      "branch": "fortune",
+      "name": "Savoir",
+      "tier": 0,
+      "col": 1,
+      "stats": {
+        "growth": 0.03
+      },
+      "cost": [15, 24, 33, 42, 51],
+      "requires": []
+    },
+    {
+      "id": "fortune-butin",
+      "branch": "fortune",
+      "name": "Butin",
+      "tier": 1,
+      "col": 0,
+      "stats": {
+        "greed": 0.04
+      },
+      "cost": [30, 48, 66, 84, 102],
+      "requires": ["fortune-veine", "fortune-savoir"]
+    },
+    {
+      "id": "fortune-reflexion",
+      "branch": "fortune",
+      "name": "Réflexion",
+      "tier": 1,
+      "col": 1,
+      "stats": {
+        "rerolls": 1
+      },
+      "cost": [30, 48],
+      "requires": ["fortune-veine", "fortune-savoir"]
+    },
+    {
+      "id": "fortune-tri",
+      "branch": "fortune",
+      "name": "Tri",
+      "tier": 2,
+      "col": 0,
+      "stats": {
+        "banishes": 1
+      },
+      "cost": [50, 80],
+      "requires": ["fortune-butin", "fortune-reflexion"]
+    },
+    {
+      "id": "fortune-ancrage",
+      "branch": "fortune",
+      "name": "Ancrage",
+      "tier": 2,
+      "col": 1,
+      "stats": {
+        "locks": 1
+      },
+      "cost": [50, 80],
+      "requires": ["fortune-butin", "fortune-reflexion"]
+    },
+    {
+      "id": "fortune-prospection",
+      "branch": "fortune",
+      "name": "Prospection",
+      "tier": 3,
+      "col": 0,
+      "stats": {
+        "fragments": 0.04
+      },
+      "cost": [80, 128, 176, 224, 272],
+      "requires": ["fortune-tri", "fortune-ancrage"]
+    },
+    {
+      "id": "fortune-erudition",
+      "branch": "fortune",
+      "name": "Érudition",
+      "tier": 3,
+      "col": 1,
+      "stats": {
+        "accountXp": 0.05
+      },
+      "cost": [80, 128, 176, 224, 272],
+      "requires": ["fortune-tri", "fortune-ancrage"]
+    },
+    {
+      "id": "fortune-trefle",
+      "branch": "fortune",
+      "name": "Trèfle",
+      "tier": 4,
+      "col": 0,
+      "stats": {
+        "luck": 0.05
+      },
+      "cost": [130, 208, 286],
+      "requires": ["fortune-prospection", "fortune-erudition"]
+    },
+    {
+      "id": "fortune-sagesse",
+      "branch": "fortune",
+      "name": "Sagesse",
+      "tier": 4,
+      "col": 1,
+      "stats": {
+        "growth": 0.05
+      },
+      "cost": [130, 208, 286],
+      "requires": ["fortune-prospection", "fortune-erudition"]
+    },
+    {
+      "id": "fortune-avarice",
+      "branch": "fortune",
+      "name": "Avarice",
+      "tier": 5,
+      "col": 0,
+      "stats": {
+        "greed": 0.06
+      },
+      "cost": [200, 320, 440],
+      "requires": ["fortune-trefle", "fortune-sagesse"]
+    },
+    {
+      "id": "fortune-relances",
+      "branch": "fortune",
+      "name": "Relances",
+      "tier": 5,
+      "col": 1,
+      "stats": {
+        "rerolls": 1
+      },
+      "cost": [200, 320],
+      "requires": ["fortune-trefle", "fortune-sagesse"]
+    },
+    {
+      "id": "fortune-mecene",
+      "branch": "fortune",
+      "name": "Mécène",
+      "tier": 6,
+      "col": 0,
+      "stats": {
+        "fragments": 0.08
+      },
+      "cost": [320, 512, 704],
+      "requires": ["fortune-avarice", "fortune-relances"]
+    },
+    {
+      "id": "fortune-mentor",
+      "branch": "fortune",
+      "name": "Mentor",
+      "tier": 6,
+      "col": 1,
+      "stats": {
+        "accountXp": 0.08
+      },
+      "cost": [320, 512, 704],
+      "requires": ["fortune-avarice", "fortune-relances"]
+    },
+    {
+      "id": "fortune-fortune-insolente",
+      "branch": "fortune",
+      "name": "Fortune insolente",
+      "tier": 7,
+      "col": 0,
+      "stats": {
+        "luck": 0.1,
+        "greed": 0.1
+      },
+      "cost": [1000],
+      "requires": ["fortune-mecene", "fortune-mentor"]
+    },
+    {
+      "id": "fortune-omniscience",
+      "branch": "fortune",
+      "name": "Omniscience",
+      "tier": 7,
+      "col": 1,
+      "stats": {
+        "growth": 0.1,
+        "accountXp": 0.1
+      },
+      "cost": [1000],
+      "requires": ["fortune-mecene", "fortune-mentor"]
+    }
+  ]
+}

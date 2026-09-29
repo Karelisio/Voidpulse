@@ -13,8 +13,10 @@ import {
   type EnemyParam,
   PassiveDef,
   PlayerDef,
+  MetaDef,
   ModesDef,
   PactsDef,
+  TalentsDef,
   ProgressionDef,
   ReactionDef,
   ResonanceDef,
@@ -48,6 +50,8 @@ describe('données de /config', () => {
     check(CharacterDef.array(), 'characters.json');
     check(PactsDef, 'pacts.json');
     check(ModesDef, 'modes.json');
+    check(MetaDef, 'meta.json');
+    check(TalentsDef, 'talents.json');
     for (const f of readdirSync(path.join(dir, 'stages'))) check(StageDef, `stages/${f}`);
   });
 
@@ -207,5 +211,33 @@ describe('modes de jeu', () => {
     expect(stages.has(m.training.stage)).toBe(true);
     expect(new Set(m.modes.map((x) => x.id)).size).toBe(m.modes.length);
     expect(new Set(m.weekly.rulesets.map((r) => r.id)).size).toBe(m.weekly.rulesets.length);
+  });
+});
+
+describe('méta', () => {
+  it('talents : identifiants uniques, prérequis existants et au palier précédent', () => {
+    const t = check(TalentsDef, 'talents.json');
+    const byId = new Map(t.nodes.map((n) => [n.id, n]));
+    expect(byId.size).toBe(t.nodes.length);
+    for (const n of t.nodes) {
+      expect(t.branches.some((b) => b.id === n.branch)).toBe(true);
+      expect(n.requires.length > 0).toBe(n.tier > 0);
+      for (const r of n.requires) {
+        const req = byId.get(r);
+        expect(req?.tier, `${n.id} → ${r}`).toBe(n.tier - 1);
+        expect(req?.branch).toBe(n.branch);
+      }
+    }
+  });
+
+  it('reliques : chaque mini-boss lâche une base, mastery croissante', () => {
+    const m = check(MetaDef, 'meta.json');
+    const bosses = check(BossDef.array(), 'bosses.json');
+    const minis = bosses.filter((b) => b.kind === 'mini').map((b) => b.id);
+    for (const id of minis) expect(m.relics.bases.some((b) => b.boss === id)).toBe(true);
+    for (const b of m.relics.bases) if (b.boss) expect(minis).toContain(b.boss);
+    for (let i = 1; i < m.mastery.ranks.length; i++)
+      expect(m.mastery.ranks[i]).toBeGreaterThan(m.mastery.ranks[i - 1]);
+    expect(m.codex.fragments).toHaveLength(m.codex.thresholds.length);
   });
 });

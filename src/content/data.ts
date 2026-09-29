@@ -19,8 +19,10 @@ import type {
   BossDef,
   CharacterDef,
   EnemyDef,
+  MetaDef,
   ModesDef,
   PactsDef,
+  TalentsDef,
   PassiveDef,
   ReactionDef,
   RunEventsDef,
@@ -32,7 +34,9 @@ import affixesJson from '../../config/affixes.json';
 import bossesJson from '../../config/bosses.json';
 import charactersJson from '../../config/characters.json';
 import enemiesJson from '../../config/enemies.json';
+import metaJson from '../../config/meta.json';
 import modesJson from '../../config/modes.json';
+import talentsJson from '../../config/talents.json';
 import pactsJson from '../../config/pacts.json';
 import passivesJson from '../../config/passives.json';
 import playerJson from '../../config/player.json';
@@ -215,3 +219,14 @@ export function colorOf(hex: string): number {
 export const MODES = modesJson as ModesDef;
 export type { ModeId } from '../../config/keys';
 export type { ModesDef, WeeklyRulesetDef } from '../../config/schema';
+
+/** Méta : talents, compte et Paragon, Ascension, reliques, maîtrise, codex. */
+export const TALENTS = talentsJson as TalentsDef;
+export const META = metaJson as MetaDef;
+export type {
+  MetaDef,
+  MetaStatKey,
+  MetaStats,
+  TalentNodeDef,
+  TalentsDef,
+} from '../../config/schema';

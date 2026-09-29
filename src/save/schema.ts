@@ -106,6 +106,39 @@ export interface ModesData {
   hardcore: { victories: number; bestScore: number };
 }
 
+/** Relique possédée : base, rareté (index), niveau, statistiques secondaires tirées. */
+export interface RelicItem {
+  uid: number;
+  base: string;
+  rarity: number;
+  level: number;
+  stats: { stat: string; value: number }[];
+}
+
+/** Progression permanente. */
+export interface MetaData {
+  /** Rang de chaque talent acheté. */
+  talents: Record<string, number>;
+  /** Niveau de compte, XP dans le niveau en cours, niveaux Paragon, points Paragon placés. */
+  account: { level: number; xp: number; paragon: number; spent: Record<string, number> };
+  /** Ascension par stage : palier le plus haut ouvert, palier choisi. */
+  ascension: Record<string, { unlocked: number; selected: number }>;
+  /** Reliques : inventaire, uid équipés par emplacement (0 : vide), prochain uid. */
+  relics: { items: RelicItem[]; equipped: number[]; nextUid: number };
+  /** XP de maîtrise par arme, apparence choisie (index de skin, -1 : d'origine). */
+  mastery: Record<string, number>;
+  skins: Record<string, number>;
+  /** Codex : entrées découvertes par catégorie, paliers de récompense déjà versés. */
+  codex: {
+    enemies: string[];
+    weapons: string[];
+    evolutions: string[];
+    reactions: string[];
+    bosses: string[];
+    claimed: Record<string, number>;
+  };
+}
+
 export interface SaveData {
   version: number;
   /** Horodatage (ms) de création et de dernière écriture. */
@@ -119,6 +152,7 @@ export interface SaveData {
   modes: ModesData;
   /** Monnaies de méta (fragments ramenés des parties). */
   wallet: { fragments: number };
+  meta: MetaData;
 }
 
 export function defaultSave(now = Date.now()): SaveData {
@@ -179,6 +213,15 @@ export function defaultSave(now = Date.now()): SaveData {
       hardcore: { victories: 0, bestScore: 0 },
     },
     wallet: { fragments: 0 },
+    meta: {
+      talents: {},
+      account: { level: 1, xp: 0, paragon: 0, spent: {} },
+      ascension: {},
+      relics: { items: [], equipped: [0, 0, 0], nextUid: 1 },
+      mastery: {},
+      skins: {},
+      codex: { enemies: [], weapons: [], evolutions: [], reactions: [], bosses: [], claimed: {} },
+    },
   };
 }
 

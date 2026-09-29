@@ -1,0 +1,573 @@
+{
+  "account": {
+    "scoreXp": 0.25,
+    "curve": {
+      "base": 80,
+      "exponent": 1.3
+    },
+    "maxLevel": 50,
+    "paragonXp": 12000,
+    "levelFragments": {
+      "base": 40,
+      "perLevel": 10
+    },
+    "unlocks": [
+      {
+        "level": 3,
+        "unlock": "forge",
+        "name": "Forge des reliques"
+      },
+      {
+        "level": 4,
+        "unlock": "relicSlot",
+        "name": "2e emplacement de relique"
+      },
+      {
+        "level": 5,
+        "unlock": "ascension",
+        "name": "Ascension"
+      },
+      {
+        "level": 10,
+        "unlock": "relicSlot",
+        "name": "3e emplacement de relique"
+      }
+    ]
+  },
+  "paragon": [
+    {
+      "stat": "damage",
+      "name": "Dégâts",
+      "per": 0.004,
+      "cap": 250
+    },
+    {
+      "stat": "maxHp",
+      "name": "PV max",
+      "per": 1,
+      "cap": 250
+    },
+    {
+      "stat": "area",
+      "name": "Zone",
+      "per": 0.003,
+      "cap": 250
+    },
+    {
+      "stat": "cooldown",
+      "name": "Recharge",
+      "per": 0.002,
+      "cap": 150
+    },
+    {
+      "stat": "critChance",
+      "name": "Critique",
+      "per": 0.001,
+      "cap": 150
+    },
+    {
+      "stat": "speed",
+      "name": "Vitesse",
+      "per": 0.002,
+      "cap": 150
+    },
+    {
+      "stat": "armor",
+      "name": "Armure",
+      "per": 0.02,
+      "cap": 250
+    },
+    {
+      "stat": "luck",
+      "name": "Chance",
+      "per": 0.004,
+      "cap": 250
+    },
+    {
+      "stat": "growth",
+      "name": "XP",
+      "per": 0.004,
+      "cap": 250
+    },
+    {
+      "stat": "greed",
+      "name": "Fragments",
+      "per": 0.004,
+      "cap": 250
+    }
+  ],
+  "ascension": {
+    "rewardPerTier": 0.12,
+    "tiers": [
+      {
+        "tier": 1,
+        "description": "PV des ennemis +10 %",
+        "mods": {
+          "enemyHp": 1.1
+        }
+      },
+      {
+        "tier": 2,
+        "description": "Ennemis +8 %",
+        "mods": {
+          "density": 1.08
+        }
+      },
+      {
+        "tier": 3,
+        "description": "Dégâts ennemis +10 %",
+        "mods": {
+          "enemyDamage": 1.1
+        }
+      },
+      {
+        "tier": 4,
+        "description": "Élites plus fréquentes",
+        "mods": {
+          "eliteRate": 0.85
+        }
+      },
+      {
+        "tier": 5,
+        "description": "Ennemis 6 % plus rapides",
+        "mods": {
+          "enemySpeed": 1.06
+        }
+      },
+      {
+        "tier": 6,
+        "description": "PV des ennemis +10 %",
+        "mods": {
+          "enemyHp": 1.1
+        }
+      },
+      {
+        "tier": 7,
+        "description": "Projectiles ennemis +10 % de vitesse",
+        "mods": {
+          "bulletSpeed": 1.1
+        }
+      },
+      {
+        "tier": 8,
+        "description": "Élites : un affixe de plus",
+        "mods": {
+          "eliteAffixes": 1
+        }
+      },
+      {
+        "tier": 9,
+        "description": "Ennemis +8 %",
+        "mods": {
+          "density": 1.08
+        }
+      },
+      {
+        "tier": 10,
+        "description": "Boss enragés d’emblée",
+        "mods": {
+          "bossRage": 1
+        }
+      },
+      {
+        "tier": 11,
+        "description": "Dégâts ennemis +10 %",
+        "mods": {
+          "enemyDamage": 1.1
+        }
+      },
+      {
+        "tier": 12,
+        "description": "XP −10 %",
+        "mods": {
+          "xp": 0.9
+        }
+      },
+      {
+        "tier": 13,
+        "description": "PV des ennemis +12 %",
+        "mods": {
+          "enemyHp": 1.12
+        }
+      },
+      {
+        "tier": 14,
+        "description": "PV max −10 %",
+        "mods": {
+          "maxHp": 0.9
+        }
+      },
+      {
+        "tier": 15,
+        "description": "Ennemis 6 % plus rapides",
+        "mods": {
+          "enemySpeed": 1.06
+        }
+      },
+      {
+        "tier": 16,
+        "description": "Chance −10 %",
+        "mods": {
+          "luck": -0.1
+        }
+      },
+      {
+        "tier": 17,
+        "description": "Ennemis +10 %",
+        "mods": {
+          "density": 1.1
+        }
+      },
+      {
+        "tier": 18,
+        "description": "Dégâts ennemis +12 %",
+        "mods": {
+          "enemyDamage": 1.12
+        }
+      },
+      {
+        "tier": 19,
+        "description": "Élites : un affixe de plus",
+        "mods": {
+          "eliteAffixes": 1
+        }
+      },
+      {
+        "tier": 20,
+        "description": "PV des ennemis +20 %",
+        "mods": {
+          "enemyHp": 1.2
+        }
+      }
+    ]
+  },
+  "relics": {
+    "slots": 3,
+    "inventory": 40,
+    "maxLevel": 10,
+    "levelBonus": 0.1,
+    "cacheCost": 250,
+    "upgradeCost": {
+      "base": 30,
+      "growth": 1.35
+    },
+    "rerollCost": 60,
+    "salvage": 25,
+    "bossDropChance": 0.15,
+    "rarities": [
+      {
+        "id": "common",
+        "name": "Commune",
+        "color": "#cfd8e6",
+        "weight": 60,
+        "secondaries": 1,
+        "mult": 1
+      },
+      {
+        "id": "rare",
+        "name": "Rare",
+        "color": "#3ee6ff",
+        "weight": 28,
+        "secondaries": 2,
+        "mult": 1.25
+      },
+      {
+        "id": "epic",
+        "name": "Épique",
+        "color": "#b04dff",
+        "weight": 10,
+        "secondaries": 3,
+        "mult": 1.55
+      },
+      {
+        "id": "legendary",
+        "name": "Légendaire",
+        "color": "#ffb13d",
+        "weight": 2,
+        "secondaries": 4,
+        "mult": 2
+      }
+    ],
+    "pool": [
+      {
+        "stat": "damage",
+        "min": 0.02,
+        "max": 0.05
+      },
+      {
+        "stat": "maxHp",
+        "min": 4,
+        "max": 10
+      },
+      {
+        "stat": "area",
+        "min": 0.02,
+        "max": 0.05
+      },
+      {
+        "stat": "cooldown",
+        "min": 0.015,
+        "max": 0.035
+      },
+      {
+        "stat": "critChance",
+        "min": 0.01,
+        "max": 0.025
+      },
+      {
+        "stat": "critMult",
+        "min": 0.04,
+        "max": 0.1
+      },
+      {
+        "stat": "speed",
+        "min": 0.015,
+        "max": 0.04
+      },
+      {
+        "stat": "armor",
+        "min": 0.3,
+        "max": 0.9
+      },
+      {
+        "stat": "regen",
+        "min": 0.05,
+        "max": 0.15
+      },
+      {
+        "stat": "pickupRadius",
+        "min": 0.04,
+        "max": 0.1
+      },
+      {
+        "stat": "luck",
+        "min": 0.02,
+        "max": 0.06
+      },
+      {
+        "stat": "growth",
+        "min": 0.02,
+        "max": 0.05
+      },
+      {
+        "stat": "greed",
+        "min": 0.03,
+        "max": 0.07
+      },
+      {
+        "stat": "status",
+        "min": 0.03,
+        "max": 0.07
+      },
+      {
+        "stat": "gauge",
+        "min": 0.03,
+        "max": 0.07
+      },
+      {
+        "stat": "duration",
+        "min": 0.03,
+        "max": 0.07
+      },
+      {
+        "stat": "projectileSpeed",
+        "min": 0.03,
+        "max": 0.08
+      }
+    ],
+    "bases": [
+      {
+        "id": "thorn-seed",
+        "name": "Graine de ronce",
+        "boss": "thornwalker",
+        "signature": {
+          "stat": "poison",
+          "value": 0.08
+        }
+      },
+      {
+        "id": "prism-sting",
+        "name": "Dard prismatique",
+        "boss": "prismscorpion",
+        "signature": {
+          "stat": "critChance",
+          "value": 0.04
+        }
+      },
+      {
+        "id": "coral-crown",
+        "name": "Couronne de corail",
+        "boss": "crabking",
+        "signature": {
+          "stat": "armor",
+          "value": 1.2
+        }
+      },
+      {
+        "id": "ash-hammer",
+        "name": "Marteau de cendre",
+        "boss": "ashsmith",
+        "signature": {
+          "stat": "fire",
+          "value": 0.08
+        }
+      },
+      {
+        "id": "admiral-core",
+        "name": "Noyau d’amiral",
+        "boss": "droneadmiral",
+        "signature": {
+          "stat": "cooldown",
+          "value": 0.05
+        }
+      },
+      {
+        "id": "yeti-fang",
+        "name": "Croc du yéti",
+        "boss": "elderyeti",
+        "signature": {
+          "stat": "frost",
+          "value": 0.08
+        }
+      },
+      {
+        "id": "hydra-scale",
+        "name": "Écaille d’hydre",
+        "boss": "rothydra",
+        "signature": {
+          "stat": "regen",
+          "value": 0.25
+        }
+      },
+      {
+        "id": "seraph-feather",
+        "name": "Plume séraphique",
+        "boss": "seraphwarden",
+        "signature": {
+          "stat": "arcane",
+          "value": 0.08
+        }
+      },
+      {
+        "id": "storm-coil",
+        "name": "Bobine d’orage",
+        "boss": "",
+        "signature": {
+          "stat": "lightning",
+          "value": 0.08
+        }
+      },
+      {
+        "id": "void-shard",
+        "name": "Éclat du vide",
+        "boss": "",
+        "signature": {
+          "stat": "void",
+          "value": 0.08
+        }
+      },
+      {
+        "id": "lucky-die",
+        "name": "Dé quantique",
+        "boss": "",
+        "signature": {
+          "stat": "luck",
+          "value": 0.08
+        }
+      },
+      {
+        "id": "war-sigil",
+        "name": "Sceau de guerre",
+        "boss": "",
+        "signature": {
+          "stat": "damage",
+          "value": 0.06
+        }
+      },
+      {
+        "id": "aegis-plate",
+        "name": "Plaque d’égide",
+        "boss": "",
+        "signature": {
+          "stat": "maxHp",
+          "value": 15
+        }
+      },
+      {
+        "id": "solar-sail",
+        "name": "Voile solaire",
+        "boss": "",
+        "signature": {
+          "stat": "speed",
+          "value": 0.05
+        }
+      },
+      {
+        "id": "focal-halo",
+        "name": "Halo focal",
+        "boss": "",
+        "signature": {
+          "stat": "area",
+          "value": 0.06
+        }
+      },
+      {
+        "id": "hourglass",
+        "name": "Sablier figé",
+        "boss": "",
+        "signature": {
+          "stat": "duration",
+          "value": 0.08
+        }
+      }
+    ]
+  },
+  "mastery": {
+    "xpPerDamage": 0.01,
+    "ranks": [500, 1500, 3500, 7000, 12000, 20000, 32000, 50000, 75000, 110000],
+    "damagePerRank": 0.02,
+    "skins": [
+      {
+        "rank": 3,
+        "name": "Spectre",
+        "color": "#eaf6ff"
+      },
+      {
+        "rank": 6,
+        "name": "Crépuscule",
+        "color": "#ff5ad7"
+      },
+      {
+        "rank": 10,
+        "name": "Prisme",
+        "color": "#ffd23d"
+      }
+    ]
+  },
+  "codex": {
+    "thresholds": [0.25, 0.5, 0.75, 1],
+    "fragments": [50, 100, 200, 400],
+    "categories": [
+      {
+        "id": "enemies",
+        "name": "Ennemis"
+      },
+      {
+        "id": "weapons",
+        "name": "Armes"
+      },
+      {
+        "id": "evolutions",
+        "name": "Évolutions"
+      },
+      {
+        "id": "reactions",
+        "name": "Réactions"
+      },
+      {
+        "id": "bosses",
+        "name": "Boss"
+      }
+    ]
+  }
+}

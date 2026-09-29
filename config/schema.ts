@@ -15,6 +15,8 @@ import {
   RUN_MOD_MULT,
   UNLOCK_KINDS,
   MODE_IDS,
+  META_EXTRAS,
+  ACCOUNT_UNLOCKS,
   type EnemyParam,
 } from './keys';
 
@@ -652,3 +654,126 @@ export const ModesDef = z.object({
   training: z.object({ stage: z.string() }),
 });
 export type ModesDef = z.infer<typeof ModesDef>;
+
+/** Statistiques de méta : celles d'un personnage, plus résurrections et bonus de fin de run. */
+export const MetaStats = z.partialRecord(
+  z.enum([
+    ...(Object.keys(PassiveStats.shape) as (keyof PassiveStats)[]),
+    ...CHARACTER_EXTRAS,
+    ...META_EXTRAS,
+  ]),
+  z.number(),
+);
+export type MetaStats = z.infer<typeof MetaStats>;
+export type MetaStatKey = keyof MetaStats;
+
+export const TalentNodeDef = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  branch: z.string(),
+  name: z.string(),
+  /** Palier (0 = racine) et colonne dans la branche. */
+  tier: z.number().int().nonnegative(),
+  col: z.number().int().nonnegative(),
+  /** Effet par rang. */
+  stats: MetaStats,
+  /** Coût (fragments) de chaque rang : sa longueur est le rang maximal. */
+  cost: z.array(z.number().int().positive()).min(1),
+  /** Au moins un rang dans l'un de ces nœuds (vide : racine). */
+  requires: z.array(z.string()),
+});
+export type TalentNodeDef = z.infer<typeof TalentNodeDef>;
+
+export const TalentsDef = z.object({
+  branches: z.array(z.object({ id: z.string(), name: z.string() })).min(1),
+  nodes: z.array(TalentNodeDef).min(60),
+});
+export type TalentsDef = z.infer<typeof TalentsDef>;
+
+const StatKey = z.enum([
+  ...(Object.keys(PassiveStats.shape) as (keyof PassiveStats)[]),
+  ...CHARACTER_EXTRAS,
+]);
+
+export const MetaDef = z.object({
+  account: z.object({
+    /** XP de compte par point de score. */
+    scoreXp: positive,
+    /** XP du niveau L → L + 1 : base × L^exponent. */
+    curve: z.object({ base: positive, exponent: positive }),
+    maxLevel: z.number().int().positive(),
+    /** XP d'un niveau Paragon (au-delà du niveau maximal). */
+    paragonXp: positive,
+    levelFragments: z.object({ base: nonNegative, perLevel: nonNegative }),
+    unlocks: z.array(
+      z.object({
+        level: z.number().int().positive(),
+        unlock: z.enum(ACCOUNT_UNLOCKS),
+        name: z.string(),
+      }),
+    ),
+  }),
+  paragon: z.array(
+    z.object({ stat: StatKey, name: z.string(), per: positive, cap: z.number().int().positive() }),
+  ),
+  ascension: z.object({
+    rewardPerTier: nonNegative,
+    tiers: z
+      .array(
+        z.object({
+          tier: z.number().int().positive(),
+          description: z.string(),
+          mods: z.partialRecord(z.enum([...RUN_MOD_MULT, ...RUN_MOD_ADD]), z.number()),
+        }),
+      )
+      .length(20),
+  }),
+  relics: z.object({
+    slots: z.number().int().positive(),
+    inventory: z.number().int().positive(),
+    maxLevel: z.number().int().positive(),
+    /** Bonus de toutes les valeurs par niveau au-delà du premier. */
+    levelBonus: nonNegative,
+    cacheCost: positive,
+    upgradeCost: z.object({ base: positive, growth: positive }),
+    rerollCost: positive,
+    salvage: positive,
+    bossDropChance: z.number().min(0).max(1),
+    rarities: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          color: hex,
+          weight: positive,
+          secondaries: z.number().int().nonnegative(),
+          mult: positive,
+        }),
+      )
+      .min(2),
+    pool: z.array(z.object({ stat: StatKey, min: positive, max: positive })).min(6),
+    bases: z
+      .array(
+        z.object({
+          id: z.string().regex(/^[a-z0-9-]+$/),
+          name: z.string(),
+          /** Mini-boss qui la lâche à sa première défaite ('' : forge et butin). */
+          boss: z.string(),
+          signature: z.object({ stat: StatKey, value: positive }),
+        }),
+      )
+      .min(8),
+  }),
+  mastery: z.object({
+    xpPerDamage: positive,
+    /** XP cumulée requise pour chaque rang (1 → 10). */
+    ranks: z.array(positive).min(1),
+    damagePerRank: nonNegative,
+    skins: z.array(z.object({ rank: z.number().int().positive(), name: z.string(), color: hex })),
+  }),
+  codex: z.object({
+    thresholds: z.array(z.number().min(0).max(1)).min(1),
+    fragments: z.array(nonNegative).min(1),
+    categories: z.array(z.object({ id: z.string(), name: z.string() })).min(1),
+  }),
+});
+export type MetaDef = z.infer<typeof MetaDef>;

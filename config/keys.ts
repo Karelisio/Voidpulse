@@ -200,3 +200,10 @@ export const MODE_IDS = [
   'training',
 ] as const;
 export type ModeId = (typeof MODE_IDS)[number];
+
+/** Effets propres à la méta (talents) : résurrections, bonus de fragments et d'XP de compte. */
+export const META_EXTRAS = ['revives', 'fragments', 'accountXp'] as const;
+export type MetaExtra = (typeof META_EXTRAS)[number];
+
+/** Déblocages liés au niveau de compte. */
+export const ACCOUNT_UNLOCKS = ['forge', 'relicSlot', 'ascension'] as const;

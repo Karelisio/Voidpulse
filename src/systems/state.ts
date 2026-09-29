@@ -6,6 +6,7 @@
 import type {
   BossDef,
   CharacterDef,
+  CharacterStats,
   DashDef,
   PactDef,
   PassiveDef,
@@ -401,6 +402,16 @@ export interface RunRules {
     weapons: readonly { index: number; level: number }[];
     passives: readonly { index: number; level: number }[];
   };
+}
+
+/** Bonus permanents (méta) apportés à la run : talents, Paragon, reliques, maîtrise. */
+export interface MetaRunBonus {
+  stats: CharacterStats;
+  /** Résurrections (à la mort : moitié des PV, brève invulnérabilité). */
+  revives: number;
+  /** Multiplicateur de dégâts par arme (index WEAPONS), teinte d'apparence (0 : d'origine). */
+  weaponDamage: readonly number[];
+  weaponTint: readonly number[];
 }
 
 export interface RunState {
