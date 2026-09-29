@@ -12,14 +12,7 @@ import { useSave } from '../state/save';
 import { fetchUpdate, resolveSha256, type UpdateInfo } from './github';
 
 export type UpdateStatus =
-  | 'idle'
-  | 'checking'
-  | 'none'
-  | 'available'
-  | 'downloading'
-  | 'ready'
-  | 'permission'
-  | 'error';
+  'idle' | 'checking' | 'none' | 'available' | 'downloading' | 'ready' | 'permission' | 'error';
 
 interface UpdateState {
   /** Le module est actif (Android, version GitHub). */

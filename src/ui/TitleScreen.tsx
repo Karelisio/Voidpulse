@@ -11,7 +11,6 @@ import { useSave } from '../state/save';
 import { useUi } from '../state/ui';
 import { TitleWelcome } from './TitleWelcome';
 
-
 export function TitleScreen({
   onPlay,
   onProgression,

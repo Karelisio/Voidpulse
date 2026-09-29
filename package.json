@@ -20,7 +20,9 @@
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
     "prepare": "husky",
     "music:render": "tsx scripts/render-music/index.ts",
-    "sfx:render": "tsx scripts/render-sfx/index.ts"
+    "sfx:render": "tsx scripts/render-sfx/index.ts",
+    "assets:render": "tsx scripts/render-assets/index.ts",
+    "android:sync": "vite build --mode android && cap sync android"
   },
   "dependencies": {
     "@capacitor-community/keep-awake": "^8.0.1",
@@ -42,7 +44,6 @@
     "zustand": "5.0.15"
   },
   "devDependencies": {
-    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",

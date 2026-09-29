@@ -36,4 +36,6 @@ const mean = warm.reduce((a, b) => a + b, 0) / warm.length;
 console.log(
   `ennemis ${sim.world.enemies.count}, projectiles ${sim.world.shots.count}, réactions ${Array.from(sim.state.resonance.countById).reduce((a, b) => a + b, 0)}`,
 );
-console.log(`ms/tick : moyenne ${mean.toFixed(3)} · p50 ${pct(0.5)} · p95 ${pct(0.95)} · p99 ${pct(0.99)} · max ${pct(1)}`);
+console.log(
+  `ms/tick : moyenne ${mean.toFixed(3)} · p50 ${pct(0.5)} · p95 ${pct(0.95)} · p99 ${pct(0.99)} · max ${pct(1)}`,
+);

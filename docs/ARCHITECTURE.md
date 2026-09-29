@@ -310,17 +310,17 @@ Remplacer une piste = déposer les fichiers et mettre à jour son entrée ; aucu
 
 ## 12. Sauvegarde
 
-- Profil dans `Filesystem` (`Directory.Data`) sur **deux emplacements alternés** A/B : `{ magic, schemaVersion, seq, savedAt, checksum, payload }`. Au chargement : emplacement valide au `seq` le plus élevé.
+- Profil dans `Preferences` (SharedPreferences, incluses dans la sauvegarde Android et le transfert d'appareil ; `localStorage` sur le web, repris une fois au premier lancement natif) sur **deux emplacements alternés** A/B : `{ magic, schemaVersion, seq, savedAt, checksum, payload }`. Au chargement : emplacement valide au `seq` le plus élevé.
 - **Migrations** versionnées `vN → vN+1`, testées.
 - **Instantané de run** (même mécanisme A/B) : au level-up, en pause, à la mise en arrière-plan et toutes les 60 s → reprise exacte.
-- Réglages dans `Preferences` (chargement rapide au démarrage).
-- Export / import d'un fichier (Share + sélecteur de fichier).
+- Réglages dans le même profil.
+- Export / import : texte (presse-papiers) ou fichier (Android : `Filesystem` cache + feuille de partage système ; web : téléchargement ; import par le sélecteur de fichiers).
 
 ## 13. Mises à jour in-app et distribution
 
 - Deux flavors Android : **`github`** (APK, updater actif, permission `REQUEST_INSTALL_PACKAGES`) et **`play`** (AAB, sans updater ni permission ; Google Play interdit l'auto-mise à jour hors Play).
-- Au lancement (≤ 1 fois / 24 h) et sur demande : `GET /repos/{owner}/{repo}/releases/latest` (ou liste si pré-releases incluses) via `CapacitorHttp` ; comparaison semver avec la version installée ; bottom sheet (version, changelog, taille, « Mettre à jour » / « Plus tard » / « Ignorer cette version »). Jamais pendant une run.
-- Plugin natif `VoidpulseNative` : téléchargement avec reprise (`Range`), progression, vérification SHA-256, installation via FileProvider + `ACTION_VIEW`, redirection vers « Sources inconnues » ; couleurs Material You (`system_accent*`), mode immersif, informations de build (flavor).
+- Au lancement (≤ 1 fois / 24 h, réglage « Vérifier automatiquement ») et sur demande (Réglages › À propos) : `GET /repos/{owner}/{repo}/releases/latest` (ou les 15 dernières si « Inclure les préversions ») via `CapacitorHttp` ; `update/github.ts` choisit la release publiée la plus récente, plus récente (semver 2.0, `update/semver.ts`) que la version installée (`versionName` natif) et portant `voidpulse-vX.Y.Z.apk` avec son empreinte (champ `digest` de l'API, sinon asset `.sha256`) ; feuille du bas (`ui/UpdateSheet.tsx` : version, notes Markdown rendues sans HTML, taille, « Mettre à jour » / « Plus tard » / « Ignorer cette version »), affichée uniquement sur l'écran titre : jamais pendant une run. État : `update/updater.ts` (store Zustand), préférences dans `SaveData.update`.
+- Plugin natif `VoidpulseNative` (`android/app/src/main/java/com/karelisio/voidpulse/`) : téléchargement HTTPS dans `cache/updates` avec reprise (`Range`, fichier `.part`), événements de progression, **SHA-256 obligatoire** (sinon rejet), installation via FileProvider (`cache-path` seul) + `ACTION_VIEW`, redirection vers « Installer des applis inconnues » puis reprise de l'installation au retour dans l'app ; couleur Material You (`system_accent1_500`), mode immersif, informations de build (flavor, `BuildConfig.UPDATER`). Toutes les méthodes de mise à jour refusent dans le flavor `play`.
 - Owner/repo : `config/app.json` (`karelisio/voidpulse`).
 
 ## 14. UI, thèmes, i18n, accessibilité
@@ -335,7 +335,11 @@ Remplacer une piste = déposer les fichiers et mettre à jour son entrée ; aucu
 
 ## 15. Android
 
-`appId` `com.karelisio.voidpulse`, minSdk 24, targetSdk = dernière stable. Permissions : INTERNET, VIBRATE, POST_NOTIFICATIONS (demandée seulement si les notifications sont activées), REQUEST_INSTALL_PACKAGES (flavor `github` uniquement). Icône SVG néon, adaptative + monochrome, splash clair/sombre via `@capacitor/assets` (sources dans `assets/`). La compilation native est vérifiée dans GitHub Actions.
+`appId` `com.karelisio.voidpulse`, minSdk 24, targetSdk 36. Permissions : INTERNET, VIBRATE, POST_NOTIFICATIONS (demandée seulement si les notifications sont activées), REQUEST_INSTALL_PACKAGES (flavor `github` uniquement) ; celles du plugin de notifications (RECEIVE_BOOT_COMPLETED, WAKE_LOCK), sans alarme exacte (retirée du manifeste). Pas d'accès au stockage partagé.
+
+- **Plugins** : App (bouton retour → pile `platform/back.ts`, sinon sortie ; reprise), Haptics, Preferences, Filesystem + Share (export, partage du résultat de run), StatusBar (superposée, immersif), SplashScreen (masqué une fois la sauvegarde chargée), LocalNotifications, ScreenOrientation (portrait par défaut, paysage ou automatique en option ; la vue du jeu suit le format), KeepAwake (pendant une run).
+- **Icône** : SVG néon « pulsation du vide » dans `assets/src/` (fond, avant-plan, monochrome, notification, logo du splash) ; `npm run assets:render` produit les PNG de toutes les densités (icône adaptative + monochrome Android 13+, carrée et ronde classiques, `ic_stat_voidpulse`, logos). `@capacitor/assets` a été écarté : il réécrit l'icône adaptative (retrait de 16,7 %) et le manifeste, et ses splashs plein écran pesaient 9 Mo. **Splash** : API SplashScreen d'Android 12+ (icône sur `splash_bg`), et avant Android 12 un `layer-list` (couleur + logo) ; clair et sombre via `values-night` / `drawable-night`.
+- **Compilation** : `npm run android:sync` (build web sans cartes de sources + `cap sync`), puis `./gradlew assembleGithubRelease bundlePlayRelease -PversionName=X.Y.Z -PversionCode=N` ; signature par les variables `ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` (sinon APK non signé). Vérifiée localement (debug et release des deux flavors) et dans GitHub Actions.
 
 ## 16. CI/CD et conventions
 

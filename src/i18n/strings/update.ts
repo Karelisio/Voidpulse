@@ -78,8 +78,7 @@ export default defineStrings(
     check: 'Check for updates',
     lastCheck: 'Last check: {date}',
     never: 'never',
-    offline:
-      'The game runs fully offline; only the update check uses the Internet (GitHub).',
+    offline: 'The game runs fully offline; only the update check uses the Internet (GitHub).',
     source: 'Source code',
   },
 );

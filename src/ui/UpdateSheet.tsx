@@ -161,10 +161,7 @@ export function UpdateSheet() {
           <button className="btn-primary" onClick={() => void install()}>
             {t('update.install')}
           </button>
-          <button
-            className="btn-ghost"
-            onClick={() => void VoidpulseNative.openInstallSettings()}
-          >
+          <button className="btn-ghost" onClick={() => void VoidpulseNative.openInstallSettings()}>
             {t('update.openSettings')}
           </button>
         </>
