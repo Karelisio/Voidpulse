@@ -78,6 +78,31 @@ export interface StageRecord {
   rank: number;
 }
 
+/** Entrée du classement local de l'Infini. */
+export interface EndlessEntry {
+  time: number;
+  score: number;
+  character: string;
+  stage: string;
+  /** Horodatage (ms). */
+  at: number;
+}
+
+/** Records des modes de jeu. */
+export interface ModesData {
+  endless: { board: EndlessEntry[] };
+  /** Défi du jour : jour du dernier essai compté (AAAA-MM-JJ), son résultat, historique. */
+  daily: {
+    day: string;
+    history: { day: string; score: number; time: number; victory: boolean }[];
+  };
+  /** Défi de la semaine (AAAA-Www) : meilleur score de la semaine en cours. */
+  weekly: { week: string; best: number; runs: number };
+  /** Boss Rush : meilleur temps de victoire (0 si aucune), record de boss vaincus. */
+  bossRush: { bestTime: number; bestBosses: number };
+  hardcore: { victories: number; bestScore: number };
+}
+
 export interface SaveData {
   version: number;
   /** Horodatage (ms) de création et de dernière écriture. */
@@ -88,6 +113,9 @@ export interface SaveData {
   display: DisplayPrefs;
   stats: LifetimeStats;
   profile: ProfileData;
+  modes: ModesData;
+  /** Monnaies de méta (fragments ramenés des parties). */
+  wallet: { fragments: number };
 }
 
 export function defaultSave(now = Date.now()): SaveData {
@@ -138,6 +166,14 @@ export function defaultSave(now = Date.now()): SaveData {
       bosses: [],
       stageBest: {},
     },
+    modes: {
+      endless: { board: [] },
+      daily: { day: '', history: [] },
+      weekly: { week: '', best: 0, runs: 0 },
+      bossRush: { bestTime: 0, bestBosses: 0 },
+      hardcore: { victories: 0, bestScore: 0 },
+    },
+    wallet: { fragments: 0 },
   };
 }
 

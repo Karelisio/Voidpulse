@@ -188,3 +188,15 @@ export const RUN_MOD_ADD = [
   'noDash',
 ] as const;
 export type RunModKey = (typeof RUN_MOD_MULT)[number] | (typeof RUN_MOD_ADD)[number];
+
+/** Modes de jeu (config/modes.json, src/modes/). */
+export const MODE_IDS = [
+  'campaign',
+  'endless',
+  'daily',
+  'weekly',
+  'bossrush',
+  'hardcore',
+  'training',
+] as const;
+export type ModeId = (typeof MODE_IDS)[number];

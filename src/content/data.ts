@@ -19,6 +19,7 @@ import type {
   BossDef,
   CharacterDef,
   EnemyDef,
+  ModesDef,
   PactsDef,
   PassiveDef,
   ReactionDef,
@@ -31,6 +32,7 @@ import affixesJson from '../../config/affixes.json';
 import bossesJson from '../../config/bosses.json';
 import charactersJson from '../../config/characters.json';
 import enemiesJson from '../../config/enemies.json';
+import modesJson from '../../config/modes.json';
 import pactsJson from '../../config/pacts.json';
 import passivesJson from '../../config/passives.json';
 import playerJson from '../../config/player.json';
@@ -208,3 +210,8 @@ export function reactionFor(a: number, b: number): number {
 export function colorOf(hex: string): number {
   return parseInt(hex.slice(1), 16);
 }
+
+/** Modes de jeu : textes, réglages de l'infini, des défis, du Boss Rush, du hardcore. */
+export const MODES = modesJson as ModesDef;
+export type { ModeId } from '../../config/keys';
+export type { ModesDef, WeeklyRulesetDef } from '../../config/schema';

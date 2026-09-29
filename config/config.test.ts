@@ -13,6 +13,7 @@ import {
   type EnemyParam,
   PassiveDef,
   PlayerDef,
+  ModesDef,
   PactsDef,
   ProgressionDef,
   ReactionDef,
@@ -46,6 +47,7 @@ describe('données de /config', () => {
     check(RunEventsDef, 'runevents.json');
     check(CharacterDef.array(), 'characters.json');
     check(PactsDef, 'pacts.json');
+    check(ModesDef, 'modes.json');
     for (const f of readdirSync(path.join(dir, 'stages'))) check(StageDef, `stages/${f}`);
   });
 
@@ -192,5 +194,18 @@ describe('données de /config', () => {
         for (const id of Object.keys(mix))
           expect(enemies.find((e) => e.id === id)?.biome, `${s.id}:${id}`).toBe(s.biome);
     }
+  });
+});
+
+describe('modes de jeu', () => {
+  it('référencent des stages, éléments et modificateurs existants', () => {
+    const m = check(ModesDef, 'modes.json');
+    const stages = new Set(
+      readdirSync(path.join(dir, 'stages')).map((f) => f.replace('.json', '')),
+    );
+    expect(stages.has(m.bossRush.stage)).toBe(true);
+    expect(stages.has(m.training.stage)).toBe(true);
+    expect(new Set(m.modes.map((x) => x.id)).size).toBe(m.modes.length);
+    expect(new Set(m.weekly.rulesets.map((r) => r.id)).size).toBe(m.weekly.rulesets.length);
   });
 });

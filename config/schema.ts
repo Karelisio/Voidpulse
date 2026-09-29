@@ -14,6 +14,7 @@ import {
   RUN_MOD_ADD,
   RUN_MOD_MULT,
   UNLOCK_KINDS,
+  MODE_IDS,
   type EnemyParam,
 } from './keys';
 
@@ -582,3 +583,72 @@ export const ProgressionDef = z.object({
   }),
 });
 export type ProgressionDef = z.infer<typeof ProgressionDef>;
+
+const RunModsPartial = z.partialRecord(z.enum([...RUN_MOD_MULT, ...RUN_MOD_ADD]), z.number());
+
+/** Règles d'un défi hebdomadaire. */
+export const WeeklyRulesetDef = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  name: z.string(),
+  description: z.string(),
+  mods: RunModsPartial,
+  /** Éléments permis pour les armes (vide : tous) ; l'arme de départ en fait partie. */
+  elements: z.array(Element),
+  /** PV max imposés (0 : libres). */
+  fixedMaxHp: z.number().int().nonnegative(),
+  /** Boss uniquement : le mini-boss et le boss du stage, puis `bossCount` boss finaux tirés. */
+  bossOnly: z.boolean(),
+  noRunEvents: z.boolean(),
+});
+export type WeeklyRulesetDef = z.infer<typeof WeeklyRulesetDef>;
+
+export const ModesDef = z.object({
+  modes: z
+    .array(
+      z.object({
+        id: z.enum(MODE_IDS),
+        name: z.string(),
+        tagline: z.string(),
+        description: z.string(),
+        color: hex,
+      }),
+    )
+    .length(MODE_IDS.length),
+  endless: z.object({
+    bossEvery: positive,
+    bossHpStep: nonNegative,
+    hpPerMin: nonNegative,
+    damagePerMin: nonNegative,
+    densityPerMin: nonNegative,
+    densityCap: positive,
+    /** Entrées du classement local. */
+    leaderboard: z.number().int().positive(),
+  }),
+  daily: z.object({
+    /** Pactes imposés, jours gardés dans l'historique. */
+    pacts: z.number().int().nonnegative(),
+    history: z.number().int().positive(),
+  }),
+  weekly: z.object({
+    bossCount: z.number().int().positive(),
+    bossRest: nonNegative,
+    rulesets: z.array(WeeklyRulesetDef).min(4),
+  }),
+  bossRush: z.object({
+    stage: z.string(),
+    weapons: z.number().int().positive(),
+    passives: z.number().int().nonnegative(),
+    weaponLevel: z.number().int().positive(),
+    passiveLevel: z.number().int().positive(),
+    rest: nonNegative,
+    heal: z.number().min(0).max(1),
+    bossHp: positive,
+  }),
+  hardcore: z.object({
+    /** Récompenses multipliées ; à la mort, part des ressources gagnées conservée. */
+    rewardMult: positive,
+    deathKeep: z.number().min(0).max(1),
+  }),
+  training: z.object({ stage: z.string() }),
+});
+export type ModesDef = z.infer<typeof ModesDef>;
