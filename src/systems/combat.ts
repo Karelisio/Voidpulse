@@ -116,7 +116,6 @@ export function hitFoe(
   if (!HIT.dot && !isBoss && (Foe.shield[e] > 0 || Foe.bubble[e] > 0)) {
     dmg = absorb(sim, e, dmg, fromX, fromY);
     if (dmg <= 0) {
-      sim.state.stats.damageBySlot[slot] += amount;
       sim.events.push(EV.HIT, e, slot | (el << 8) | (1 << 17), Pos.x[e], Pos.y[e], 0, 0, true);
       return;
     }

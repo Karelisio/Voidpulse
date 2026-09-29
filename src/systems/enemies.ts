@@ -779,8 +779,11 @@ export function updateEnemies(sim: RunSim): void {
     }
     Pos.x[e] = nx;
     Pos.y[e] = ny;
+    // Orientation du sprite : garde ou tourelle, visée, face au joueur à distance, sinon
+    // direction du déplacement.
     if (beh === BEHAVIOR.shield || beh === BEHAVIOR.turret) Look.rot[e] = Foe.face[e];
     else if (Foe.state[e] === STATE.CHARGE && beh === BEHAVIOR.shooter) Look.rot[e] = Foe.face[e];
+    else if (keep > 0) Look.rot[e] = Math.atan2(dy, dx);
     else if (vx * vx + vy * vy > 4) Look.rot[e] = Math.atan2(vy, vx);
     if (Look.flash[e] > 0) Look.flash[e] -= DT;
 

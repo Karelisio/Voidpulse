@@ -4,9 +4,19 @@
  * simulation ; rendu déclenché par la boucle (pas de ticker Pixi).
  */
 import { Application, Container, Sprite, Texture } from 'pixi.js';
-import { BOSSES, ENEMIES, WEAPONS, colorOf } from '../content/data';
+import {
+  AFFIXES,
+  BEHAVIOR_OF,
+  BOSSES,
+  ENEMIES,
+  ENEMY_PARAM,
+  WEAPONS,
+  colorOf,
+} from '../content/data';
 import { FRAME } from '../content/frames';
 import { Body, Foe, Gem, Life, Look, Pos, Status, Zone } from '../engine/components';
+import { AFFIX, FROST_AURA_RADIUS } from '../systems/elites';
+import { BEHAVIOR } from '../systems/enemies';
 import type { EntityPool } from '../engine/pool';
 import type { RunSim } from '../systems/sim';
 import { ZONE } from '../systems/zones';
@@ -38,10 +48,14 @@ export const DEFAULT_QUALITY: QualitySettings = {
   reduceFlashes: false,
 };
 
-/** Types d'ennemis orientés selon leur déplacement (les autres restent droits). */
-const ROTATES = Uint8Array.from(
-  ENEMIES.map((e) => (e.behavior === 'tank' || e.behavior === 'shooter' ? 0 : 1)),
+/** Couleur de chaque type d'ennemi (surcouches : bouclier, aura). */
+const ENEMY_TINT = Uint32Array.from(ENEMIES.map((e) => colorOf(e.color)));
+/** Rayon d'aura des soutiens (0 pour les autres types). */
+const SUPPORT_AURA = Float32Array.from(
+  ENEMIES.map((_, i) => (BEHAVIOR_OF[i] === BEHAVIOR.support ? ENEMY_PARAM.auraRadius[i] : 0)),
 );
+/** Indicateurs hors écran : marchand, autel, faille, élites, coffres au sol. */
+const MAX_ARROWS = 10;
 
 export class GameRenderer {
   readonly camera = new Camera();
@@ -65,9 +79,14 @@ export class GameRenderer {
   private readonly bullets: SpriteLayer;
   private readonly shots: SpriteLayer;
   private readonly orbits: SpriteLayer;
+  private readonly shells: SpriteLayer;
   private readonly player: Sprite;
   private readonly boss: Sprite;
   private readonly flash = new Sprite(Texture.WHITE);
+  /** Voile violet du temps suspendu (faille temporelle). */
+  private readonly riftVeil = new Sprite(Texture.WHITE);
+  private riftAlpha = 0;
+  private readonly arrows = new Container();
   private flashAlpha = 0;
   private time = 0;
   private snapCamera = true;
@@ -78,11 +97,12 @@ export class GameRenderer {
     readonly quality: QualitySettings,
   ) {
     const fx = atlas.fx;
-    this.zones = new SpriteLayer(272, atlas.frames[FRAME.ZONE_RING], 'add');
+    this.zones = new SpriteLayer(600, atlas.frames[FRAME.ZONE_RING], 'add');
     this.chests = new SpriteLayer(8, atlas.frames[FRAME.CHEST], 'normal');
     this.gems = new SpriteLayer(900, atlas.frames[FRAME.GEM_S], 'add');
     this.enemies = new SpriteLayer(1400, atlas.frames[FRAME.ENEMY_BASE], 'normal');
-    this.marks = new SpriteLayer(1400, fx.spark, 'add', { rotation: false });
+    this.marks = new SpriteLayer(2400, fx.spark, 'add');
+    this.shells = new SpriteLayer(96, atlas.frames[FRAME.SHELL], 'add');
     this.bullets = new SpriteLayer(600, atlas.frames[FRAME.BULLET], 'add');
     this.shots = new SpriteLayer(2200, atlas.frames[FRAME.SHOT_FIRE], 'add');
     this.orbits = new SpriteLayer(32, atlas.frames[FRAME.ORB_FROST], 'add');
@@ -105,6 +125,7 @@ export class GameRenderer {
       this.boss,
       this.player,
       this.orbits.container,
+      this.shells.container,
       this.bullets.container,
       this.shots.container,
       this.sparks.layer.container,
@@ -113,7 +134,22 @@ export class GameRenderer {
       this.numbers.layer.container,
     );
     this.flash.alpha = 0;
-    app.stage.addChild(this.bg.container, this.world, this.flash, this.hud.container);
+    this.riftVeil.tint = 0x6a3dff;
+    this.riftVeil.alpha = 0;
+    for (let i = 0; i < MAX_ARROWS; i++) {
+      const a = new Sprite(fx.arrow);
+      a.anchor.set(0.5);
+      a.visible = false;
+      this.arrows.addChild(a);
+    }
+    app.stage.addChild(
+      this.bg.container,
+      this.world,
+      this.riftVeil,
+      this.flash,
+      this.arrows,
+      this.hud.container,
+    );
     this.applyQuality();
   }
 
@@ -167,6 +203,8 @@ export class GameRenderer {
     this.bg.resize(this.width, this.height);
     this.flash.width = this.width;
     this.flash.height = this.height;
+    this.riftVeil.width = this.width;
+    this.riftVeil.height = this.height;
     this.hud.layout(this.width, this.height, this.safeTop, this.safeBottom, this.leftHanded);
   }
 
@@ -342,6 +380,15 @@ export class GameRenderer {
     this.player.position.set(px, py);
     this.player.rotation = Look.rot[pe];
     this.player.alpha = Look.alpha[pe];
+    // Ralenti par le givre : teinte glacée.
+    this.player.tint = sim.state.player.slowT > 0 ? 0xa8e6ff : 0xffffff;
+
+    // Temps suspendu : voile violet qui s'installe puis se dissipe.
+    const rift = sim.state.events.riftT > 0 ? 1 : 0;
+    this.riftAlpha += (rift - this.riftAlpha) * Math.min(1, dt * 3);
+    this.riftVeil.alpha = this.riftAlpha * (0.13 + 0.03 * Math.sin(this.time * 2));
+    this.riftVeil.visible = this.riftAlpha > 0.01;
+    this.syncArrows(sim);
 
     this.sparks.update(dt);
     this.rings.update(dt);
@@ -390,6 +437,7 @@ export class GameRenderer {
     layer.begin();
     marks.begin();
     const blink = Math.sin(this.time * 18) > 0;
+    const t = this.time;
     for (let i = 0; i < pool.count; i++) {
       const e = pool.active[i];
       if (Life.hp[e] <= 0) continue;
@@ -397,31 +445,55 @@ export class GameRenderer {
       if (!p) break;
       const x = Pos.px[e] + (Pos.x[e] - Pos.px[e]) * alpha;
       const y = Pos.py[e] + (Pos.y[e] - Pos.py[e]) * alpha;
+      const type = Foe.type[e];
       p.texture = Look.flash[e] > 0 ? flash[Look.frame[e]] : frames[Look.frame[e]];
       p.x = x;
       p.y = y;
-      p.rotation = ROTATES[Foe.type[e]] ? Look.rot[e] : 0;
+      p.rotation = Look.rot[e];
       const s = Look.scale[e] || 1;
       p.scaleX = s;
       p.scaleY = s;
-      let tint = 0xffffff;
+      let tint = Look.tint[e];
       if (Status.freezeT[e] > 0) tint = 0x8fd8ff;
       else if (Status.brittleT[e] > 0) tint = 0xc9a8ff;
       else if (Status.shockT[e] > 0 && blink) tint = 0xfff3a0;
       else if (Status.burnT[e] > 0) tint = 0xffb489;
       else if (Status.chill[e] > 0.2) tint = 0xc4ecff;
       p.color = particleColor(tint, Look.alpha[e]);
+      if (Foe.hidden[e] !== 0) continue;
+      const r = Body.r[e];
       if (Foe.elite[e] !== 0) {
         const halo = marks.next();
         if (halo) {
           halo.texture = this.atlas.fx.ring;
           halo.x = x;
           halo.y = y;
-          const hs = (Body.r[e] / 58) * (1.35 + 0.08 * Math.sin(this.time * 5 + e));
+          halo.rotation = 0;
+          const hs = (r / 58) * (1.35 + 0.08 * Math.sin(t * 5 + e));
           halo.scaleX = hs;
           halo.scaleY = hs;
           halo.color = particleColor(ELITE_COLOR, 0.8);
         }
+        if ((Foe.affix[e] & AFFIX.FROSTAURA) !== 0) {
+          this.overlay(FRAME.AURA, x, y, t * 0.3, FROST_AURA_RADIUS / 58, FROST_TINT, 0.4);
+        }
+      }
+      // Bouclier frontal : arc orienté, d'autant plus vif qu'il est intact.
+      if (Foe.shield[e] > 0) {
+        const max = Life.max[e] * ENEMY_PARAM.shield[type];
+        const k = max > 0 ? Foe.shield[e] / max : 1;
+        this.overlay(FRAME.SHIELD_ARC, x, y, Look.rot[e], r / 20, ENEMY_TINT[type], 0.35 + 0.6 * k);
+      }
+      if (Foe.bubble[e] > 0) {
+        const k = Foe.bubble[e] / Math.max(1, Foe.bubbleMax[e]);
+        this.overlay(FRAME.BUBBLE, x, y, t, (r * 1.45) / 28, BUBBLE_TINT, 0.3 + 0.5 * k);
+      }
+      if (Foe.guardT[e] > 0) {
+        this.overlay(FRAME.GUARD, x, y - r - 11, 0, 1, GUARD_TINT, 0.9);
+      }
+      const aura = SUPPORT_AURA[type];
+      if (aura > 0) {
+        this.overlay(FRAME.AURA, x, y, -t * 0.25, aura / 58, ENEMY_TINT[type], 0.22);
       }
       const m = Status.marks[e];
       if (m !== 0) {
@@ -431,7 +503,8 @@ export class GameRenderer {
           let el = 0;
           while (!(m & (1 << el))) el++;
           mp.x = x;
-          mp.y = y - (Body.r[e] + 7);
+          mp.y = y - (r + 7);
+          mp.rotation = 0;
           mp.scaleX = 1.3;
           mp.scaleY = 1.3;
           mp.color = particleColor(ELEMENT_COLORS[el], 0.95);
@@ -440,6 +513,76 @@ export class GameRenderer {
     }
     layer.end();
     marks.end();
+  }
+
+  /** Surcouche d'ennemi (couche des marques) : image, position, rotation, échelle, teinte. */
+  private overlay(
+    frame: number,
+    x: number,
+    y: number,
+    rot: number,
+    scale: number,
+    color: number,
+    a: number,
+  ): void {
+    const o = this.marks.next();
+    if (!o) return;
+    o.texture = this.atlas.frames[frame];
+    o.x = x;
+    o.y = y;
+    o.rotation = rot;
+    o.scaleX = scale;
+    o.scaleY = scale;
+    o.color = particleColor(color, a);
+  }
+
+  /** Flèches au bord de l'écran vers les points d'intérêt hors champ. */
+  private syncArrows(sim: RunSim): void {
+    const cam = this.camera;
+    const zoom = cam.zoom;
+    const cx = this.width / 2 + cam.offsetX;
+    const cy = this.height / 2 + cam.offsetY;
+    const margin = 26;
+    const top = this.safeTop + 150;
+    const bottom = this.height - this.safeBottom - 40;
+    let n = 0;
+    const show = (wx: number, wy: number, color: number): void => {
+      if (n >= MAX_ARROWS) return;
+      const sx = cx + (wx - cam.x) * zoom;
+      const sy = cy + (wy - cam.y) * zoom;
+      if (sx > margin && sx < this.width - margin && sy > top && sy < bottom) return;
+      const dx = sx - cx;
+      const dy = sy - cy;
+      // Intersection de la direction avec le rectangle intérieur.
+      const kx = dx !== 0 ? (dx > 0 ? this.width - margin - cx : margin - cx) / dx : Infinity;
+      const ky = dy !== 0 ? (dy > 0 ? bottom - cy : top - cy) / dy : Infinity;
+      const k = Math.min(kx, ky);
+      const a = this.arrows.children[n++] as Sprite;
+      a.visible = true;
+      a.position.set(cx + dx * k, cy + dy * k);
+      a.rotation = Math.atan2(dy, dx);
+      a.tint = color;
+      a.alpha = 0.75 + 0.25 * Math.sin(this.time * 6);
+    };
+    const zones = sim.world.zones;
+    for (let i = 0; i < zones.count; i++) {
+      const z = zones.active[i];
+      const kind = Zone.kind[z];
+      if (kind === ZONE.MERCHANT) show(Pos.x[z], Pos.y[z], PALETTE.yellow);
+      else if (kind === ZONE.ALTAR) show(Pos.x[z], Pos.y[z], PALETTE.red);
+      else if (kind === ZONE.RIFT) show(Pos.x[z], Pos.y[z], PALETTE.violet);
+    }
+    const chests = sim.world.chests;
+    for (let i = 0; i < chests.count; i++) {
+      const c = chests.active[i];
+      show(Pos.x[c], Pos.y[c], ELITE_COLOR);
+    }
+    const enemies = sim.world.enemies;
+    for (let i = 0; i < enemies.count && n < MAX_ARROWS; i++) {
+      const e = enemies.active[i];
+      if (Foe.elite[e] !== 0 && Life.hp[e] > 0) show(Pos.x[e], Pos.y[e], 0xffb13d);
+    }
+    for (let i = n; i < MAX_ARROWS; i++) this.arrows.children[i].visible = false;
   }
 
   private syncBoss(sim: RunSim, alpha: number): void {
@@ -469,7 +612,9 @@ export class GameRenderer {
   private syncZones(sim: RunSim, pool: EntityPool, alpha: number, px: number, py: number): void {
     const frames = this.atlas.frames;
     const layer = this.zones;
+    const shells = this.shells;
     layer.begin();
+    shells.begin();
     // Auras des armes : disque translucide centré sur le joueur.
     const weapons = sim.state.weapons;
     const area = sim.state.player.stats.areaMult;
@@ -511,8 +656,63 @@ export class GameRenderer {
           p.color =
             kind === ZONE.BEAM
               ? particleColor(color, 0.9 * a)
-              : particleColor(PALETTE.red, 0.2 + 0.6 * a);
+              : particleColor(color === 0xffffff ? PALETTE.red : color, 0.2 + 0.6 * a);
           continue;
+        case ZONE.HAZARD:
+          s = Zone.r[z] / 52;
+          p.rotation = z * 1.7 + this.time * 0.15;
+          p.color = particleColor(color, a * 0.55);
+          break;
+        case ZONE.MORTAR: {
+          // Cible qui se resserre ; l'obus suit un arc de l'origine vers la cible.
+          const life = Math.min(1, Zone.t[z] / Math.max(1e-3, Zone.dur[z]));
+          s = (Zone.r[z] / 56) * (1.35 - 0.35 * life);
+          p.rotation = this.time * 2;
+          p.color = particleColor(color, 0.3 + 0.6 * life);
+          const shell = shells.next();
+          if (shell) {
+            const ox = Zone.w[z];
+            const oy = Zone.h[z];
+            const height = Math.sin(Math.PI * life);
+            shell.x = ox + (p.x - ox) * life;
+            shell.y = oy + (p.y - oy) * life - height * 130;
+            shell.rotation = 0;
+            shell.scaleX = 0.9 + 0.6 * height;
+            shell.scaleY = shell.scaleX;
+            shell.color = particleColor(color, 1);
+          }
+          break;
+        }
+        case ZONE.WARN:
+        case ZONE.VOLATILE: {
+          const life = Math.min(1, Zone.t[z] / Math.max(1e-3, Zone.dur[z]));
+          s = (Zone.r[z] / 56) * (1 + 0.05 * Math.sin(this.time * 24));
+          p.rotation = -this.time * 1.5;
+          p.color = particleColor(color, 0.35 + 0.6 * life);
+          break;
+        }
+        case ZONE.MERCHANT:
+        case ZONE.ALTAR:
+        case ZONE.RIFT:
+          s = kind === ZONE.RIFT ? 1 + 0.06 * Math.sin(this.time * 4) : 1;
+          p.rotation = kind === ZONE.RIFT ? Look.rot[z] * 0.2 : 0;
+          p.color = particleColor(0xffffff, a);
+          if (kind === ZONE.ALTAR && Zone.param[z] > 0) {
+            // Invocation en cours : anneau qui se referme vers l'autel.
+            const ring = layer.next();
+            if (ring) {
+              ring.texture = this.atlas.fx.ring;
+              ring.x = p.x;
+              ring.y = p.y;
+              ring.anchorX = 0.5;
+              ring.rotation = 0;
+              const k = (Zone.r[z] / 58) * (1.2 - 0.6 * Zone.param[z]);
+              ring.scaleX = k;
+              ring.scaleY = k;
+              ring.color = particleColor(PALETTE.red, 0.4 + 0.5 * Zone.param[z]);
+            }
+          }
+          break;
         case ZONE.VAPOR:
           s = Zone.r[z] / 60;
           color = 0xc4ecff;
@@ -553,6 +753,7 @@ export class GameRenderer {
       p.scaleY = s;
     }
     layer.end();
+    shells.end();
   }
 
   bossName(sim: RunSim): string | null {
@@ -566,4 +767,7 @@ export class GameRenderer {
 }
 
 const ELITE_COLOR = 0xffd23d;
+const FROST_TINT = 0x8fd8ff;
+const BUBBLE_TINT = colorOf(AFFIXES.find((a) => a.id === 'shielded')?.color ?? '#7dfcff');
+const GUARD_TINT = 0x7dfcff;
 const AURA_TINT = Uint32Array.from(WEAPONS.map((w) => colorOf(w.color)));

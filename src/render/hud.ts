@@ -1,9 +1,11 @@
 /**
- * HUD en Pixi (écran) : barres d'XP, de PV et de Résonance, minuteur, éliminations, armes,
- * barre de boss, joystick, bouton de dash, texte de debug. Barres = sprites mis à l'échelle
- * (aucune géométrie reconstruite) ; textes mis à jour seulement quand leur valeur change.
+ * HUD en Pixi (écran) : barres d'XP, de PV et de Résonance, minuteur, éliminations, or,
+ * armes, barre de boss, bandeau d'annonce, joystick, bouton de dash, texte de debug. Barres =
+ * sprites mis à l'échelle (aucune géométrie reconstruite) ; textes mis à jour seulement quand
+ * leur valeur change.
  */
 import { Container, Sprite, Text, Texture, type TextStyleOptions } from 'pixi.js';
+import { FRAME } from '../content/frames';
 import { PALETTE } from './palette';
 import type { Atlas } from './atlas';
 
@@ -57,6 +59,8 @@ export interface HudState {
   level: number;
   time: number;
   kills: number;
+  /** Or de la run (fragments). */
+  gold: number;
   gauge: number;
   gaugeMax: number;
   eveil: number;
@@ -84,6 +88,13 @@ export class Hud {
   private readonly timer = new Text({ text: '00:00', style: style(22, PALETTE.ink, '700') });
   private readonly level = new Text({ text: 'NV 1', style: style(15, PALETTE.cyan, '700') });
   private readonly kills = new Text({ text: '0', style: style(15, PALETTE.ink) });
+  private readonly gold = new Text({ text: '0', style: style(14, PALETTE.yellow, '700') });
+  private readonly coin: Sprite;
+  private readonly bannerTitle = new Text({ text: '', style: style(24, PALETTE.ink, '800') });
+  private readonly bannerSub = new Text({ text: '', style: style(13, PALETTE.ink, '600') });
+  /** Âge du bandeau affiché (s) et durée de maintien. */
+  private bannerT = Infinity;
+  private bannerHold = 2.4;
   private readonly hpText = new Text({ text: '', style: style(11, PALETTE.ink) });
   private readonly resText = new Text({ text: 'RÉSONANCE', style: style(10, 0xc9b8ff, '700') });
   private readonly bossText = new Text({ text: '', style: style(13, 0x6ff7ff, '700') });
@@ -101,6 +112,7 @@ export class Hud {
   private lastSecond = -1;
   private lastLevel = -1;
   private lastKills = -1;
+  private lastGold = -1;
   private lastHp = -1;
   private weaponsKey = '';
   private dashX = 0;
@@ -115,6 +127,13 @@ export class Hud {
     this.boss = new Bar(c, 0x6ff7ff);
     this.timer.anchor.set(0.5, 0);
     this.kills.anchor.set(1, 0);
+    this.gold.anchor.set(1, 0);
+    this.coin = new Sprite(atlas.frames[FRAME.COIN]);
+    this.coin.anchor.set(0.5);
+    this.bannerTitle.anchor.set(0.5);
+    this.bannerSub.anchor.set(0.5);
+    this.bannerTitle.alpha = 0;
+    this.bannerSub.alpha = 0;
     this.bossText.anchor.set(0.5, 1);
     this.debugText.anchor.set(1, 0);
     this.joyBase = new Sprite(atlas.fx.ringThin);
@@ -130,6 +149,10 @@ export class Hud {
       this.timer,
       this.level,
       this.kills,
+      this.gold,
+      this.coin,
+      this.bannerTitle,
+      this.bannerSub,
       this.hpText,
       this.resText,
       this.bossText,
@@ -162,7 +185,13 @@ export class Hud {
     this.resText.position.set(12, top + 51);
     this.timer.position.set(width / 2, top + 6);
     this.kills.position.set(width - 12, top + 8);
-    this.debugText.position.set(width - 12, top + 30);
+    this.gold.position.set(width - 12, top + 28);
+    this.coin.position.set(width - 12 - 9, top + 37);
+    this.debugText.position.set(width - 12, top + 50);
+    this.bannerTitle.position.set(width / 2, top + 196);
+    this.bannerSub.position.set(width / 2, top + 222);
+    this.bannerTitle.style.wordWrapWidth = width - 32;
+    this.bannerSub.style.wordWrapWidth = width - 32;
     // Sous les rangées d'icônes (armes : hp.y + 42, passifs : + 76 … + 124).
     const bw = Math.min(420, width * 0.7);
     this.boss.place((width - bw) / 2, top + 152, bw, 8);
@@ -209,6 +238,13 @@ export class Hud {
       this.lastKills = s.kills;
       this.kills.text = `${s.kills} ✦`;
     }
+    const gold = Math.floor(s.gold);
+    if (gold !== this.lastGold) {
+      this.lastGold = gold;
+      this.gold.text = String(gold);
+      this.coin.x = this.gold.x - this.gold.width - 9;
+    }
+    this.updateBanner(dt);
     this.updateWeapons(s);
     const bossVisible = s.bossName !== null;
     this.boss.bg.visible = bossVisible;
@@ -240,6 +276,29 @@ export class Hud {
       this.dashFill.alpha = s.dashReady >= 1 ? 0.55 + 0.15 * Math.sin(this.time * 6) : 0.18;
       this.dash.alpha = s.dashReady >= 1 ? 0.95 : 0.35;
     }
+  }
+
+  /** Bandeau d'annonce (événement, élite) : remplace le précédent, s'efface seul. */
+  banner(title: string, subtitle: string, color: number, hold = 2.4): void {
+    this.bannerTitle.text = title;
+    this.bannerTitle.style.fill = color;
+    this.bannerSub.text = subtitle;
+    this.bannerT = 0;
+    this.bannerHold = hold;
+  }
+
+  private updateBanner(dt: number): void {
+    if (this.bannerT === Infinity) return;
+    this.bannerT += dt;
+    const t = this.bannerT;
+    const a = t < 0.2 ? t / 0.2 : t < this.bannerHold ? 1 : 1 - (t - this.bannerHold) / 0.5;
+    const alpha = Math.max(0, a);
+    this.bannerTitle.alpha = alpha;
+    this.bannerSub.alpha = alpha * 0.9;
+    // Petit rebond d'entrée.
+    const k = t < 0.2 ? 1.25 - 0.25 * (t / 0.2) : 1;
+    this.bannerTitle.scale.set(k);
+    if (alpha <= 0) this.bannerT = Infinity;
   }
 
   private updateWeapons(s: HudState): void {

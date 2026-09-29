@@ -83,6 +83,7 @@ export class AudioEngine {
   private readonly musicIn: GainNode;
   private paused = false;
   private eveil = false;
+  private rift = false;
   private tone = 0;
   private hidden = false;
 
@@ -230,16 +231,29 @@ export class AudioEngine {
     this.updateMusicFx(on ? 0.08 : 0.4);
   }
 
+  /** Faille temporelle : musique ralentie, feutrée, plus réverbérée. */
+  setRift(on: boolean): void {
+    if (on === this.rift) return;
+    this.rift = on;
+    this.music?.setRift(on);
+    this.updateMusicFx(on ? 0.3 : 0.6);
+  }
+
   private updateMusicFx(tau: number): void {
     const t = this.ctx.currentTime;
     const x = Math.max(0, Math.min(1, this.tone / 0.55));
     let cutoff = 6500 * (20000 / 6500) ** x;
     if (this.eveil) cutoff = 20000;
+    if (this.rift) cutoff = 2200;
     if (this.paused) cutoff = 650;
     this.lowpass.frequency.setTargetAtTime(cutoff, t, tau);
     this.satWet.gain.setTargetAtTime(this.eveil ? 0.35 : 0, t, tau);
     this.satDry.gain.setTargetAtTime(this.eveil ? 0.8 : 1, t, tau);
-    this.reverbWet.gain.setTargetAtTime(this.paused ? 0.3 : 0.16 - 0.08 * x, t, tau);
+    this.reverbWet.gain.setTargetAtTime(
+      this.paused ? 0.3 : this.rift ? 0.34 : 0.16 - 0.08 * x,
+      t,
+      tau,
+    );
     this.musicIn.gain.setTargetAtTime(this.paused ? 0.55 : 1, t, tau);
   }
 

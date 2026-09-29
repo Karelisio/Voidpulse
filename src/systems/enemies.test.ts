@@ -34,7 +34,11 @@ import { RunSim } from './sim';
 import { addWeapon } from './weapons';
 import { ZONE } from './zones';
 
-const proto = STAGES.proto as StageDef;
+const proto: StageDef =
+  STAGES.proto ??
+  (() => {
+    throw new Error('Stage prototype absent');
+  })();
 STAGES.arena = { ...proto, id: 'arena', waves: [], runEvents: [] };
 
 /** Arène vide : pas de spawn, pas d'élite ni d'événement, sans arme, joueur invincible. */

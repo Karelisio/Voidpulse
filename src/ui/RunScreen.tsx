@@ -9,6 +9,8 @@ import { SettingsPanel } from './SettingsPanel';
 import type { RunStatus } from '../systems/state';
 import { cardView, rewardView, rouletteIcons } from './cards';
 import { ChestOverlay } from './ChestOverlay';
+import { AltarOverlay, MerchantOverlay } from './EventOverlays';
+import { altarResultText, altarView, merchantView } from './events';
 import { EndOverlay } from './EndOverlay';
 import { LevelUpOverlay } from './LevelUpOverlay';
 import { MusicViz } from './MusicViz';
@@ -19,6 +21,25 @@ declare global {
     /** Accès debug / bench (outils de mesure). */
     __voidpulse?: GameHost;
   }
+}
+
+function showMerchantOf(host: GameHost): void {
+  const st = host.sim.state;
+  if (!st.merchant) return;
+  useUi
+    .getState()
+    .showMerchant(
+      merchantView(st.merchant.offers, st.stats.fragments, host.renderer.atlas.iconUrls),
+    );
+}
+
+function showAltarOf(host: GameHost): void {
+  const altar = host.sim.state.altar;
+  if (!altar) return;
+  useUi.getState().showAltar({
+    offers: altarView(altar.offers),
+    result: altar.result ? altarResultText(altar.result) : null,
+  });
 }
 
 function levelUpView(host: GameHost): LevelUpView {
@@ -59,9 +80,12 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
   const debugPanel = useUi((s) => s.debugPanel);
   const { showLevelUp, showChest, showEnd, setOverlay, toggleDebugPanel } = useUi.getState();
   const chest = useUi((s) => s.chest);
+  const merchant = useUi((s) => s.merchant);
+  const altar = useUi((s) => s.altar);
   const [host, setHost] = useState<GameHost | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [debugWeapon, setDebugWeapon] = useState(0);
+  const [debugEnemy, setDebugEnemy] = useState(0);
 
   const onStatus = useCallback(
     (host: GameHost, status: RunStatus) => {
@@ -73,7 +97,9 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           cards: rewards.map((r, i) => rewardView(r, urls, i)),
           roulette: rouletteIcons(urls),
         });
-      } else if (status === 'dead' || status === 'victory') {
+      } else if (status === 'merchant') showMerchantOf(host);
+      else if (status === 'altar') showAltarOf(host);
+      else if (status === 'dead' || status === 'victory') {
         recordRun(host);
         window.setTimeout(() => {
           showEnd(buildSummary(host.sim, host.renderer.atlas.iconUrls));
@@ -210,6 +236,34 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           }}
         />
       )}
+      {overlay === 'merchant' && merchant && host && (
+        <MerchantOverlay
+          view={merchant}
+          onBuy={(i) => {
+            if (host.sim.buy(i)) showMerchantOf(host);
+            else uiSound(audio(), 'ui.back');
+          }}
+          onLeave={() => {
+            uiSound(audio(), 'ui.back');
+            setOverlay(null);
+            host.sim.closeMerchant();
+          }}
+        />
+      )}
+      {overlay === 'altar' && altar && host && (
+        <AltarOverlay
+          offers={altar.offers}
+          result={altar.result}
+          onChoose={(kind) => {
+            if (host.sim.sacrifice(kind)) showAltarOf(host);
+          }}
+          onClose={() => {
+            uiSound(audio(), altar.result ? 'ui.confirm' : 'ui.back');
+            setOverlay(null);
+            host.sim.closeAltar();
+          }}
+        />
+      )}
       {overlay === 'pause' && host && (
         <div className="overlay pause" role="dialog" aria-label="Pause">
           <h2>Pause</h2>
@@ -328,14 +382,53 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                 </button>
               </div>
               <div className="debug-row">
-                {ENEMIES.map((e, i) => (
+                <select
+                  id="debug-enemy"
+                  value={debugEnemy}
+                  onChange={(e) => {
+                    setDebugEnemy(Number(e.target.value));
+                  }}
+                >
+                  {ENEMIES.map((e, i) => (
+                    <option key={e.id} value={i}>
+                      {e.name}
+                    </option>
+                  ))}
+                </select>
+                {[1, 10, 50].map((n) => (
                   <button
-                    key={e.id}
+                    key={n}
                     onClick={() => {
-                      host.sim.debugSpawn(i, 50);
+                      host.sim.debugSpawn(debugEnemy, n);
                     }}
                   >
-                    +50 {e.name}
+                    +{n}
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    host.sim.debugElite(debugEnemy);
+                  }}
+                >
+                  Élite
+                </button>
+              </div>
+              <div className="debug-row">
+                {(
+                  [
+                    ['merchant', 'Marchand'],
+                    ['altar', 'Autel'],
+                    ['horde', 'Horde'],
+                    ['rift', 'Faille'],
+                  ] as const
+                ).map(([kind, label]) => (
+                  <button
+                    key={kind}
+                    onClick={() => {
+                      host.sim.debugRunEvent(kind);
+                    }}
+                  >
+                    {label}
                   </button>
                 ))}
               </div>
@@ -367,6 +460,13 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                   }}
                 >
                   Charge
+                </button>
+                <button
+                  onClick={() => {
+                    host.startBench({ enemies: 650, shots: 1100, mix: true });
+                  }}
+                >
+                  Charge mixte
                 </button>
               </div>
             </div>

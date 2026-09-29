@@ -9,5 +9,7 @@ export default defineConfig({
       'config/**/*.test.ts',
     ],
     environment: 'node',
+    // Tests de simulation de plusieurs secondes de jeu : marge pour les machines chargées (CI).
+    testTimeout: 30_000,
   },
 });

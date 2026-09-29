@@ -91,6 +91,7 @@ export class GameHost {
       level: 1,
       time: 0,
       kills: 0,
+      gold: 0,
       gauge: 0,
       gaugeMax: RESONANCE.gaugeMax,
       eveil: 0,
@@ -176,6 +177,7 @@ export class GameHost {
     h.level = p.level;
     h.time = st.time;
     h.kills = st.stats.kills;
+    h.gold = st.stats.fragments;
     h.gauge = st.resonance.gauge;
     h.eveil = st.resonance.eveilT / RESONANCE.eveil.duration;
     let key = '';

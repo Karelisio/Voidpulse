@@ -2,9 +2,15 @@
 import { create } from 'zustand';
 import type { CardView } from '../ui/cards';
 import type { ChestView } from '../ui/ChestOverlay';
+import type { MerchantView, SacrificeView } from '../ui/events';
 
 export type Screen = 'title' | 'run';
-export type Overlay = null | 'levelup' | 'chest' | 'pause' | 'end';
+export type Overlay = null | 'levelup' | 'chest' | 'merchant' | 'altar' | 'pause' | 'end';
+
+export interface AltarView {
+  offers: SacrificeView[];
+  result: string | null;
+}
 
 export interface RunSummary {
   victory: boolean;
@@ -34,6 +40,8 @@ interface UiState {
   overlay: Overlay;
   levelUp: LevelUpView | null;
   chest: ChestView | null;
+  merchant: MerchantView | null;
+  altar: AltarView | null;
   summary: RunSummary | null;
   debugUnlocked: boolean;
   debugPanel: boolean;
@@ -42,6 +50,8 @@ interface UiState {
   setOverlay: (overlay: Overlay) => void;
   showLevelUp: (view: LevelUpView) => void;
   showChest: (view: ChestView) => void;
+  showMerchant: (view: MerchantView) => void;
+  showAltar: (view: AltarView) => void;
   showEnd: (summary: RunSummary) => void;
   unlockDebug: () => void;
   toggleDebugPanel: () => void;
@@ -53,6 +63,8 @@ export const useUi = create<UiState>((set) => ({
   overlay: null,
   levelUp: null,
   chest: null,
+  merchant: null,
+  altar: null,
   summary: null,
   debugUnlocked: new URLSearchParams(location.search).has('debug'),
   debugPanel: false,
@@ -68,6 +80,12 @@ export const useUi = create<UiState>((set) => ({
   },
   showChest: (chest) => {
     set({ overlay: 'chest', chest });
+  },
+  showMerchant: (merchant) => {
+    set({ overlay: 'merchant', merchant });
+  },
+  showAltar: (altar) => {
+    set({ overlay: 'altar', altar });
   },
   showEnd: (summary) => {
     set({ overlay: 'end', summary });

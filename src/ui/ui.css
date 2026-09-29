@@ -852,3 +852,106 @@ button:focus-visible {
   font-family: monospace;
   font-size: 11px;
 }
+
+/* --- Événements de run : marchand, autel ---------------------------------------------------- */
+
+.merchant h2 {
+  color: var(--vp-gold);
+  text-shadow: 0 0 18px rgba(255, 210, 61, 0.55);
+}
+
+.gold-line {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--vp-gold);
+}
+
+.coin {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff6c4, var(--vp-gold) 55%, #b88400);
+  box-shadow: 0 0 8px rgba(255, 210, 61, 0.7);
+}
+
+.card.offer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-color: rgba(255, 210, 61, 0.35);
+}
+
+.card.offer .card-main {
+  cursor: default;
+}
+
+.card.offer.sold {
+  opacity: 0.5;
+}
+
+.price {
+  margin-right: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--vp-gold);
+  background: rgba(255, 210, 61, 0.12);
+  color: var(--vp-gold);
+  font: 700 15px var(--vp-font);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.price:disabled {
+  border-color: var(--vp-line);
+  background: none;
+  color: var(--vp-muted);
+  cursor: not-allowed;
+}
+
+.altar h2 {
+  color: #ff5a78;
+  text-shadow: 0 0 18px rgba(255, 62, 94, 0.6);
+}
+
+.card.sacrifice {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 14px 16px;
+  border-color: rgba(255, 62, 94, 0.45);
+  color: var(--vp-fg);
+  font-family: var(--vp-font);
+  text-align: left;
+  cursor: pointer;
+}
+
+.card.sacrifice:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.card.sacrifice:not(:disabled):active {
+  background: rgba(255, 62, 94, 0.1);
+}
+
+.card-line.cost {
+  color: #ff8fa3;
+}
+
+.card-line.gift {
+  color: var(--vp-gold);
+}
+
+.altar-result {
+  max-width: 420px;
+  margin: 8px 0;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--vp-gold);
+}

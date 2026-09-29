@@ -11,6 +11,8 @@ export type MusicScene = 'menu' | 'stage' | 'boss' | 'end';
 
 /** Demi-ton de l'Éveil. */
 export const EVEIL_RATE = 2 ** (1 / 12);
+/** Faille temporelle : la musique ralentit (−3 demi-tons, tempo réduit d'autant). */
+export const RIFT_RATE = 2 ** (-3 / 12);
 
 export interface MusicDebug {
   scene: MusicScene | null;
@@ -171,7 +173,21 @@ export class MusicDirector {
 
   /** Éveil : pitch +1 demi-ton (les effets de bus sont gérés par le moteur). */
   setEveil(on: boolean): void {
-    this.player.setRate(on ? EVEIL_RATE : 1, on ? 0.35 : 0.8);
+    this.eveilOn = on;
+    this.applyRate(on ? 0.35 : 0.8);
+  }
+
+  /** Temps suspendu : ralenti (prioritaire sur l'Éveil). */
+  setRift(on: boolean): void {
+    this.riftOn = on;
+    this.applyRate(on ? 0.6 : 0.9);
+  }
+
+  private eveilOn = false;
+  private riftOn = false;
+
+  private applyRate(seconds: number): void {
+    this.player.setRate(this.riftOn ? RIFT_RATE : this.eveilOn ? EVEIL_RATE : 1, seconds);
   }
 
   get currentScene(): MusicScene | null {

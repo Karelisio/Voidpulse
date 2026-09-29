@@ -3,10 +3,16 @@
  * état de la partie → intensité musicale, scènes musicales (stage, boss, fin de run).
  */
 import { REACTIONS, WEAPONS } from '../content/data';
-import { Pos } from '../engine/components';
+import { Foe, Pos } from '../engine/components';
 import type { EventQueue } from '../engine/events';
 import type { AudioBridge } from '../game/host';
-import { EV, TELEGRAPH_KIND } from '../systems/events';
+import {
+  ENEMY_ACTION,
+  EV,
+  RUN_EVENT_KIND,
+  RUN_EVENT_PHASE,
+  TELEGRAPH_KIND,
+} from '../systems/events';
 import type { RunSim } from '../systems/sim';
 import type { AudioEngine } from './engine';
 import { rawIntensity } from './music/intensity';
@@ -16,17 +22,43 @@ const NEARBY_RADIUS = 420;
 const HIT_IDS = ['fire', 'frost', 'lightning', 'poison', 'arcane', 'void'].map((e) => `hit.${e}`);
 const FIRE_IDS = WEAPONS.map((w) => `fire.${w.id}`);
 const REACTION_IDS = REACTIONS.map((r) => `reaction.${r.id}`);
+/** Sons des actions d'ennemis (index = ENEMY_ACTION). */
+const ACTION_IDS: Record<number, string> = {
+  [ENEMY_ACTION.CHARGE]: 'enemy.charge',
+  [ENEMY_ACTION.DASH]: 'enemy.dash',
+  [ENEMY_ACTION.AIM]: 'enemy.aim',
+  [ENEMY_ACTION.SNIPE]: 'enemy.snipe',
+  [ENEMY_ACTION.VOLLEY]: 'enemy.volley',
+  [ENEMY_ACTION.SUMMON]: 'enemy.summon',
+  [ENEMY_ACTION.HEAL]: 'enemy.heal',
+  [ENEMY_ACTION.SPLIT]: 'enemy.split',
+  [ENEMY_ACTION.MORTAR]: 'mortar.launch',
+  [ENEMY_ACTION.BURROW]: 'burrow.dig',
+  [ENEMY_ACTION.EMERGE]: 'burrow.emerge',
+  [ENEMY_ACTION.ENRAGE]: 'elite.enrage',
+  [ENEMY_ACTION.VOLATILE]: 'elite.volatile',
+};
+const APPEAR_IDS: Record<number, string> = {
+  [RUN_EVENT_KIND.MERCHANT]: 'event.merchant',
+  [RUN_EVENT_KIND.ALTAR]: 'event.altar',
+  [RUN_EVENT_KIND.HORDE]: 'event.horde',
+  [RUN_EVENT_KIND.RIFT]: 'event.rift',
+};
 
 export class GameAudio implements AudioBridge {
   private xpCombo = 0;
   private xpTime = -1;
   private toneTimer = 0;
   private ended = false;
+  /** Faille en cours (son de sortie à sa fin, pas à l'expiration d'une faille inutilisée). */
+  private rift = false;
 
   constructor(readonly engine: AudioEngine) {}
 
   startRun(): void {
     this.ended = false;
+    this.rift = false;
+    this.engine.setRift(false);
     this.xpCombo = 0;
     const m = this.engine.music;
     if (m) {
@@ -50,6 +82,10 @@ export class GameAudio implements AudioBridge {
       const pan = Math.max(-1, Math.min(1, (q.x[i] - camX) * inv));
       switch (type) {
         case EV.HIT: {
+          if (((b >> 17) & 1) === 1) {
+            sfx.play('shield.block', pan);
+            break;
+          }
           const crit = ((b >> 16) & 1) === 1;
           const element = (b >> 8) & 0xff;
           if (crit) sfx.play('hit.crit', pan);
@@ -104,7 +140,9 @@ export class GameAudio implements AudioBridge {
           sfx.play(b === 1 ? 'boss.shot' : 'enemy.shot', pan);
           break;
         case EV.EXPLOSION:
-          sfx.play(a === 1 ? 'mine' : 'explosion', pan);
+          // 5 : obus de mortier ; 7 : surgissement (son porté par l'action d'ennemi).
+          if (a === 5) sfx.play('mortar.impact', pan);
+          else if (a !== 7) sfx.play(a === 1 ? 'mine' : 'explosion', pan);
           break;
         case EV.BLINK:
           sfx.play('blink', pan);
@@ -152,6 +190,42 @@ export class GameAudio implements AudioBridge {
         case EV.FREEZE:
           sfx.play('freeze', pan, 0.8);
           break;
+        case EV.SHIELD_BREAK:
+          sfx.play('shield.break', pan);
+          break;
+        case EV.ENEMY_ACTION: {
+          const id = ACTION_IDS[a];
+          if (id) sfx.play(id, pan);
+          break;
+        }
+        case EV.RUN_EVENT:
+          if (b === RUN_EVENT_PHASE.APPEAR) {
+            const id = APPEAR_IDS[a];
+            if (id) sfx.play(id);
+            e.duck(-4, 0.03, 0.6, 1);
+          } else if (a === RUN_EVENT_KIND.RIFT && b === RUN_EVENT_PHASE.ACTIVATE) {
+            this.rift = true;
+            sfx.play('rift.enter');
+            e.setRift(true);
+          } else if (a === RUN_EVENT_KIND.RIFT && b === RUN_EVENT_PHASE.END && this.rift) {
+            this.rift = false;
+            sfx.play('rift.exit');
+            e.setRift(false);
+          }
+          break;
+        case EV.COIN:
+          sfx.play('coin', pan * 0.5);
+          break;
+        case EV.PLAYER_SLOWED:
+          sfx.play('player.slowed');
+          break;
+        case EV.PURCHASE:
+          sfx.play('shop.buy');
+          break;
+        case EV.SACRIFICE:
+          sfx.play('altar.sacrifice');
+          e.duck(-6, 0.03, 0.8, 1.2);
+          break;
         case EV.RUN_END:
           if (!this.ended) {
             this.ended = true;
@@ -167,7 +241,13 @@ export class GameAudio implements AudioBridge {
   update(sim: RunSim, dt: number, paused: boolean): void {
     const e = this.engine;
     const st = sim.state;
-    e.setPaused(paused || st.status === 'levelup');
+    // Menus en jeu (cartes, coffre, marchand, autel) : musique feutrée.
+    const menu =
+      st.status === 'levelup' ||
+      st.status === 'chest' ||
+      st.status === 'merchant' ||
+      st.status === 'altar';
+    e.setPaused(paused || menu);
     const m = e.music;
     if (!m || paused || st.status !== 'running') return;
     const p = st.player.eid;
@@ -176,14 +256,21 @@ export class GameAudio implements AudioBridge {
     const pool = sim.world.enemies;
     const r2 = NEARBY_RADIUS * NEARBY_RADIUS;
     let nearby = 0;
+    let elites = 0;
     for (let i = 0; i < pool.count; i++) {
       const en = pool.active[i];
       const dx = Pos.x[en] - px;
       const dy = Pos.y[en] - py;
-      if (dx * dx + dy * dy < r2) nearby++;
+      if (dx * dx + dy * dy < r2) {
+        nearby++;
+        elites += Foe.elite[en];
+      }
     }
+    // La horde dorée pousse la musique comme deux élites.
+    if (st.events.hordeT > 0) elites += 2;
     const boss = st.boss.eid >= 0 && sim.world.boss.isActive(st.boss.eid);
-    m.update(rawIntensity(nearby, st.player.hp / Math.max(1, st.player.stats.maxHp), 0, boss), dt);
+    const hp = st.player.hp / Math.max(1, st.player.stats.maxHp);
+    m.update(rawIntensity(nearby, hp, elites, boss), dt);
     this.toneTimer -= dt;
     if (this.toneTimer <= 0) {
       this.toneTimer = 0.1;
