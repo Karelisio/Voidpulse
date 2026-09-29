@@ -2,14 +2,14 @@
 import { useEffect, useState } from 'react';
 import { audio } from '../audio';
 import { uiSound } from '../audio/bridge';
+import { num, t, useLang } from '../i18n';
 import { chestAmount, chestCapacity, claimChest } from '../meta/chest';
 import { readNow, safeNow } from '../meta/clock';
 import { useSave } from '../state/save';
 import { useSession } from '../state/session';
 
-const fmt = (n: number): string => n.toLocaleString('fr-FR');
-
 export function TitleWelcome() {
+  useLang();
   const data = useSave((s) => s.data);
   const welcome = useSession((s) => s.welcome);
   const dismiss = useSession((s) => s.dismissWelcome);
@@ -37,24 +37,30 @@ export function TitleWelcome() {
             dismiss();
           }}
         >
-          <b>Série : jour {welcome.streak.count}</b>
-          <span>+{fmt(welcome.streak.reward)} ◆</span>
+          <b>{t('title.streakDay', { n: welcome.streak.count })}</b>
+          <span>{t('title.streakReward', { n: num(welcome.streak.reward) })}</span>
           {welcome.seasonGranted > 0 && (
-            <small>Saison terminée : {welcome.seasonGranted} palier(s) versé(s)</small>
+            <small>
+              {welcome.seasonGranted === 1
+                ? t('title.seasonEndedOne')
+                : t('title.seasonEndedMany', { n: welcome.seasonGranted })}
+            </small>
           )}
         </button>
       )}
       {data.retention.chest.last > 0 && (
         <div className="welcome-chest">
           <div>
-            <b>Coffre hors ligne</b>
+            <b>{t('title.offlineChest')}</b>
             <span className="welcome-bar" aria-hidden="true">
               <i
                 style={{ width: `${String(Math.min(100, (amount / Math.max(1, cap)) * 100))}%` }}
               />
             </span>
             <small>
-              {claimed > 0 ? `+${fmt(claimed)} ◆ récupérés` : `${fmt(amount)} / ${fmt(cap)} ◆`}
+              {claimed > 0
+                ? t('title.chestClaimed', { n: num(claimed) })
+                : t('title.chestFill', { amount: num(amount), cap: num(cap) })}
             </small>
           </div>
           <button
@@ -71,7 +77,7 @@ export function TitleWelcome() {
               setNow(readNow(useSave.getState().data));
             }}
           >
-            Récupérer
+            {t('title.claim')}
           </button>
         </div>
       )}

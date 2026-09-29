@@ -2,6 +2,7 @@
 import { audio } from '../../audio';
 import { uiSound } from '../../audio/bridge';
 import type { MetaStats } from '../../content/data';
+import { t, num } from '../../i18n';
 import { addStats } from '../../meta/stats';
 import type { SaveData } from '../../save/schema';
 import { useSave } from '../../state/save';
@@ -15,10 +16,10 @@ export const mutate = (fn: (d: SaveData) => void): void => {
   useSave.getState().update(fn);
 };
 
-export const fmt = (n: number): string => Math.round(n).toLocaleString('fr-FR');
+export const fmt = (n: number): string => num(Math.round(n));
 
 /** Pourcentage entier arrondi vers le bas (100 % seulement si complet). */
-export const pct = (ratio: number): string => `${String(Math.floor(ratio * 100 + 1e-9))} %`;
+export const pct = (ratio: number): string => t('meta.pct', { n: Math.floor(ratio * 100 + 1e-9) });
 
 export function tone(hex: string): React.CSSProperties {
   return { '--tone': hex } as React.CSSProperties;

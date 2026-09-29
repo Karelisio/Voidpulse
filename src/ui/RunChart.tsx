@@ -4,6 +4,7 @@
  * partagent l'axe du temps. Réticule au survol ou au doigt, tableau des relevés en option.
  */
 import { useState, type PointerEvent } from 'react';
+import { locale, num, t, useLang } from '../i18n';
 import { formatTime } from './summary';
 
 export interface ChartData {
@@ -35,7 +36,7 @@ function niceMax(v: number): number {
 }
 
 const compact = (v: number): string =>
-  v.toLocaleString('fr-FR', { notation: 'compact', maximumFractionDigits: 1 });
+  v.toLocaleString(locale(), { notation: 'compact', maximumFractionDigits: 1 });
 
 /** Pas des graduations de temps (s) : environ 4 à 6 graduations. */
 function timeStep(total: number): number {
@@ -44,6 +45,7 @@ function timeStep(total: number): number {
 }
 
 export function RunChart({ data }: { data: ChartData }) {
+  useLang();
   const n = data.dps.length;
   const [hover, setHover] = useState<number | null>(null);
   if (n < 2) return null;
@@ -78,7 +80,7 @@ export function RunChart({ data }: { data: ChartData }) {
         <svg
           viewBox={`0 0 ${String(W)} ${String(H)}`}
           role="img"
-          aria-label="Dégâts par seconde et PV au fil de la partie"
+          aria-label={t('end.chartAria')}
           onPointerMove={onMove}
           onPointerDown={onMove}
           onPointerLeave={() => {
@@ -87,7 +89,7 @@ export function RunChart({ data }: { data: ChartData }) {
         >
           {/* Dégâts par seconde */}
           <text className="rc-title" x={PAD_L} y={TOP - 6}>
-            Dégâts par seconde
+            {t('end.dpsTitle')}
           </text>
           {[0, 0.5, 1].map((k) => (
             <g key={`d${String(k)}`}>
@@ -114,13 +116,13 @@ export function RunChart({ data }: { data: ChartData }) {
           />
           {/* PV */}
           <text className="rc-title" x={PAD_L} y={hpTop - 6}>
-            PV
+            {t('end.hp')}
           </text>
           {[0, 0.5, 1].map((k) => (
             <g key={`h${String(k)}`}>
               <line className="rc-grid" x1={PAD_L} x2={W - PAD_R} y1={yHp(k)} y2={yHp(k)} />
               <text className="rc-tick" x={PAD_L - 6} y={yHp(k) + 4} textAnchor="end">
-                {String(Math.round(k * 100))} %
+                {t('end.axisPct', { n: Math.round(k * 100) })}
               </text>
             </g>
           ))}
@@ -160,31 +162,31 @@ export function RunChart({ data }: { data: ChartData }) {
             <b>{formatTime((h + 1) * data.step)}</b>
             <span>
               <i style={{ background: DPS_COLOR }} />
-              {Math.round(data.dps[h]).toLocaleString('fr-FR')} dégâts/s
+              {t('end.tipDps', { n: Math.round(data.dps[h]) })}
             </span>
             <span>
               <i style={{ background: HP_COLOR }} />
-              {String(Math.round(data.hp[h] * 100))} % PV
+              {t('end.tipHp', { n: Math.round(data.hp[h] * 100) })}
             </span>
           </div>
         )}
       </div>
       <details className="rc-table">
-        <summary>Tableau des relevés</summary>
+        <summary>{t('end.tableSummary')}</summary>
         <table>
           <thead>
             <tr>
-              <th>Temps</th>
-              <th>Dégâts/s</th>
-              <th>PV</th>
+              <th>{t('end.time')}</th>
+              <th>{t('end.colDps')}</th>
+              <th>{t('end.hp')}</th>
             </tr>
           </thead>
           <tbody>
             {data.dps.map((v, i) => (
               <tr key={i}>
                 <td>{formatTime((i + 1) * data.step)}</td>
-                <td>{Math.round(v).toLocaleString('fr-FR')}</td>
-                <td>{String(Math.round(data.hp[i] * 100))} %</td>
+                <td>{num(Math.round(v))}</td>
+                <td>{t('end.axisPct', { n: Math.round(data.hp[i] * 100) })}</td>
               </tr>
             ))}
           </tbody>

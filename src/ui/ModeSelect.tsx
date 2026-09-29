@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { audio } from '../audio';
 import { uiSound } from '../audio/bridge';
 import { CAMPAIGN, MODES, type ModeId } from '../content/data';
+import { num, t, useLang } from '../i18n';
 import {
   MODE_INFO,
   bossName,
@@ -17,6 +18,7 @@ import { formatTime } from './summary';
 import { shipPortrait } from './portraits';
 
 function ModeDetail({ mode }: { mode: ModeId }) {
+  useLang();
   const data = useSave((s) => s.data);
   const m = data.modes;
   const now = useMemo(() => new Date(), []);
@@ -24,7 +26,7 @@ function ModeDetail({ mode }: { mode: ModeId }) {
     case 'campaign':
       return (
         <p className="mode-stat">
-          Secteurs terminés : <b>{data.profile.cleared.length}</b> / {CAMPAIGN.length}
+          {t('modes.clearedLabel')} <b>{data.profile.cleared.length}</b> / {CAMPAIGN.length}
         </p>
       );
     case 'endless':
@@ -37,7 +39,7 @@ function ModeDetail({ mode }: { mode: ModeId }) {
           ))}
         </ol>
       ) : (
-        <p className="mode-stat">Classement vide : à vous d’ouvrir la marche.</p>
+        <p className="mode-stat">{t('modes.boardEmpty')}</p>
       );
     case 'daily': {
       const c = dailyChallenge(dayKey(now));
@@ -50,13 +52,17 @@ function ModeDetail({ mode }: { mode: ModeId }) {
             <p>
               <b>{c.character.name}</b> · {c.stage.name}
             </p>
-            <p className="muted">Pactes : {c.pacts.map((p) => p.name).join(', ') || 'aucun'}</p>
+            <p className="muted">
+              {t('modes.pacts', {
+                list: c.pacts.map((p) => p.name).join(', ') || t('core.none'),
+              })}
+            </p>
             <p className="mode-stat">
               {done
                 ? today
-                  ? `Essai du jour : ${today.score.toLocaleString('fr-FR')} pts (${formatTime(today.time)})`
-                  : 'Essai du jour utilisé : les suivants sont hors classement.'
-                : 'Essai compté disponible.'}
+                  ? t('modes.dailyScore', { score: num(today.score), time: formatTime(today.time) })
+                  : t('modes.dailyUsed')
+                : t('modes.dailyAvailable')}
             </p>
           </div>
         </div>
@@ -73,12 +79,12 @@ function ModeDetail({ mode }: { mode: ModeId }) {
           </p>
           <p className="muted">{c.ruleset.description}</p>
           {c.bosses.length > 0 && (
-            <p className="muted">Boss : {c.bosses.map(bossName).join(', ')}</p>
+            <p className="muted">
+              {t('modes.weeklyBosses', { list: c.bosses.map(bossName).join(', ') })}
+            </p>
           )}
           <p className="mode-stat">
-            {best > 0
-              ? `Record de la semaine : ${best.toLocaleString('fr-FR')} pts`
-              : 'Pas encore tenté cette semaine.'}
+            {best > 0 ? t('modes.weeklyBest', { score: num(best) }) : t('modes.weeklyNone')}
           </p>
         </div>
       );
@@ -86,22 +92,25 @@ function ModeDetail({ mode }: { mode: ModeId }) {
     case 'bossrush':
       return (
         <p className="mode-stat">
-          {bossRushQueue().length} boss · build de {MODES.bossRush.weapons} armes et{' '}
-          {MODES.bossRush.passives} passifs.{' '}
+          {t('modes.bossRushInfo', {
+            n: bossRushQueue().length,
+            weapons: MODES.bossRush.weapons,
+            passives: MODES.bossRush.passives,
+          })}{' '}
           {m.bossRush.bestTime > 0
-            ? `Meilleur temps : ${formatTime(m.bossRush.bestTime)}.`
-            : `Record : ${String(m.bossRush.bestBosses)} boss vaincus.`}
+            ? t('modes.bossRushTime', { time: formatTime(m.bossRush.bestTime) })
+            : t('modes.bossRushRecord', { n: m.bossRush.bestBosses })}
         </p>
       );
     case 'hardcore':
       return (
         <p className="mode-stat">
-          Victoires : <b>{m.hardcore.victories}</b> · meilleur score{' '}
-          {m.hardcore.bestScore.toLocaleString('fr-FR')}
+          {t('modes.winsLabel')} <b>{m.hardcore.victories}</b> ·{' '}
+          {t('modes.bestScore', { score: num(m.hardcore.bestScore) })}
         </p>
       );
     case 'training':
-      return <p className="mode-stat">Parties non comptées, aucune récompense.</p>;
+      return <p className="mode-stat">{t('modes.training')}</p>;
   }
 }
 
@@ -112,6 +121,7 @@ export function ModeSelect({
   onPick: (mode: ModeId) => void;
   onBack: () => void;
 }) {
+  useLang();
   const data = useSave((s) => s.data);
   const [selected, setSelected] = useState<ModeId>(() => {
     const last = MODES.modes.find((x) => x.id === data.profile.mode);
@@ -120,11 +130,11 @@ export function ModeSelect({
   const info = MODE_INFO[selected];
   return (
     <main className="select">
-      <h2>Mode</h2>
-      <p className="wallet" aria-label="Fragments">
-        ◆ {data.wallet.fragments.toLocaleString('fr-FR')} fragments
+      <h2>{t('modes.title')}</h2>
+      <p className="wallet" aria-label={t('modes.walletAria')}>
+        ◆ {t('core.fragments', { n: data.wallet.fragments })}
       </p>
-      <div className="mode-list" role="listbox" aria-label="Modes de jeu">
+      <div className="mode-list" role="listbox" aria-label={t('modes.listAria')}>
         {MODES.modes.map((m) => (
           <button
             key={m.id}
@@ -157,7 +167,7 @@ export function ModeSelect({
             onPick(selected);
           }}
         >
-          Continuer
+          {t('core.continue')}
         </button>
         <button
           className="btn-ghost"
@@ -166,7 +176,7 @@ export function ModeSelect({
             onBack();
           }}
         >
-          Retour
+          {t('core.back')}
         </button>
       </div>
     </main>

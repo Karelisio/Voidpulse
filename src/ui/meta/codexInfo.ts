@@ -1,5 +1,6 @@
 /** Fiche d'une entrée du codex : nom, image, description, faits chiffrés. */
 import { BOSSES, CAMPAIGN, ENEMIES, PASSIVES, REACTIONS, WEAPONS } from '../../content/data';
+import { t } from '../../i18n';
 import type { CodexCategory } from '../../meta/codex';
 import { bossPortrait, iconUrl } from '../portraits';
 import { enemyPortrait } from './art';
@@ -17,7 +18,7 @@ export interface CodexInfo {
 }
 
 function biomeName(biome: string): string {
-  if (biome === 'event') return 'Événement';
+  if (biome === 'event') return t('meta.event');
   return CAMPAIGN.find((s) => s.biome === biome)?.name ?? biome;
 }
 
@@ -32,10 +33,10 @@ export function codexInfo(cat: CodexCategory, id: string): CodexInfo | null {
         color: e.color,
         description: e.description,
         facts: [
-          ['Biome', biomeName(e.biome)],
-          ['PV', fmt(e.hp)],
-          ['Dégâts', fmt(e.damage)],
-          ['Vitesse', fmt(e.speed)],
+          [t('meta.factBiome'), biomeName(e.biome)],
+          [t('meta.factHp'), fmt(e.hp)],
+          [t('meta.factDamage'), fmt(e.damage)],
+          [t('meta.factSpeed'), fmt(e.speed)],
         ],
         elements: e.element ? [e.element] : [],
       };
@@ -48,7 +49,7 @@ export function codexInfo(cat: CodexCategory, id: string): CodexInfo | null {
         img: iconUrl(w.id),
         color: w.color,
         description: w.description,
-        facts: [['Niveaux', String(w.levels.length + 1)]],
+        facts: [[t('meta.factLevels'), String(w.levels.length + 1)]],
         elements: [w.element],
       };
     }
@@ -61,9 +62,9 @@ export function codexInfo(cat: CodexCategory, id: string): CodexInfo | null {
         color: w.color,
         description: w.evolution.description,
         facts: [
-          ['Arme', w.name],
+          [t('meta.factWeapon'), w.name],
           [
-            'Passif requis',
+            t('meta.factPassive'),
             PASSIVES.find((p) => p.id === w.evolution.passive)?.name ?? w.evolution.passive,
           ],
         ],
@@ -90,10 +91,10 @@ export function codexInfo(cat: CodexCategory, id: string): CodexInfo | null {
         color: b.color,
         description: '',
         facts: [
-          ['Type', b.kind === 'mini' ? 'Mini-boss' : 'Boss final'],
-          ['Biome', biomeName(b.biome)],
-          ['PV', fmt(b.hp)],
-          ['Contact', fmt(b.contactDamage)],
+          [t('meta.factType'), b.kind === 'mini' ? t('meta.bossMini') : t('meta.bossFinal')],
+          [t('meta.factBiome'), biomeName(b.biome)],
+          [t('meta.factHp'), fmt(b.hp)],
+          [t('meta.factContact'), fmt(b.contactDamage)],
         ],
         elements: b.element ? [b.element] : [],
       };

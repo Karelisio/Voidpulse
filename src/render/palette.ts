@@ -13,8 +13,10 @@ export const PALETTE = {
   white: 0xffffff,
 } as const;
 
-/** Couleur des éléments (projectiles, marques, réactions). */
-export const ELEMENT_COLORS = [0xff7a2f, 0x7fe8ff, 0xfff06a, 0x9cff3d, 0xff6af0, 0x8a5cff] as const;
+/** Couleur des éléments (projectiles, marques, réactions) ; remplacée par la palette daltonienne choisie. */
+export const ELEMENT_COLORS: number[] = [
+  0xff7a2f, 0x7fe8ff, 0xfff06a, 0x9cff3d, 0xff6af0, 0x8a5cff,
+];
 
 export function css(color: number, alpha = 1): string {
   const r = (color >> 16) & 255;

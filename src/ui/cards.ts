@@ -1,5 +1,6 @@
 /** Modèles d'affichage des cartes de montée de niveau et des récompenses de coffre. */
 import { EVOLUTION_PASSIVE, PASSIVES, WEAPONS, type WeaponDef } from '../content/data';
+import { t, type TKey } from '../i18n';
 import type { ChestReward, LevelUpChoice } from '../systems/state';
 
 export interface CardView {
@@ -22,55 +23,75 @@ export interface OwnedWeapon {
 
 type Icons = Readonly<Partial<Record<string, string>>>;
 
-const fmt = (n: number): string =>
-  Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/0+$/, '').replace('.', ',');
+type Archetype = WeaponDef['archetype'];
 
-export const ARCHETYPE_LABEL: Record<WeaponDef['archetype'], string> = {
-  projectile: 'Projectile',
-  orbit: 'Orbite',
-  beam: 'Rayon',
-  nova: 'Nova',
-  boomerang: 'Boomerang',
-  chain: 'Chaîne',
-  aura: 'Aura',
-  mines: 'Mines',
-  homing: 'Tête chercheuse',
-  zone: 'Zone',
+export const ARCHETYPE_LABEL: Record<Archetype, string> = {
+  get projectile() {
+    return t('run.archProjectile');
+  },
+  get orbit() {
+    return t('run.archOrbit');
+  },
+  get beam() {
+    return t('run.archBeam');
+  },
+  get nova() {
+    return t('run.archNova');
+  },
+  get boomerang() {
+    return t('run.archBoomerang');
+  },
+  get chain() {
+    return t('run.archChain');
+  },
+  get aura() {
+    return t('run.archAura');
+  },
+  get mines() {
+    return t('run.archMines');
+  },
+  get homing() {
+    return t('run.archHoming');
+  },
+  get zone() {
+    return t('run.archZone');
+  },
 };
 
-const COUNT_UNIT: Record<WeaponDef['archetype'], [string, string]> = {
-  projectile: ['projectile', 'projectiles'],
-  orbit: ['éclat', 'éclats'],
-  beam: ['rayon', 'rayons'],
-  nova: ['impulsion', 'impulsions'],
-  boomerang: ['lame', 'lames'],
-  chain: ['rebond', 'rebonds'],
-  aura: ['aura', 'auras'],
-  mines: ['mine', 'mines'],
-  homing: ['missile', 'missiles'],
-  zone: ['zone', 'zones'],
+/** Unité de dénombrement (singulier, pluriel) de chaque archétype. */
+const COUNT_UNIT: Record<Archetype, [TKey, TKey]> = {
+  projectile: ['run.unitProjectileOne', 'run.unitProjectileMany'],
+  orbit: ['run.unitOrbitOne', 'run.unitOrbitMany'],
+  beam: ['run.unitBeamOne', 'run.unitBeamMany'],
+  nova: ['run.unitNovaOne', 'run.unitNovaMany'],
+  boomerang: ['run.unitBoomerangOne', 'run.unitBoomerangMany'],
+  chain: ['run.unitChainOne', 'run.unitChainMany'],
+  aura: ['run.unitAuraOne', 'run.unitAuraMany'],
+  mines: ['run.unitMinesOne', 'run.unitMinesMany'],
+  homing: ['run.unitHomingOne', 'run.unitHomingMany'],
+  zone: ['run.unitZoneOne', 'run.unitZoneMany'],
 };
 
-const RANGE_LABEL: Record<WeaponDef['archetype'], string> = {
-  projectile: 'de portée',
-  orbit: "de rayon d'orbite",
-  beam: 'de longueur',
-  nova: 'de rayon',
-  boomerang: 'de portée',
-  chain: 'de portée',
-  aura: 'de rayon',
-  mines: "de rayon d'explosion",
-  homing: 'de portée',
-  zone: 'de rayon',
+const RANGE_LABEL: Record<Archetype, TKey> = {
+  projectile: 'run.rangeReach',
+  orbit: 'run.rangeOrbit',
+  beam: 'run.rangeLength',
+  nova: 'run.rangeRadius',
+  boomerang: 'run.rangeReach',
+  chain: 'run.rangeReach',
+  aura: 'run.rangeRadius',
+  mines: 'run.rangeBlast',
+  homing: 'run.rangeReach',
+  zone: 'run.rangeRadius',
 };
 
-const STATUS_LABEL: Record<string, string> = {
-  fire: 'brûlure plus forte',
-  frost: 'gel plus rapide',
-  lightning: 'électrisation plus longue',
-  poison: 'toxines plus nombreuses',
-  arcane: 'exposition accrue',
-  void: 'entropie accrue',
+const STATUS_LABEL: Partial<Record<string, TKey>> = {
+  fire: 'run.statusFire',
+  frost: 'run.statusFrost',
+  lightning: 'run.statusLightning',
+  poison: 'run.statusPoison',
+  arcane: 'run.statusArcane',
+  void: 'run.statusVoid',
 };
 
 function weaponDelta(def: WeaponDef, level: number): string[] {
@@ -78,15 +99,19 @@ function weaponDelta(def: WeaponDef, level: number): string[] {
   if (!d) return [];
   const out: string[] = [];
   const unit = COUNT_UNIT[def.archetype];
-  if (d.damage) out.push(`+${fmt(d.damage)} dégâts`);
-  if (d.count) out.push(`+${d.count} ${d.count > 1 ? unit[1] : unit[0]}`);
-  if (d.pierce) out.push(`+${d.pierce} perforation`);
-  if (d.cooldown) out.push(`${fmt(d.cooldown)} s de recharge`);
-  if (d.range) out.push(`+${fmt(d.range)} ${RANGE_LABEL[def.archetype]}`);
-  if (d.speed) out.push(def.archetype === 'orbit' ? 'rotation plus rapide' : 'plus rapide');
-  if (d.size) out.push(def.archetype === 'beam' ? 'rayon plus large' : 'plus gros');
-  if (d.duration) out.push(`+${fmt(d.duration)} s de durée`);
-  if (d.status) out.push(STATUS_LABEL[def.element] ?? 'statut renforcé');
+  if (d.damage) out.push(t('run.deltaDamage', { n: d.damage }));
+  if (d.count) {
+    out.push(t('run.deltaCount', { n: d.count, unit: t(d.count > 1 ? unit[1] : unit[0]) }));
+  }
+  if (d.pierce) out.push(t('run.deltaPierce', { n: d.pierce }));
+  if (d.cooldown) out.push(t('run.deltaCooldown', { n: d.cooldown }));
+  if (d.range) {
+    out.push(t('run.deltaRange', { n: d.range, label: t(RANGE_LABEL[def.archetype]) }));
+  }
+  if (d.speed) out.push(t(def.archetype === 'orbit' ? 'run.deltaSpinFaster' : 'run.deltaFaster'));
+  if (d.size) out.push(t(def.archetype === 'beam' ? 'run.deltaWiderBeam' : 'run.deltaBigger'));
+  if (d.duration) out.push(t('run.deltaDuration', { n: d.duration }));
+  if (d.status) out.push(t(STATUS_LABEL[def.element] ?? 'run.statusDefault'));
   return out;
 }
 
@@ -98,9 +123,9 @@ export function cardView(
   if (c.kind === 'heal') {
     return {
       key: 'heal',
-      title: 'Réparation',
-      badge: 'SOIN',
-      lines: ['Rend 30 PV.'],
+      title: t('run.healTitle'),
+      badge: t('run.healBadge'),
+      lines: [t('run.healLine', { n: 30 })],
       icon: icons.heal ?? '',
       element: null,
       kind: 'heal',
@@ -115,13 +140,13 @@ export function cardView(
       title: def.name,
       badge:
         c.kind === 'weapon-new'
-          ? `NOUVELLE ARME · ${ARCHETYPE_LABEL[def.archetype].toUpperCase()}`
-          : `NIVEAU ${c.level}`,
+          ? t('run.newWeaponBadge', { type: ARCHETYPE_LABEL[def.archetype].toUpperCase() })
+          : t('run.levelBadge', { n: c.level }),
       lines: c.kind === 'weapon-new' ? [def.description] : weaponDelta(def, c.level),
       icon: icons[def.id] ?? '',
       element: def.element,
       kind: 'weapon',
-      hint: `Évolue avec ${passive.name}`,
+      hint: t('run.evolvesWith', { passive: passive.name }),
     };
   }
   const def = PASSIVES[c.index];
@@ -129,14 +154,15 @@ export function cardView(
   return {
     key: `p:${def.id}`,
     title: def.name,
-    badge: c.kind === 'passive-new' ? 'NOUVEAU PASSIF' : `NIVEAU ${c.level}`,
+    badge:
+      c.kind === 'passive-new' ? t('run.newPassiveBadge') : t('run.levelBadge', { n: c.level }),
     lines: [def.description],
     icon: icons[def.id] ?? '',
     element: null,
     kind: 'passive',
     hint:
       evolves.length > 0
-        ? `Fait évoluer : ${evolves.map((w) => WEAPONS[w.defIndex].name).join(', ')}`
+        ? t('run.evolvesList', { list: evolves.map((w) => WEAPONS[w.defIndex].name).join(', ') })
         : null,
   };
 }
@@ -149,12 +175,12 @@ export function rewardView(r: ChestReward, icons: Icons, i: number): CardView {
       return {
         key: `r${i}`,
         title: def.evolution.name,
-        badge: 'ÉVOLUTION',
+        badge: t('run.evolutionBadge'),
         lines: [def.evolution.description],
         icon: icons[def.evolution.id] ?? '',
         element: def.element,
         kind: 'evolution',
-        hint: `${def.name} a évolué`,
+        hint: t('run.hasEvolved', { name: def.name }),
       };
     }
     case 'weapon-up': {
@@ -162,7 +188,7 @@ export function rewardView(r: ChestReward, icons: Icons, i: number): CardView {
       return {
         key: `r${i}`,
         title: def.name,
-        badge: `NIVEAU ${r.value}`,
+        badge: t('run.levelBadge', { n: r.value }),
         lines: weaponDelta(def, r.value),
         icon: icons[def.id] ?? '',
         element: def.element,
@@ -175,7 +201,7 @@ export function rewardView(r: ChestReward, icons: Icons, i: number): CardView {
       return {
         key: `r${i}`,
         title: def.name,
-        badge: `NIVEAU ${r.value}`,
+        badge: t('run.levelBadge', { n: r.value }),
         lines: [def.description],
         icon: icons[def.id] ?? '',
         element: null,
@@ -186,9 +212,9 @@ export function rewardView(r: ChestReward, icons: Icons, i: number): CardView {
     case 'heal':
       return {
         key: `r${i}`,
-        title: 'Réparation',
-        badge: 'SOIN',
-        lines: [`Rend ${r.value} PV.`],
+        title: t('run.healTitle'),
+        badge: t('run.healBadge'),
+        lines: [t('run.healLine', { n: r.value })],
         icon: icons.heal ?? '',
         element: null,
         kind: 'heal',
@@ -197,9 +223,9 @@ export function rewardView(r: ChestReward, icons: Icons, i: number): CardView {
     case 'gold':
       return {
         key: `r${i}`,
-        title: 'Fragments',
-        badge: 'BUTIN',
-        lines: [`+${r.value} fragments.`],
+        title: t('run.goldTitle'),
+        badge: t('run.goldBadge'),
+        lines: [t('run.goldLine', { n: r.value })],
         icon: icons.gold ?? '',
         element: null,
         kind: 'gold',
@@ -215,10 +241,22 @@ export function rouletteIcons(icons: Icons): string[] {
 }
 
 export const ELEMENT_LABEL: Record<string, string> = {
-  fire: 'Feu',
-  frost: 'Givre',
-  lightning: 'Foudre',
-  poison: 'Poison',
-  arcane: 'Arcane',
-  void: 'Vide',
+  get fire() {
+    return t('run.elFire');
+  },
+  get frost() {
+    return t('run.elFrost');
+  },
+  get lightning() {
+    return t('run.elLightning');
+  },
+  get poison() {
+    return t('run.elPoison');
+  },
+  get arcane() {
+    return t('run.elArcane');
+  },
+  get void() {
+    return t('run.elVoid');
+  },
 };

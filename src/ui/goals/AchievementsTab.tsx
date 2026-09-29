@@ -1,6 +1,7 @@
 /** Succès : bilan, filtres et liste des 200 succès. */
 import { useMemo, useState } from 'react';
 import { ACHIEVEMENTS, type AchievementDef } from '../../content/data';
+import { t, useLang, type TKey } from '../../i18n';
 import { achievementProgress } from '../../meta/achievements';
 import type { SaveData } from '../../save/schema';
 import { fmt, pct, sfx } from '../meta/common';
@@ -8,10 +9,10 @@ import { fmtValue, isDecimal } from './format';
 
 type Filter = 'all' | 'done' | 'todo';
 
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: 'all', label: 'Tous' },
-  { id: 'done', label: 'Débloqués' },
-  { id: 'todo', label: 'En cours' },
+const FILTERS: { id: Filter; label: TKey }[] = [
+  { id: 'all', label: 'goals.filterAll' },
+  { id: 'done', label: 'goals.filterDone' },
+  { id: 'todo', label: 'goals.filterTodo' },
 ];
 
 interface Row {
@@ -22,6 +23,7 @@ interface Row {
 }
 
 function Card({ row }: { row: Row }) {
+  useLang();
   const { a, value, target, done } = row;
   const ratio = Math.min(1, value / target);
   return (
@@ -50,6 +52,7 @@ function Card({ row }: { row: Row }) {
 }
 
 export function AchievementsTab({ data }: { data: SaveData }) {
+  useLang();
   const [filter, setFilter] = useState<Filter>('todo');
   const unlocked = data.retention.achievements;
 
@@ -77,22 +80,20 @@ export function AchievementsTab({ data }: { data: SaveData }) {
   return (
     <>
       <section className="meta-panel">
-        <h3>
-          {doneRows.length} / {rows.length} débloqués
-        </h3>
+        <h3>{t('goals.summary', { done: doneRows.length, total: rows.length })}</h3>
         <div className="meta-bar">
           <i style={{ width: `${String(Math.floor((doneRows.length / rows.length) * 100))}%` }} />
         </div>
         <p className="goals-summary">
           <span>
-            Gagné : <b>{fmt(earned)} ◆</b>
+            {t('goals.earned')} <b>{fmt(earned)} ◆</b>
           </span>
           <span>
-            À gagner : <b>{fmt(pending)} ◆</b>
+            {t('goals.pending')} <b>{fmt(pending)} ◆</b>
           </span>
         </p>
       </section>
-      <div className="goals-chips" role="group" aria-label="Filtre des succès">
+      <div className="goals-chips" role="group" aria-label={t('goals.filterAria')}>
         {FILTERS.map((f) => (
           <button
             key={f.id}
@@ -104,13 +105,13 @@ export function AchievementsTab({ data }: { data: SaveData }) {
               setFilter(f.id);
             }}
           >
-            {f.label} <small>{counts[f.id]}</small>
+            {t(f.label)} <small>{counts[f.id]}</small>
           </button>
         ))}
       </div>
       {shown.length === 0 ? (
         <p className="meta-intro goals-empty">
-          {filter === 'done' ? 'Aucun succès débloqué pour le moment.' : 'Tout est débloqué !'}
+          {filter === 'done' ? t('goals.emptyDone') : t('goals.allDone')}
         </p>
       ) : (
         <ul className="goals-list">

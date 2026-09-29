@@ -1,5 +1,6 @@
 /** Outils d'affichage des objectifs : durées, valeurs, icônes des quêtes. */
 import type { QuestTemplateDef } from '../../content/data';
+import { num, t } from '../../i18n';
 import type { SaveData } from '../../save/schema';
 
 /** Exécute une modification de la sauvegarde avec l'instant sûr ; les succès sont évalués après. */
@@ -44,7 +45,7 @@ export const isDecimal = (metric: string): boolean =>
 /** Valeur affichée : tronquée (jamais « 20 » avant d'avoir atteint 20), la cible une fois atteinte. */
 export function fmtValue(value: number, target: number, decimal: boolean): string {
   const v = value >= target ? target : decimal ? Math.floor(value * 10) / 10 : Math.floor(value);
-  return v.toLocaleString('fr-FR', { maximumFractionDigits: decimal ? 1 : 0 });
+  return num(v, decimal ? 1 : 0);
 }
 
 /** Prochain minuit local. */
@@ -68,7 +69,10 @@ export function fmtDuration(ms: number): string {
   const d = Math.floor(total / 1440);
   const h = Math.floor((total % 1440) / 60);
   const m = total % 60;
-  if (d > 0) return `${String(d)} j ${String(h)} h`;
-  if (h > 0) return `${String(h)} h ${String(m)} min`;
-  return `${String(m)} min`;
+  const day = t('core.days', { n: d });
+  const hour = t('core.hours', { n: h });
+  const min = t('core.minutes', { n: m });
+  if (d > 0) return `${day} ${hour}`;
+  if (h > 0) return `${hour} ${min}`;
+  return min;
 }

@@ -1,0 +1,232 @@
+/*
+ * Thèmes de l'interface. Arcade (défaut) : direction artistique néon de ui.css. Clair, Sombre et
+ * Material You : sobres, sans halos ; Material You reprend les formes de Material 3 (boutons en
+ * pilule pleins ou tonals, cartes, puces, feuille du bas, bouton flottant, barre de navigation).
+ * Les jetons de couleur sont posés par src/theme/index.ts ; le jeu garde sa DA.
+ */
+
+/* --- Tous les thèmes hors Arcade : pas de néon ------------------------------------------ */
+
+:root:not([data-theme='arcade']) body,
+:root:not([data-theme='arcade']) #root {
+  background: var(--vp-bg);
+  color: var(--vp-fg);
+}
+
+:root:not([data-theme='arcade']) .title,
+:root:not([data-theme='arcade']) .select,
+:root:not([data-theme='arcade']) .meta,
+:root:not([data-theme='arcade']) .goals {
+  background: var(--vp-bg);
+  color: var(--vp-fg);
+}
+
+:root:not([data-theme='arcade']) main *,
+:root:not([data-theme='arcade']) .overlay *,
+:root:not([data-theme='arcade']) .settings * {
+  text-shadow: none !important;
+}
+
+:root:not([data-theme='arcade']) main button,
+:root:not([data-theme='arcade']) .overlay button,
+:root:not([data-theme='arcade']) main [class*='cell'],
+:root:not([data-theme='arcade']) main [class*='card'],
+:root:not([data-theme='arcade']) .overlay [class*='card'] {
+  box-shadow: none !important;
+}
+
+:root:not([data-theme='arcade']) .wordmark {
+  color: var(--vp-fg);
+}
+
+:root:not([data-theme='arcade']) .pulse-ring {
+  box-shadow: none;
+}
+
+:root:not([data-theme='arcade']) .overlay {
+  background: var(--vp-overlay);
+  backdrop-filter: blur(6px);
+  color: var(--vp-fg);
+}
+
+:root:not([data-theme='arcade']) .btn-primary {
+  border: 0;
+  background: var(--vp-accent);
+  color: var(--vp-on-accent);
+}
+
+:root:not([data-theme='arcade']) .version {
+  color: var(--vp-muted);
+}
+
+:root[data-scheme='light'] .card,
+:root[data-scheme='light'] .set-panel {
+  color: var(--vp-fg);
+}
+
+/* --- Material You (Material 3) ---------------------------------------------------------- */
+
+:root[data-theme='material'] {
+  --vp-font: 'Roboto Flex', Roboto, system-ui, sans-serif;
+}
+
+:root[data-theme='material'] body {
+  font-family: var(--vp-font);
+}
+
+:root[data-theme='material'] h2,
+:root[data-theme='material'] .wordmark {
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 600;
+}
+
+/* Boutons : plein (principal) et tonal (secondaire), en pilule. */
+:root[data-theme='material'] .btn-primary {
+  min-height: 48px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+:root[data-theme='material'] .btn-ghost {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--vp-container, var(--vp-panel-2));
+  color: var(--vp-on-container, var(--vp-fg));
+  font-weight: 500;
+}
+
+/* Cartes : surfaces tonales arrondies, sans contour appuyé. */
+:root[data-theme='material'] main [class*='sheet'],
+:root[data-theme='material'] main [class*='panel'],
+:root[data-theme='material'] .card,
+:root[data-theme='material'] .set-panel {
+  border-radius: 24px;
+  border-color: transparent;
+  background: var(--vp-panel);
+}
+
+:root[data-theme='material'] main [class*='cell'] {
+  border-radius: 16px;
+  border-color: transparent;
+  background: var(--vp-panel);
+}
+
+:root[data-theme='material'] main [class*='cell'].on,
+:root[data-theme='material'] main [class*='cell'][aria-pressed='true'],
+:root[data-theme='material'] main [class*='cell'][aria-selected='true'] {
+  background: var(--vp-container, var(--vp-panel-2));
+  color: var(--vp-on-container, var(--vp-fg));
+  outline: 2px solid var(--vp-accent);
+}
+
+/* Puces : filtres, onglets, choix. */
+:root[data-theme='material'] .chips li,
+:root[data-theme='material'] .set-choice button,
+:root[data-theme='material'] .set-tabs button,
+:root[data-theme='material'] [class*='tabs'] button,
+:root[data-theme='material'] [class*='chip'] {
+  border-radius: 8px;
+  border: 1px solid var(--vp-line);
+  background: transparent;
+  color: var(--vp-fg);
+}
+
+:root[data-theme='material'] .set-choice button.on,
+:root[data-theme='material'] .set-tabs button.on,
+:root[data-theme='material'] [class*='tabs'] button.on,
+:root[data-theme='material'] [class*='tabs'] button[aria-selected='true'] {
+  border-color: transparent;
+  background: var(--vp-container, var(--vp-panel-2));
+  color: var(--vp-on-container, var(--vp-fg));
+}
+
+/* Feuille du bas : réglages et surcouches de menu ancrés en bas, coins supérieurs arrondis. */
+:root[data-theme='material'] .overlay.settings {
+  align-content: safe end;
+  padding-bottom: 0;
+}
+
+:root[data-theme='material'] .overlay.settings .set-panel {
+  border-radius: 28px 28px 0 0;
+  padding-top: 28px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+}
+
+:root[data-theme='material'] .overlay.settings .set-panel::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 32px;
+  height: 4px;
+  margin-left: -16px;
+  border-radius: 2px;
+  background: var(--vp-muted);
+  opacity: 0.4;
+}
+
+/* Barre de navigation et bouton flottant de l'accueil (Material You). */
+.m3-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 12px 8px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--vp-panel-2);
+}
+
+.m3-nav button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--vp-muted);
+  font: 500 12px var(--vp-font);
+}
+
+.m3-nav button i {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  font-style: normal;
+  font-size: 18px;
+}
+
+.m3-nav button:active i,
+.m3-nav button:focus-visible i {
+  background: var(--vp-container, var(--vp-panel));
+  color: var(--vp-on-container, var(--vp-fg));
+}
+
+.m3-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  min-width: 96px;
+  height: 56px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--vp-container, var(--vp-accent));
+  color: var(--vp-on-container, var(--vp-on-accent));
+  font: 600 16px var(--vp-font);
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* --- Daltonisme : les éléments gardent aussi leur icône propre --------------------------- */
+
+:root[data-cvd]:not([data-cvd='off']) .card-element {
+  outline: 1px solid currentColor;
+}

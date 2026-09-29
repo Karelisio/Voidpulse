@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { BOSSES, META } from '../../content/data';
 import { Rng } from '../../engine/rng';
+import { t, useLang } from '../../i18n';
 import { forgeOpen, relicSlots } from '../../meta/account';
 import {
   buyCache,
@@ -35,6 +36,7 @@ function slotLevel(slot: number): number | null {
 const bossName = (id: string): string => BOSSES.find((b) => b.id === id)?.name ?? id;
 
 export function RelicsTab() {
+  useLang();
   const data = useSave((s) => s.data);
   const [selected, setSelected] = useState(0);
   const [fresh, setFresh] = useState(0);
@@ -44,11 +46,11 @@ export function RelicsTab() {
   useEffect(() => {
     if (fresh === 0) return;
     document.getElementById(`relic-${String(fresh)}`)?.scrollIntoView({ block: 'center' });
-    const t = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setFresh(0);
     }, 2600);
     return () => {
-      window.clearTimeout(t);
+      window.clearTimeout(timer);
     };
   }, [fresh]);
 
@@ -84,9 +86,9 @@ export function RelicsTab() {
           <div>
             <h3>{relicName(item)}</h3>
             <small className="num">
-              <b style={{ color: rarity.color }}>{rarity.name}</b> · niveau {String(item.level)} /{' '}
-              {String(R.maxLevel)}
-              {slot >= 0 ? ` · emplacement ${String(slot + 1)}` : ''}
+              <b style={{ color: rarity.color }}>{rarity.name}</b> ·{' '}
+              {t('meta.relicLevel', { n: item.level, max: R.maxLevel })}
+              {slot >= 0 ? ` · ${t('meta.relicSlotN', { n: slot + 1 })}` : ''}
             </small>
           </div>
         </div>
@@ -94,11 +96,13 @@ export function RelicsTab() {
           {stats.map(([k, v], i) => (
             <li key={k} className={i === 0 ? 'sig' : ''}>
               {formatStat(k, v)}
-              {i === 0 && <small className="muted"> · signature</small>}
+              {i === 0 && <small className="muted"> · {t('meta.signature')}</small>}
             </li>
           ))}
         </ul>
-        {base?.boss && <small className="muted">Butin de {bossName(base.boss)}.</small>}
+        {base?.boss && (
+          <small className="muted">{t('meta.bossLoot', { boss: bossName(base.boss) })}</small>
+        )}
         <div className="meta-equip">
           {Array.from({ length: slots }, (_, i) => (
             <button
@@ -113,7 +117,7 @@ export function RelicsTab() {
                 });
               }}
             >
-              Équiper · {String(i + 1)}
+              {t('meta.equip', { n: i + 1 })}
             </button>
           ))}
           {slot >= 0 && (
@@ -127,7 +131,7 @@ export function RelicsTab() {
                 });
               }}
             >
-              Retirer
+              {t('meta.unequip')}
             </button>
           )}
         </div>
@@ -141,10 +145,10 @@ export function RelicsTab() {
               mutate((d) => {
                 upgradeRelic(d, item.uid);
               });
-              setNote('Relique améliorée.');
+              setNote(t('meta.upgraded'));
             }}
           >
-            {up === null ? 'Niveau max' : `Améliorer (${fmt(up)}\u00a0◆)`}
+            {up === null ? t('meta.levelMax') : t('meta.upgrade', { n: fmt(up) })}
           </button>
           <button
             className="btn-ghost"
@@ -155,10 +159,10 @@ export function RelicsTab() {
               mutate((d) => {
                 rerollRelic(d, item.uid, new Rng(`reroll:${String(Date.now())}`));
               });
-              setNote('Secondaires relancées.');
+              setNote(t('meta.rerolled'));
             }}
           >
-            Relancer ({fmt(reroll)}&nbsp;◆)
+            {t('meta.reroll', { n: fmt(reroll) })}
           </button>
           <button
             className={armed === item.uid ? 'btn-ghost danger' : 'btn-ghost'}
@@ -178,8 +182,8 @@ export function RelicsTab() {
             }}
           >
             {armed === item.uid
-              ? `Confirmer : +${fmt(salvageValue(item))}\u00a0◆`
-              : `Recycler (+${fmt(salvageValue(item))}\u00a0◆)`}
+              ? t('meta.salvageConfirm', { n: fmt(salvageValue(item)) })
+              : t('meta.salvage', { n: fmt(salvageValue(item)) })}
           </button>
         </div>
         {note && (
@@ -193,7 +197,7 @@ export function RelicsTab() {
 
   return (
     <>
-      <section className="meta-slots" aria-label="Emplacements">
+      <section className="meta-slots" aria-label={t('meta.slots')}>
         {Array.from({ length: R.slots }, (_, i) => {
           const item = i < slots ? items.find((r) => r.uid === equipped[i]) : undefined;
           const level = slotLevel(i);
@@ -209,7 +213,7 @@ export function RelicsTab() {
                 if (item) pick(item.uid);
               }}
             >
-              <small className="muted">Emplacement {String(i + 1)}</small>
+              <small className="muted">{t('meta.slotN', { n: i + 1 })}</small>
               {item ? (
                 <>
                   <RelicBadge item={item} size={40} />
@@ -217,7 +221,7 @@ export function RelicsTab() {
                 </>
               ) : (
                 <span className="meta-slot-empty">
-                  {open ? 'Vide' : `Niveau ${String(level ?? '?')}`}
+                  {open ? t('meta.slotEmpty') : t('core.level', { n: level ?? '?' })}
                 </span>
               )}
             </button>
@@ -225,11 +229,11 @@ export function RelicsTab() {
         })}
       </section>
 
-      <section className="meta-panel meta-forge" aria-label="Forge">
+      <section className="meta-panel meta-forge" aria-label={t('meta.forge')}>
         <div>
-          <h3>Forge</h3>
+          <h3>{t('meta.forge')}</h3>
           <small className="muted num">
-            Inventaire {String(items.length)}/{String(R.inventory)}
+            {t('meta.inventory', { n: items.length, max: R.inventory })}
           </small>
         </div>
         {forge ? (
@@ -247,19 +251,19 @@ export function RelicsTab() {
                 setFresh(out.item.uid);
                 setSelected(out.item.uid);
                 setArmed(0);
-                setNote('Nouvelle relique !');
+                setNote(t('meta.newRelic'));
               }
             }}
           >
-            {full ? 'Inventaire plein' : `Cache de relique (${fmt(R.cacheCost)}\u00a0◆)`}
+            {full ? t('meta.inventoryFull') : t('meta.buyCache', { n: fmt(R.cacheCost) })}
           </button>
         ) : (
-          <p className="muted meta-forge-locked">Forge : niveau de compte {String(forgeLevel)}</p>
+          <p className="muted meta-forge-locked">{t('meta.forgeLocked', { n: forgeLevel })}</p>
         )}
       </section>
 
       {sorted.length > 0 ? (
-        <section className="meta-relics" aria-label="Inventaire">
+        <section className="meta-relics" aria-label={t('meta.inventoryAria')}>
           {sorted.map((item) => {
             const rarity = rarityOf(item);
             const slot = slotOf(item.uid);
@@ -277,17 +281,17 @@ export function RelicsTab() {
                 <RelicBadge item={item} size={44} />
                 <span className="meta-relic-name">{relicName(item)}</span>
                 <small style={{ color: rarity.color }}>{rarity.name}</small>
-                <small className="muted num">Niv. {String(item.level)}</small>
-                {slot >= 0 && <i>E{String(slot + 1)}</i>}
+                <small className="muted num">{t('meta.levelShort', { n: item.level })}</small>
+                {slot >= 0 && <i>{t('meta.equippedTag', { n: slot + 1 })}</i>}
               </button>
             );
           })}
         </section>
       ) : (
         <p className="muted meta-empty">
-          Aucune relique. Le premier boss vaincu de chaque type en laisse une à coup sûr, les
-          suivants avec {String(Math.round(R.bossDropChance * 100))} % de chances
-          {forge ? ' ; la forge en vend aussi contre des fragments' : ''}.
+          {t(forge ? 'meta.relicsEmptyForge' : 'meta.relicsEmpty', {
+            chance: Math.round(R.bossDropChance * 100),
+          })}
         </p>
       )}
 

@@ -1,6 +1,7 @@
 /** Codex : ennemis, armes, évolutions, réactions et boss découverts, avec paliers de récompense. */
 import { useState } from 'react';
 import { META } from '../../content/data';
+import { t, useLang } from '../../i18n';
 import { codexEntries, codexProgress, type CodexCategory } from '../../meta/codex';
 import { useSave } from '../../state/save';
 import { ELEMENT_LABEL } from '../cards';
@@ -23,6 +24,7 @@ function Elements({ list }: { list: string[] }) {
 }
 
 export function CodexTab() {
+  useLang();
   const data = useSave((s) => s.data);
   const [catIndex, setCatIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -36,7 +38,7 @@ export function CodexTab() {
 
   return (
     <>
-      <div className="meta-subtabs codex" role="tablist" aria-label="Catégories">
+      <div className="meta-subtabs codex" role="tablist" aria-label={t('meta.categories')}>
         {CATEGORIES.map((c, i) => (
           <button
             key={c.id}
@@ -56,7 +58,7 @@ export function CodexTab() {
         ))}
       </div>
 
-      <section className="meta-panel" aria-label="Complétion">
+      <section className="meta-panel" aria-label={t('meta.completion')}>
         <div className="meta-codex-head">
           <b className="num">
             {String(known.size)} / {String(ids.length)}
@@ -65,14 +67,17 @@ export function CodexTab() {
         </div>
         <div className="meta-bar" aria-hidden="true">
           <i style={{ width: `${String(ratio * 100)}%` }} />
-          {C.thresholds.slice(0, -1).map((t) => (
-            <u key={t} style={{ left: `${String(t * 100)}%` }} />
+          {C.thresholds.slice(0, -1).map((th) => (
+            <u key={th} style={{ left: `${String(th * 100)}%` }} />
           ))}
         </div>
         <small className="muted">
           {nextTier >= 0
-            ? `Prochain palier ${pct(C.thresholds[nextTier])} : +${fmt(C.fragments[nextTier])}\u00a0◆`
-            : 'Tous les paliers sont atteints.'}
+            ? t('meta.nextTier', {
+                pct: pct(C.thresholds[nextTier]),
+                n: fmt(C.fragments[nextTier]),
+              })
+            : t('meta.allTiers')}
         </small>
       </section>
 
@@ -101,7 +106,7 @@ export function CodexTab() {
               ) : (
                 <CellImage cat={cat.id} id={id} seen={seen} />
               )}
-              <span className="meta-cell-name">{e?.name ?? '???'}</span>
+              <span className="meta-cell-name">{e?.name ?? t('meta.unknown')}</span>
             </button>
           );
         })}

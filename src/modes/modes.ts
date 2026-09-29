@@ -20,6 +20,7 @@ import {
   type WeeklyRulesetDef,
 } from '../content/data';
 import { Rng } from '../engine/rng';
+import { t } from '../i18n';
 import { ascensionMods, MAX_ASCENSION } from '../meta/ascension';
 import type { RunOptions } from '../systems/sim';
 import type { RunRules } from '../systems/state';
@@ -160,7 +161,7 @@ export function buildRun(setup: RunSetup): ModeRun {
       return {
         ...free,
         ascension: tier,
-        detail: tier > 0 ? `${stage.name} · Ascension ${String(tier)}` : stage.name,
+        detail: tier > 0 ? t('lines.ascensionDetail', { stage: stage.name, n: tier }) : stage.name,
         options: {
           character: character.id,
           stage: stage.id,
@@ -244,7 +245,7 @@ export function buildRun(setup: RunSetup): ModeRun {
       const first = weapons.length > 0 ? WEAPONS[weapons[0]].id : character.weapon;
       return {
         ...free,
-        detail: `${String(bossRushQueue().length)} boss`,
+        detail: t('lines.bossCount', { n: bossRushQueue().length }),
         options: {
           character: character.id,
           stage: b.stage,
@@ -267,7 +268,7 @@ export function buildRun(setup: RunSetup): ModeRun {
     case 'training':
       return {
         ...free,
-        detail: 'Bac à sable',
+        detail: t('lines.sandbox'),
         options: {
           character: character.id,
           stage: MODES.training.stage,

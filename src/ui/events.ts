@@ -1,5 +1,6 @@
 /** Modèles d'affichage des événements de run : offres du marchand, offrandes de l'autel. */
 import { PASSIVES, RUN_EVENTS, WEAPONS } from '../content/data';
+import { t } from '../i18n';
 import type { AltarOffer, AltarOfferKind, AltarResult, MerchantOffer } from '../systems/state';
 
 type Icons = Readonly<Partial<Record<string, string>>>;
@@ -31,16 +32,16 @@ function offerView(o: MerchantOffer, gold: number, icons: Icons): OfferView {
     case 'heal':
       return {
         ...base,
-        title: 'Soins complets',
-        detail: 'Rend tous vos PV.',
+        title: t('run.offerHealTitle'),
+        detail: t('run.offerHealDetail'),
         icon: icons.heal ?? '',
       };
     case 'weapon': {
       const w = WEAPONS[o.index];
       return {
         ...base,
-        title: `Forge : ${w.name}`,
-        detail: `Passe au niveau ${String(o.value)}.`,
+        title: t('run.offerForge', { name: w.name }),
+        detail: t('run.offerLevelTo', { n: o.value }),
         icon: icons[w.id] ?? '',
       };
     }
@@ -50,29 +51,31 @@ function offerView(o: MerchantOffer, gold: number, icons: Icons): OfferView {
         ...base,
         title: p.name,
         detail:
-          o.value > 1 ? `Passe au niveau ${String(o.value)}. ${p.description}` : p.description,
+          o.value > 1
+            ? t('run.offerLevelToDesc', { n: o.value, desc: p.description })
+            : p.description,
         icon: icons[p.id] ?? '',
       };
     }
     case 'maxhp':
       return {
         ...base,
-        title: 'Cœur renforcé',
-        detail: `+${String(o.value)} PV max pour la run.`,
+        title: t('run.offerMaxHpTitle'),
+        detail: t('run.offerMaxHpDetail', { n: o.value }),
         icon: icons.vitality ?? '',
       };
     case 'reroll':
       return {
         ...base,
-        title: 'Relances',
-        detail: `+${String(o.value)} relances des cartes de niveau.`,
+        title: t('run.offerRerollTitle'),
+        detail: t('run.offerRerollDetail', { n: o.value }),
         icon: icons.clover ?? '',
       };
     case 'chest':
       return {
         ...base,
-        title: 'Coffre scellé',
-        detail: "Un coffre d'élite, posé à vos pieds au départ du marchand.",
+        title: t('run.offerChestTitle'),
+        detail: t('run.offerChestDetail'),
         icon: icons.gold ?? '',
       };
   }
@@ -87,7 +90,7 @@ export interface SacrificeView {
   reason: string | null;
 }
 
-const pct = (x: number): string => `${String(Math.round(x * 100))} %`;
+const pct = (x: number): string => t('run.pct', { n: Math.round(x * 100) });
 
 export function altarView(offers: readonly AltarOffer[]): SacrificeView[] {
   const a = RUN_EVENTS.altar;
@@ -96,29 +99,29 @@ export function altarView(offers: readonly AltarOffer[]): SacrificeView[] {
       case 'blood':
         return {
           kind: o.kind,
-          title: 'Offrande de sang',
-          cost: `Perdez ${pct(a.blood.cost)} de vos PV actuels.`,
-          gift: `Un coffre d'élite à ${String(a.blood.rewards)} récompenses.`,
+          title: t('run.bloodTitle'),
+          cost: t('run.bloodCost', { pct: pct(a.blood.cost) }),
+          gift: t('run.bloodGift', { n: a.blood.rewards }),
           available: o.available,
-          reason: o.available ? null : 'Trop affaibli.',
+          reason: o.available ? null : t('run.bloodReason'),
         };
       case 'flesh':
         return {
           kind: o.kind,
-          title: 'Offrande de chair',
-          cost: `−${String(a.flesh.cost)} PV max pour la run.`,
-          gift: `+${pct(a.flesh.damage)} de dégâts pour la run.`,
+          title: t('run.fleshTitle'),
+          cost: t('run.fleshCost', { n: a.flesh.cost }),
+          gift: t('run.fleshGift', { pct: pct(a.flesh.damage) }),
           available: o.available,
-          reason: o.available ? null : 'PV max trop bas.',
+          reason: o.available ? null : t('run.fleshReason'),
         };
       case 'gold':
         return {
           kind: o.kind,
-          title: "Offrande d'or",
-          cost: `Perdez la moitié de votre or (au moins ${String(a.gold.min)}).`,
-          gift: 'Une évolution si possible, sinon deux niveaux d’armes.',
+          title: t('run.goldOfferTitle'),
+          cost: t('run.goldOfferCost', { n: a.gold.min }),
+          gift: t('run.goldOfferGift'),
           available: o.available,
-          reason: o.available ? null : "Pas assez d'or.",
+          reason: o.available ? null : t('run.goldOfferReason'),
         };
     }
   });
@@ -128,14 +131,14 @@ export function altarView(offers: readonly AltarOffer[]): SacrificeView[] {
 export function altarResultText(r: AltarResult): string {
   switch (r.kind) {
     case 'chest':
-      return `Un coffre de ${String(r.value)} récompenses vous attend.`;
+      return t('run.resultChest', { n: r.value });
     case 'damage':
-      return `+${pct(r.value)} de dégâts.`;
+      return t('run.resultDamage', { pct: pct(r.value) });
     case 'evolution':
-      return `Évolution : ${WEAPONS[r.weapons[0]].evolution.name} !`;
+      return t('run.resultEvolution', { name: WEAPONS[r.weapons[0]].evolution.name });
     case 'levels':
       return r.weapons.map((i) => `${WEAPONS[i].name} +1`).join(' · ');
     case 'heal':
-      return 'Rien à améliorer : vos blessures se referment.';
+      return t('run.resultHeal');
   }
 }

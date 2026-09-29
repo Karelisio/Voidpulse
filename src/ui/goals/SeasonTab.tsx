@@ -1,6 +1,7 @@
 /** Passe de saison gratuit : bannière, progression et piste des 50 paliers. */
 import type { CSSProperties } from 'react';
 import { META, RETENTION } from '../../content/data';
+import { t, useLang } from '../../i18n';
 import {
   claimAllSeason,
   claimSeasonTier,
@@ -29,7 +30,8 @@ const rarityName = (i: number): string => RARITIES[Math.min(i, RARITIES.length -
 
 function rewardText(tier: number): string {
   const r = tierReward(tier);
-  const relic = r.relic === undefined ? '' : ` · relique ${rarityName(r.relic)} minimum`;
+  const relic =
+    r.relic === undefined ? '' : ` · ${t('goals.relicMin', { rarity: rarityName(r.relic) })}`;
   return `+${fmt(r.fragments)} ◆${relic}`;
 }
 
@@ -44,15 +46,18 @@ function Tier({
   claimed: boolean;
   onClaim: () => void;
 }) {
+  useLang();
   const r = tierReward(tier);
   const state = claimed ? 'claimed' : reached ? 'ready' : 'locked';
   const kind =
     r.relic !== undefined ? ' relic' : tier % S.rewards.milestoneEvery === 0 ? ' milestone' : '';
   const color =
     r.relic === undefined ? undefined : RARITIES[Math.min(r.relic, RARITIES.length - 1)].color;
-  const label = `Palier ${String(tier)} : ${rewardText(tier)}${
-    claimed ? ', réclamé' : reached ? ', à réclamer' : ', verrouillé'
-  }`;
+  const label = t('goals.tierAria', {
+    n: tier,
+    reward: rewardText(tier),
+    state: t(claimed ? 'goals.stateClaimed' : reached ? 'goals.stateReady' : 'goals.stateLocked'),
+  });
   return (
     <button
       className={`goals-tier ${state}${kind}`}
@@ -86,30 +91,35 @@ export function SeasonTab({
   act: Act;
   notify: Notify;
 }) {
+  useLang();
   const info = seasonInfo(now);
   const s = data.retention.season;
   const tier = seasonTier(data);
   const max = tier >= S.tiers;
   const inTier = max ? S.xpPerTier : s.xp % S.xpPerTier;
   const claimed = new Set(s.claimed);
-  const open = Array.from({ length: tier }, (_, i) => i + 1).filter((t) => !claimed.has(t));
+  const open = Array.from({ length: tier }, (_, i) => i + 1).filter((tr) => !claimed.has(tr));
 
-  const claim = (t: number): void => {
-    if (!act((d) => claimSeasonTier(d, t))) return;
+  const claim = (tr: number): void => {
+    if (!act((d) => claimSeasonTier(d, tr))) return;
     sfx('ui.confirm');
-    notify(`Palier ${String(t)} réclamé : ${rewardText(t)}`);
+    notify(t('goals.tierClaimed', { n: tr, reward: rewardText(tr) }));
   };
   const claimAll = (): void => {
     const n = act((d) => claimAllSeason(d));
     if (n === 0) return;
     sfx('ui.confirm');
-    const frags = open.reduce((sum, t) => sum + tierReward(t).fragments, 0);
-    const relics = open.filter((t) => tierReward(t).relic !== undefined).length;
-    notify(
-      `${String(n)} palier${n > 1 ? 's' : ''} réclamé${n > 1 ? 's' : ''} : +${fmt(frags)} ◆${
-        relics > 0 ? ` · ${String(relics)} relique${relics > 1 ? 's' : ''}` : ''
-      }`,
-    );
+    const frags = open.reduce((sum, tr) => sum + tierReward(tr).fragments, 0);
+    const relics = open.filter((tr) => tierReward(tr).relic !== undefined).length;
+    const head = t(n > 1 ? 'goals.tiersClaimedMany' : 'goals.tiersClaimedOne', {
+      n,
+      frags: fmt(frags),
+    });
+    const tail =
+      relics > 0
+        ? ` · ${t(relics > 1 ? 'goals.relicsMany' : 'goals.relicsOne', { n: relics })}`
+        : '';
+    notify(head + tail);
   };
 
   return (
@@ -121,23 +131,23 @@ export function SeasonTab({
         <div className="goals-banner-head">
           <h3>{info.theme.name}</h3>
           <small>
-            Saison {info.index + 1} ·{' '}
+            {t('goals.seasonN', { n: info.index + 1 })} ·{' '}
             {info.daysLeft <= 1
-              ? 'se termine aujourd’hui'
-              : `se termine dans ${String(info.daysLeft)} j`}
+              ? t('goals.endsToday')
+              : t('goals.endsIn', { time: t('core.days', { n: info.daysLeft }) })}
           </small>
         </div>
         <p className="meta-intro">{info.theme.description}</p>
         <div className="goals-tierbox">
           <div className="goals-tier-big">
-            <small>Palier</small>
+            <small>{t('goals.tier')}</small>
             <b>{tier}</b>
           </div>
           <div className="goals-tier-xp">
             <div
               className="goals-bar"
               role="progressbar"
-              aria-label="XP vers le prochain palier"
+              aria-label={t('goals.xpToNext')}
               aria-valuemin={0}
               aria-valuemax={S.xpPerTier}
               aria-valuenow={inTier}
@@ -145,37 +155,35 @@ export function SeasonTab({
               <i style={{ width: `${String(Math.floor((inTier / S.xpPerTier) * 100))}%` }} />
             </div>
             <span className="goals-num">
-              {max ? 'Palier maximal atteint' : `${fmt(inTier)} / ${fmt(S.xpPerTier)} XP`}
+              {max
+                ? t('goals.maxTier')
+                : t('goals.xpProgress', { a: fmt(inTier), b: fmt(S.xpPerTier) })}
             </span>
             <span className="goals-num muted">
-              Palier {tier} / {S.tiers} · {fmt(s.xp)} XP au total
+              {t('goals.tierSummary', { tier, max: S.tiers, xp: fmt(s.xp) })}
             </span>
           </div>
         </div>
         {open.length > 0 && (
           <button id="season-claim-all" className="goals-claim wide" onClick={claimAll}>
-            Tout réclamer ({open.length})
+            {t('goals.claimAll', { n: open.length })}
           </button>
         )}
       </section>
-      <section className="goals-track" aria-label="Paliers de la saison">
-        {Array.from({ length: S.tiers }, (_, i) => i + 1).map((t) => (
+      <section className="goals-track" aria-label={t('goals.track')}>
+        {Array.from({ length: S.tiers }, (_, i) => i + 1).map((tr) => (
           <Tier
-            key={t}
-            tier={t}
-            reached={t <= tier}
-            claimed={claimed.has(t)}
+            key={tr}
+            tier={tr}
+            reached={tr <= tier}
+            claimed={claimed.has(tr)}
             onClaim={() => {
-              claim(t);
+              claim(tr);
             }}
           />
         ))}
       </section>
-      <p className="meta-intro goals-hint">
-        L’XP vient des parties (score) et des quêtes. Les paliers atteints et non réclamés sont
-        versés à la fin de la saison. Les reliques ont la rareté indiquée par leur couleur, au
-        minimum.
-      </p>
+      <p className="meta-intro goals-hint">{t('goals.seasonHint')}</p>
     </>
   );
 }

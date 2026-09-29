@@ -1,0 +1,43 @@
+/** Textes : bandeaux en partie (élites, événements, boss, résurrection). */
+import { defineStrings } from '../define';
+
+export default defineStrings(
+  {
+    elite: 'ÉLITE · {name}',
+    merchant: 'MARCHAND AMBULANT',
+    merchantSub: 'Il repart dans {n} s : suivez la flèche dorée',
+    altar: 'AUTEL DE SACRIFICE',
+    altarSub: 'Restez dans son cercle pour l’invoquer',
+    horde: 'HORDE DORÉE !',
+    hordeSub: 'Interceptez les scarabées : or et XP',
+    rift: 'FAILLE TEMPORELLE',
+    riftSub: 'Entrez-y pour suspendre le temps',
+    timeStop: 'TEMPS SUSPENDU',
+    timeStopSub: 'Ennemis ralentis · XP ×{n}',
+    revive: 'RÉSURRECTION',
+    reviveLeft: 'Encore {n}',
+    reviveLast: 'Dernière chance',
+    bossQueue: 'BOSS {i} / {n}',
+    miniBoss: 'MINI-BOSS',
+    finalBoss: 'BOSS FINAL',
+  },
+  {
+    elite: 'ELITE · {name}',
+    merchant: 'WANDERING MERCHANT',
+    merchantSub: 'Leaves in {n} s: follow the golden arrow',
+    altar: 'SACRIFICIAL ALTAR',
+    altarSub: 'Stay inside its circle to summon it',
+    horde: 'GOLDEN HORDE!',
+    hordeSub: 'Intercept the beetles: gold and XP',
+    rift: 'TIME RIFT',
+    riftSub: 'Step in to stop time',
+    timeStop: 'TIME STOPPED',
+    timeStopSub: 'Enemies slowed · XP ×{n}',
+    revive: 'REVIVED',
+    reviveLeft: '{n} left',
+    reviveLast: 'Last chance',
+    bossQueue: 'BOSS {i} / {n}',
+    miniBoss: 'MINI-BOSS',
+    finalBoss: 'FINAL BOSS',
+  },
+);

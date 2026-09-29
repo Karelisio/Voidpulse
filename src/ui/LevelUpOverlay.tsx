@@ -1,3 +1,4 @@
+import { t, useLang } from '../i18n';
 import type { LevelUpView } from '../state/ui';
 import { ELEMENT_LABEL } from './cards';
 
@@ -10,10 +11,11 @@ interface Props {
 }
 
 export function LevelUpOverlay({ view, onChoose, onReroll, onBanish, onLock }: Props) {
+  useLang();
   return (
-    <div className="overlay levelup" role="dialog" aria-label={`Niveau ${view.level}`}>
+    <div className="overlay levelup" role="dialog" aria-label={t('core.level', { n: view.level })}>
       <h2>
-        Niveau <span>{view.level}</span>
+        {t('run.levelLabel')} <span>{view.level}</span>
       </h2>
       <div className="cards">
         {view.cards.map((c, i) => (
@@ -47,7 +49,7 @@ export function LevelUpOverlay({ view, onChoose, onReroll, onBanish, onLock }: P
                   onBanish(i);
                 }}
               >
-                Bannir
+                {t('run.banish')}
               </button>
               <button
                 disabled={view.locks <= 0 || c.kind === 'heal'}
@@ -56,7 +58,7 @@ export function LevelUpOverlay({ view, onChoose, onReroll, onBanish, onLock }: P
                   onLock(i);
                 }}
               >
-                {view.locked === c.key ? 'Verrouillée' : 'Verrouiller'}
+                {view.locked === c.key ? t('run.lockedCard') : t('run.lock')}
               </button>
             </div>
           </div>
@@ -64,10 +66,10 @@ export function LevelUpOverlay({ view, onChoose, onReroll, onBanish, onLock }: P
       </div>
       <div className="levelup-tools">
         <button className="btn-ghost" disabled={view.rerolls <= 0} onClick={onReroll}>
-          Relancer ({view.rerolls})
+          {t('run.reroll', { n: view.rerolls })}
         </button>
         <span className="muted">
-          Bannir : {view.banishes} · Verrouiller : {view.locks}
+          {t('run.toolsCount', { banishes: view.banishes, locks: view.locks })}
         </span>
       </div>
     </div>

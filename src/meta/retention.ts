@@ -3,6 +3,7 @@
  * coffre, série de connexion) et fin de partie (carrière, quêtes, XP de saison, succès).
  */
 import { RETENTION } from '../content/data';
+import { t } from '../i18n';
 import type { SaveData } from '../save/schema';
 import { evaluateAchievements } from './achievements';
 import { startChest } from './chest';
@@ -46,16 +47,16 @@ export function applyRunRetention(
   syncSeason(d, now);
   recordLifetime(d, tally);
   if (tally.mode !== 'training') {
-    for (const q of applyTally(d, tally)) lines.push(`Quête terminée : ${q}`);
+    for (const q of applyTally(d, tally)) lines.push(t('lines.questDone', { name: q }));
     const before = seasonTier(d);
     addSeasonXp(d, score * RETENTION.season.scoreXp);
     const after = seasonTier(d);
-    if (after > before) lines.push(`Passe de saison : palier ${String(after)}`);
+    if (after > before) lines.push(t('lines.seasonTier', { n: after }));
   }
   return lines;
 }
 
 /** Succès atteints (à relever en dernier, sur la progression à jour). */
 export function achievementLines(d: SaveData): string[] {
-  return evaluateAchievements(d).map((a) => `Succès : ${a.name} (+${String(a.reward)} fragments)`);
+  return evaluateAchievements(d).map((a) => t('lines.achievement', { name: a.name, n: a.reward }));
 }

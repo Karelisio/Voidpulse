@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { audio } from '../audio';
 import { uiSound } from '../audio/bridge';
 import { BOSSES, CAMPAIGN, META, PACTS } from '../content/data';
+import { num, t, useLang } from '../i18n';
 import { ascensionOpen } from '../meta/account';
 import {
   ascensionReward,
@@ -22,23 +23,24 @@ function bossName(id: string | undefined): string {
 
 /** Palier d'Ascension du secteur : ouvert palier après palier, en gagnant au plus haut. */
 function AscensionPicker({ stage }: { stage: string }) {
+  useLang();
   const data = useSave((s) => s.data);
   const update = useSave((s) => s.update);
   const max = ascensionUnlocked(data, stage);
   const tier = ascensionSelected(data, stage);
-  const set = (t: number): void => {
+  const set = (n: number): void => {
     uiSound(audio(), 'ui.click');
     update((d) => {
-      selectAscension(d, stage, t);
+      selectAscension(d, stage, n);
     });
   };
-  const reward = ascensionReward(tier).toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+  const reward = ascensionReward(tier);
   return (
     <div className="ascension">
       <div className="ascension-row">
-        <b>Ascension</b>
+        <b>{t('select.ascension')}</b>
         <button
-          aria-label="Palier inférieur"
+          aria-label={t('select.tierDown')}
           disabled={tier <= 0}
           onClick={() => {
             set(tier - 1);
@@ -50,7 +52,7 @@ function AscensionPicker({ stage }: { stage: string }) {
           {tier} / {max}
         </span>
         <button
-          aria-label="Palier supérieur"
+          aria-label={t('select.tierUp')}
           disabled={tier >= max}
           onClick={() => {
             set(tier + 1);
@@ -58,12 +60,12 @@ function AscensionPicker({ stage }: { stage: string }) {
         >
           +
         </button>
-        <small>Récompenses ×{reward}</small>
+        <small>{t('select.ascensionRewards', { n: reward })}</small>
       </div>
       {tier > 0 && (
         <ol className="ascension-list">
-          {META.ascension.tiers.slice(0, tier).map((t) => (
-            <li key={t.tier}>{t.description}</li>
+          {META.ascension.tiers.slice(0, tier).map((row) => (
+            <li key={row.tier}>{row.description}</li>
           ))}
         </ol>
       )}
@@ -81,6 +83,7 @@ export function StageSelect({
   /** Menu debug : tous les stages jouables. */
   forceUnlocked: boolean;
 }) {
+  useLang();
   const data = useSave((s) => s.data);
   const update = useSave((s) => s.update);
   const open = (i: number): boolean => forceUnlocked || stageUnlocked(data, i);
@@ -105,8 +108,8 @@ export function StageSelect({
 
   return (
     <main className="select">
-      <h2>Secteur</h2>
-      <div className="stage-list" role="listbox" aria-label="Stages">
+      <h2>{t('select.sectorTitle')}</h2>
+      <div className="stage-list" role="listbox" aria-label={t('select.sectorListAria')}>
         {CAMPAIGN.map((st, i) => (
           <button
             key={st.id}
@@ -124,14 +127,14 @@ export function StageSelect({
           >
             <b>{String(st.order)}</b>
             <span>{open(i) ? st.name : '???'}</span>
-            {data.profile.cleared.includes(st.id) && <i aria-label="terminé">✓</i>}
+            {data.profile.cleared.includes(st.id) && <i aria-label={t('select.clearedAria')}>✓</i>}
           </button>
         ))}
       </div>
       <section className="stage-sheet" style={style}>
         <h3>
-          {open(selected) ? s.name : 'Secteur verrouillé'}{' '}
-          <small>{String(s.duration / 60)} min</small>
+          {open(selected) ? s.name : t('select.sectorLocked')}{' '}
+          <small>{t('core.minutes', { n: s.duration / 60 })}</small>
         </h3>
         {open(selected) ? (
           <>
@@ -143,7 +146,11 @@ export function StageSelect({
                   <img src={bossPortrait(s.miniBoss)} alt="" width={64} height={64} />
                   <figcaption>
                     {bossName(s.miniBoss)}
-                    <small>Mini-boss · {s.miniAt.map((t) => formatTime(t)).join(' et ')}</small>
+                    <small>
+                      {t('select.miniBossAt', {
+                        times: s.miniAt.map((x) => formatTime(x)).join(t('select.timesJoin')),
+                      })}
+                    </small>
                   </figcaption>
                 </figure>
               )}
@@ -151,22 +158,24 @@ export function StageSelect({
                 <img src={bossPortrait(s.boss)} alt="" width={64} height={64} />
                 <figcaption>
                   {bossName(s.boss)}
-                  <small>Boss final · {formatTime(s.bossAt)}</small>
+                  <small>{t('select.finalBossAt', { time: formatTime(s.bossAt) })}</small>
                 </figcaption>
               </figure>
             </div>
             <p className="stage-best">
               {best
-                ? `Record : ${formatTime(best.time)} · ${best.score.toLocaleString('fr-FR')} pts${
-                    best.rank >= 0 ? ` · rang ${PACTS.ranks[best.rank][0]}` : ''
-                  }${cleared ? ' · terminé' : ''}`
-                : 'Jamais exploré'}
+                ? t('select.stageBest', { time: formatTime(best.time), score: num(best.score) }) +
+                  (best.rank >= 0
+                    ? t('select.stageRank', { rank: PACTS.ranks[best.rank][0] })
+                    : '') +
+                  (cleared ? t('select.stageCleared') : '')
+                : t('select.neverExplored')}
             </p>
             {ascension && <AscensionPicker stage={s.id} />}
           </>
         ) : (
           <p className="muted">
-            Vaincre {bossName(prev?.boss)} ({prev?.name}) pour l’ouvrir.
+            {t('select.unlockHint', { boss: bossName(prev?.boss), stage: prev?.name ?? '' })}
           </p>
         )}
       </section>
@@ -183,7 +192,7 @@ export function StageSelect({
             onStart();
           }}
         >
-          Lancer
+          {t('select.launch')}
         </button>
         <button
           className="btn-ghost"
@@ -192,7 +201,7 @@ export function StageSelect({
             onBack();
           }}
         >
-          Retour
+          {t('core.back')}
         </button>
       </div>
     </main>

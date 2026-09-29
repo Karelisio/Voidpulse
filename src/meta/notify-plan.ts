@@ -4,6 +4,7 @@
  * passage en arrière-plan et remplace le précédent.
  */
 import { RETENTION } from '../content/data';
+import { t } from '../i18n';
 import type { SaveData } from '../save/schema';
 import { chestAmount, chestCapacity, chestFullAt } from './chest';
 import { nextLocalHour } from './clock';
@@ -22,22 +23,25 @@ export function notificationPlan(d: SaveData, now: number): PlannedNotification[
   if (!n.enabled) return [];
   const out: PlannedNotification[] = [];
   if (n.quests || n.challenge) {
-    const parts = [n.quests ? 'nouvelles quêtes' : '', n.challenge ? 'nouveau défi du jour' : '']
-      .filter((x) => x !== '')
-      .join(' et ');
     out.push({
       id: NOTIFY_ID.DAILY,
       at: nextLocalHour(now, RETENTION.notifications.hour),
       title: 'Voidpulse',
-      body: `${parts.charAt(0).toUpperCase()}${parts.slice(1)} disponibles.`,
+      body: t(
+        n.quests && n.challenge
+          ? 'lines.notifyDaily'
+          : n.quests
+            ? 'lines.notifyQuests'
+            : 'lines.notifyChallenge',
+      ),
     });
   }
   if (n.chest && d.retention.chest.last > 0 && chestAmount(d, now) < chestCapacity(d)) {
     out.push({
       id: NOTIFY_ID.CHEST,
       at: chestFullAt(d),
-      title: 'Coffre hors ligne plein',
-      body: `${String(chestCapacity(d))} fragments vous attendent.`,
+      title: t('lines.notifyChestTitle'),
+      body: t('lines.notifyChest', { n: chestCapacity(d) }),
     });
   }
   return out.filter((x) => x.at > now);

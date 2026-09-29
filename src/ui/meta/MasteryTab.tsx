@@ -1,6 +1,7 @@
 /** Maîtrise : rang de chacune des armes, bonus de dégâts et apparences à débloquer. */
 import { useState } from 'react';
 import { META, WEAPONS } from '../../content/data';
+import { t, useLang } from '../../i18n';
 import { masteryProgress, masteryRank, selectSkin, skinsUnlocked } from '../../meta/mastery';
 import { useSave } from '../../state/save';
 import { ELEMENT_LABEL } from '../cards';
@@ -10,9 +11,11 @@ import { fmt, mutate, sfx, tone } from './common';
 const M = META.mastery;
 const MAX = M.ranks.length;
 
-const bonus = (rank: number): string => `+${String(Math.round(M.damagePerRank * rank * 100))} %`;
+const bonus = (rank: number): string =>
+  t('meta.bonusPct', { n: Math.round(M.damagePerRank * rank * 100) });
 
 export function MasteryTab() {
+  useLang();
   const data = useSave((s) => s.data);
   const [selected, setSelected] = useState<string | null>(null);
   const w = WEAPONS.find((x) => x.id === selected);
@@ -40,7 +43,7 @@ export function MasteryTab() {
               </small>
             </h3>
             <small className="num muted">
-              Rang {String(rank)}/{String(MAX)} · {bonus(rank)} dégâts
+              {t('meta.rankBonus', { rank, max: MAX, bonus: bonus(rank) })}
             </small>
           </div>
         </div>
@@ -48,9 +51,11 @@ export function MasteryTab() {
           <i style={{ width: `${String(masteryProgress(xp) * 100)}%` }} />
         </div>
         <small className="muted num">
-          {next === null ? `${fmt(xp)} XP · rang maximal` : `${fmt(xp)} / ${fmt(next)} XP`}
+          {next === null
+            ? t('meta.xpMaxed', { xp: fmt(xp) })
+            : t('meta.xpProgress', { xp: fmt(xp), next: fmt(next) })}
         </small>
-        <h4>Apparences</h4>
+        <h4>{t('meta.skins')}</h4>
         <div className="meta-skins">
           <button
             id="skin-origin"
@@ -64,8 +69,8 @@ export function MasteryTab() {
             }}
           >
             <i style={{ background: def.color }} />
-            <b>Origine</b>
-            <small className="muted">Toujours</small>
+            <b>{t('meta.skinOrigin')}</b>
+            <small className="muted">{t('meta.skinAlways')}</small>
           </button>
           {M.skins.map((s, i) => {
             const open = unlocked.includes(i);
@@ -85,7 +90,9 @@ export function MasteryTab() {
               >
                 <i style={{ background: s.color }} />
                 <b>{s.name}</b>
-                <small className="muted">{open ? 'Débloquée' : `Rang ${String(s.rank)}`}</small>
+                <small className="muted">
+                  {open ? t('meta.skinUnlocked') : t('meta.skinRank', { n: s.rank })}
+                </small>
               </button>
             );
           })}
@@ -97,13 +104,12 @@ export function MasteryTab() {
   return (
     <>
       <p className="muted meta-intro">
-        Les dégâts infligés donnent de l’expérience à l’arme. Chaque rang ajoute{' '}
-        {String(Math.round(M.damagePerRank * 100))} % de dégâts. Rangs cumulés :{' '}
+        {t('meta.masteryIntro', { n: Math.round(M.damagePerRank * 100) })}{' '}
         <b className="num">
           {String(total)} / {String(WEAPONS.length * MAX)}
         </b>
       </p>
-      <section className="meta-grid" aria-label="Armes">
+      <section className="meta-grid" aria-label={t('meta.weapons')}>
         {WEAPONS.map((x) => {
           const xp = xpOf(x.id);
           const rank = masteryRank(xp);
@@ -123,7 +129,8 @@ export function MasteryTab() {
               <img src={iconUrl(x.id)} alt="" width={36} height={36} />
               <span className="meta-cell-name">{x.name}</span>
               <small className="num">
-                Rang {String(rank)}/{String(MAX)} <span className="muted">{bonus(rank)}</span>
+                {t('meta.masteryRank', { rank, max: MAX })}{' '}
+                <span className="muted">{bonus(rank)}</span>
               </small>
               <div className="meta-bar thin" aria-hidden="true">
                 <i style={{ width: `${String(masteryProgress(xp) * 100)}%` }} />

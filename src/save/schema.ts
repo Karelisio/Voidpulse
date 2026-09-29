@@ -40,7 +40,15 @@ export interface DisplayPrefs {
   hudScale: number;
   theme: ThemeId;
   language: Language;
+  /** Palette adaptée au daltonisme (couleurs des éléments en jeu et dans les menus). */
+  colorblind: ColorblindMode;
+  /** Couleur d'accent de Material You quand l'appareil n'en fournit pas (graine de la palette). */
+  accent: string;
+  /** Le HUD prend la couleur d'accent de Material You. */
+  hudAccent: boolean;
 }
+
+export type ColorblindMode = 'off' | 'deuteranopia' | 'protanopia' | 'tritanopia';
 
 export interface LifetimeStats {
   runs: number;
@@ -228,6 +236,9 @@ export function defaultSave(now = Date.now()): SaveData {
       hudScale: 1,
       theme: 'arcade',
       language: 'fr',
+      colorblind: 'off',
+      accent: '#7c5cff',
+      hudAccent: false,
     },
     stats: {
       runs: 0,

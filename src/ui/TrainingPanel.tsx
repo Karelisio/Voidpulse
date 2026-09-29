@@ -5,12 +5,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { BOSSES, ENEMIES, PASSIVES, WEAPONS } from '../content/data';
 import type { GameHost } from '../game/host';
+import { num, t, useLang, type TKey } from '../i18n';
 import { SLOT_EVEIL, SLOT_REACTION } from '../systems/events';
 
 const WINDOW = 5;
 
 interface DpsLine {
   name: string;
+  /** Clé de traduction des lignes fixes (réactions, Éveil), sinon null (nom d'arme). */
+  label: TKey | null;
   dps: number;
 }
 
@@ -32,10 +35,11 @@ function useDps(host: GameHost): DpsLine[] {
       const rate = (slot: number): number => (b[slot] - a[slot]) / span;
       const out: DpsLine[] = st.weapons.map((w) => ({
         name: w.evolved ? w.def.evolution.name : w.def.name,
+        label: null,
         dps: rate(w.slot),
       }));
-      out.push({ name: 'Réactions', dps: rate(SLOT_REACTION) });
-      out.push({ name: 'Éveil', dps: rate(SLOT_EVEIL) });
+      out.push({ name: '', label: 'training.reactions', dps: rate(SLOT_REACTION) });
+      out.push({ name: '', label: 'training.awakening', dps: rate(SLOT_EVEIL) });
       setLines(out);
     }, 1000);
     return () => {
@@ -46,6 +50,7 @@ function useDps(host: GameHost): DpsLine[] {
 }
 
 export function TrainingPanel({ host }: { host: GameHost }) {
+  useLang();
   const [open, setOpen] = useState(true);
   const [weapon, setWeapon] = useState(0);
   const [passive, setPassive] = useState(0);
@@ -69,13 +74,13 @@ export function TrainingPanel({ host }: { host: GameHost }) {
           setOpen((o) => !o);
         }}
       >
-        ATELIER
+        {t('training.toggle')}
       </button>
       {open && (
         <div className="debug-body">
           <div className="debug-row">
             <select
-              aria-label="Arme"
+              aria-label={t('training.weapon')}
               value={weapon}
               onChange={(e) => {
                 setWeapon(Number(e.target.value));
@@ -100,19 +105,19 @@ export function TrainingPanel({ host }: { host: GameHost }) {
                 sim.debugEvolve(weapon);
               })}
             >
-              Évoluer
+              {t('training.evolve')}
             </button>
             <button
               onClick={act(() => {
                 sim.debugRemoveWeapon(weapon);
               })}
             >
-              Retirer
+              {t('training.remove')}
             </button>
           </div>
           <div className="debug-row">
             <select
-              aria-label="Passif"
+              aria-label={t('training.passive')}
               value={passive}
               onChange={(e) => {
                 setPassive(Number(e.target.value));
@@ -134,7 +139,7 @@ export function TrainingPanel({ host }: { host: GameHost }) {
           </div>
           <div className="debug-row">
             <select
-              aria-label="Ennemi"
+              aria-label={t('training.enemy')}
               value={enemy}
               onChange={(e) => {
                 setEnemy(Number(e.target.value));
@@ -162,12 +167,12 @@ export function TrainingPanel({ host }: { host: GameHost }) {
                 sim.debugElite(enemy);
               })}
             >
-              Élite
+              {t('training.elite')}
             </button>
           </div>
           <div className="debug-row">
             <select
-              aria-label="Boss"
+              aria-label={t('training.boss')}
               value={boss}
               onChange={(e) => {
                 setBoss(Number(e.target.value));
@@ -184,7 +189,7 @@ export function TrainingPanel({ host }: { host: GameHost }) {
                 sim.debugBoss(boss);
               })}
             >
-              Boss
+              {t('training.boss')}
             </button>
             <button
               id="tr-clear"
@@ -192,7 +197,7 @@ export function TrainingPanel({ host }: { host: GameHost }) {
                 sim.debugClear();
               })}
             >
-              Nettoyer
+              {t('training.clear')}
             </button>
           </div>
           <div className="debug-row">
@@ -201,14 +206,14 @@ export function TrainingPanel({ host }: { host: GameHost }) {
                 sim.debugLevelUp();
               })}
             >
-              Niveau +1
+              {t('training.levelUp')}
             </button>
             <button
               onClick={act(() => {
                 sim.debugEveil();
               })}
             >
-              Éveil
+              {t('training.awakening')}
             </button>
             {[0.5, 1, 2].map((s) => (
               <button
@@ -228,20 +233,20 @@ export function TrainingPanel({ host }: { host: GameHost }) {
                   host.setInvincible(e.target.checked);
                 }}
               />
-              Invincible
+              {t('training.invincible')}
             </label>
           </div>
-          <table className="dps" aria-label="Dégâts par seconde">
+          <table className="dps" aria-label={t('training.dpsAria')}>
             <tbody>
               {dps.map((l) => (
-                <tr key={l.name}>
-                  <td>{l.name}</td>
-                  <td>{Math.round(l.dps).toLocaleString('fr-FR')}</td>
+                <tr key={l.label ?? l.name}>
+                  <td>{l.label ? t(l.label) : l.name}</td>
+                  <td>{num(Math.round(l.dps))}</td>
                 </tr>
               ))}
               <tr>
-                <th>DPS ({WINDOW} s)</th>
-                <th>{Math.round(total).toLocaleString('fr-FR')}</th>
+                <th>{t('training.dpsTotal', { n: WINDOW })}</th>
+                <th>{num(Math.round(total))}</th>
               </tr>
             </tbody>
           </table>

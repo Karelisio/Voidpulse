@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { SettingsPanel } from './SettingsPanel';
 import { audio, initAudio } from '../audio';
+import { t, useLang } from '../i18n';
 import { uiSound } from '../audio/bridge';
 import { questsReady } from '../meta/quests';
 import { seasonTier } from '../meta/season';
@@ -19,6 +20,7 @@ export function TitleScreen({
   onProgression: () => void;
   onGoals: () => void;
 }) {
+  useLang();
   const debugUnlocked = useUi((s) => s.debugUnlocked);
   const unlockDebug = useUi((s) => s.unlockDebug);
   const taps = useRef(0);
@@ -46,7 +48,7 @@ export function TitleScreen({
         <span className="pulse-ring delay" />
       </div>
       <h1 className="wordmark">VOIDPULSE</h1>
-      <p className="tagline">Survis. Combine les éléments. Éveille la Résonance.</p>
+      <p className="tagline">{t('title.tagline')}</p>
       <TitleWelcome />
       <div className="title-actions">
         <button
@@ -57,7 +59,7 @@ export function TitleScreen({
             onPlay(false);
           }}
         >
-          Jouer
+          {t('title.play')}
         </button>
         <button
           className="btn-ghost"
@@ -67,7 +69,7 @@ export function TitleScreen({
             onProgression();
           }}
         >
-          Progression
+          {t('title.progression')}
         </button>
         <button
           className="btn-ghost"
@@ -77,7 +79,7 @@ export function TitleScreen({
             onGoals();
           }}
         >
-          Objectifs
+          {t('title.goals')}
           {ready > 0 && <span className="badge">{ready}</span>}
         </button>
         {debugUnlocked && (
@@ -88,7 +90,7 @@ export function TitleScreen({
               onPlay(true);
             }}
           >
-            Scénario de charge (650 ennemis, 1 100 projectiles)
+            {t('title.bench')}
           </button>
         )}
       </div>
@@ -100,7 +102,7 @@ export function TitleScreen({
           setSettingsOpen(true);
         }}
       >
-        Réglages
+        {t('settings.title')}
       </button>
       {settingsOpen && (
         <SettingsPanel
@@ -110,10 +112,7 @@ export function TitleScreen({
           }}
         />
       )}
-      <p className="hint">
-        Joystick : pose le pouce n'importe où. Dash : un second doigt. Clavier : ZQSD / flèches,
-        Espace.
-      </p>
+      <p className="hint">{t('title.hint')}</p>
       <button
         className="version"
         onClick={() => {

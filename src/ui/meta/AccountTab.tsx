@@ -1,5 +1,6 @@
 /** Compte : niveau, XP, déblocages à venir, bonus cumulés, points Paragon. */
 import { META } from '../../content/data';
+import { t, useLang } from '../../i18n';
 import {
   paragonFree,
   paragonSpent,
@@ -16,6 +17,7 @@ import { iconUrl } from '../portraits';
 const A = META.account;
 
 function Paragon() {
+  useLang();
   const data = useSave((s) => s.data);
   const free = paragonFree(data);
   const spent = data.meta.account.spent;
@@ -26,17 +28,19 @@ function Paragon() {
     });
   };
   return (
-    <section className="meta-panel" aria-label="Paragon">
+    <section className="meta-panel" aria-label={t('meta.paragon')}>
       <h3>
-        Paragon{' '}
+        {t('meta.paragon')}{' '}
         <span className="meta-badge gold">
-          {fmt(free)} libre{free > 1 ? 's' : ''}
+          {t(free > 1 ? 'meta.paragonFreeMany' : 'meta.paragonFreeOne', { n: fmt(free) })}
         </span>
       </h3>
       <p className="muted">
-        Chaque niveau au-delà de {String(A.maxLevel)} donne un point à placer.{' '}
-        {fmt(paragonSpent(data))} placé{paragonSpent(data) > 1 ? 's' : ''} sur{' '}
-        {fmt(data.meta.account.paragon)}.
+        {t('meta.paragonIntro', { max: A.maxLevel })}{' '}
+        {t(paragonSpent(data) > 1 ? 'meta.paragonPlacedMany' : 'meta.paragonPlacedOne', {
+          spent: fmt(paragonSpent(data)),
+          total: fmt(data.meta.account.paragon),
+        })}
       </p>
       <ul className="meta-paragon">
         {META.paragon.map((p) => {
@@ -56,7 +60,7 @@ function Paragon() {
               <div className="meta-steps">
                 <button
                   className="btn-ghost"
-                  aria-label={`Retirer un point de ${p.name}`}
+                  aria-label={t('meta.paragonRemove', { name: p.name })}
                   disabled={pts <= 0}
                   onClick={() => {
                     buy(p.stat, -1);
@@ -66,7 +70,7 @@ function Paragon() {
                 </button>
                 <button
                   className="btn-ghost"
-                  aria-label={`Ajouter un point à ${p.name}`}
+                  aria-label={t('meta.paragonAdd', { name: p.name })}
                   disabled={free <= 0 || pts >= p.cap}
                   onClick={() => {
                     buy(p.stat, 1);
@@ -76,7 +80,7 @@ function Paragon() {
                 </button>
                 <button
                   className="btn-ghost"
-                  aria-label={`Ajouter dix points à ${p.name}`}
+                  aria-label={t('meta.paragonAddTen', { name: p.name })}
                   disabled={free <= 0 || pts >= p.cap}
                   onClick={() => {
                     buy(p.stat, 10);
@@ -98,13 +102,14 @@ function Paragon() {
           mutate(resetParagon);
         }}
       >
-        Réinitialiser
+        {t('meta.paragonReset')}
       </button>
     </section>
   );
 }
 
 export function AccountTab() {
+  useLang();
   const data = useSave((s) => s.data);
   const a = data.meta.account;
   const maxed = a.level >= A.maxLevel;
@@ -115,13 +120,15 @@ export function AccountTab() {
 
   return (
     <>
-      <section className="meta-panel meta-level" aria-label="Niveau de compte">
+      <section className="meta-panel meta-level" aria-label={t('meta.accountLevel')}>
         <div className="meta-level-num">
-          <small>{maxed ? 'Niveau max' : 'Niveau'}</small>
+          <small>{maxed ? t('meta.levelMax') : t('meta.levelLabel')}</small>
           <b className="num" id="account-level">
             {String(a.level)}
           </b>
-          {a.paragon > 0 && <span className="meta-badge gold">Paragon {String(a.paragon)}</span>}
+          {a.paragon > 0 && (
+            <span className="meta-badge gold">{t('meta.paragonBadge', { n: a.paragon })}</span>
+          )}
         </div>
         <div className="meta-level-xp">
           <div
@@ -134,29 +141,30 @@ export function AccountTab() {
             <i style={{ width: `${String(ratio * 100)}%` }} />
           </div>
           <small className="muted num">
-            {fmt(a.xp)} / {fmt(need)} XP{' '}
-            {maxed ? '· prochain niveau Paragon' : `· niveau ${String(a.level + 1)}`}
+            {maxed
+              ? t('meta.xpToParagon', { xp: fmt(a.xp), need: fmt(need) })
+              : t('meta.xpToLevel', { xp: fmt(a.xp), need: fmt(need), level: a.level + 1 })}
           </small>
         </div>
       </section>
 
-      <section className="meta-panel" aria-label="Déblocages">
-        <h3>Prochains déblocages</h3>
+      <section className="meta-panel" aria-label={t('meta.unlocks')}>
+        <h3>{t('meta.unlocksTitle')}</h3>
         {upcoming.length > 0 ? (
           <ul className="meta-list">
             {upcoming.map((u) => (
               <li key={`${String(u.level)}-${u.unlock}`}>
-                <span className="meta-badge">Niv. {String(u.level)}</span> {u.name}
+                <span className="meta-badge">{t('meta.levelShort', { n: u.level })}</span> {u.name}
               </li>
             ))}
           </ul>
         ) : (
-          <p className="muted">Tous les déblocages du compte sont acquis.</p>
+          <p className="muted">{t('meta.unlocksDone')}</p>
         )}
       </section>
 
-      <section className="meta-panel" aria-label="Bonus cumulés">
-        <h3>Bonus permanents</h3>
+      <section className="meta-panel" aria-label={t('meta.totals')}>
+        <h3>{t('meta.totalsTitle')}</h3>
         {totals.length > 0 ? (
           <ul className="meta-list meta-stats">
             {totals.map(([k, v]) => (
@@ -167,9 +175,7 @@ export function AccountTab() {
             ))}
           </ul>
         ) : (
-          <p className="muted">
-            Aucun bonus pour l’instant : achetez des talents, équipez des reliques.
-          </p>
+          <p className="muted">{t('meta.totalsEmpty')}</p>
         )}
       </section>
 

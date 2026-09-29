@@ -5,6 +5,7 @@
  */
 import { BOSSES, META, WEAPONS, type ModeId } from '../content/data';
 import { Rng } from '../engine/rng';
+import { t } from '../i18n';
 import type { SaveData } from '../save/schema';
 import { addAccountXp } from './account';
 import { ascensionReward, recordAscension } from './ascension';
@@ -53,12 +54,11 @@ export function applyRunMeta(d: SaveData, r: RunMetaInput): RunMetaResult {
     bosses: discover(d, 'bosses', r.bosses),
   };
   const found = Object.values(fresh).reduce((s, l) => s + l.length, 0);
-  if (found > 0)
-    out.lines.push(
-      `Codex : ${String(found)} nouvelle${found > 1 ? 's' : ''} entrée${found > 1 ? 's' : ''}`,
-    );
+  if (found > 0) {
+    out.lines.push(found === 1 ? t('lines.codexNewOne') : t('lines.codexNew', { n: found }));
+  }
   const codex = claimCodex(d).reduce((s, c) => s + c.fragments, 0);
-  if (codex > 0) out.lines.push(`Codex : palier atteint, +${String(codex)} fragments`);
+  if (codex > 0) out.lines.push(t('lines.codexTier', { n: codex }));
 
   // Maîtrise.
   for (const w of r.weapons) {
@@ -67,7 +67,9 @@ export function applyRunMeta(d: SaveData, r: RunMetaInput): RunMetaResult {
     const name = WEAPONS.find((x) => x.id === w.id)?.name ?? w.id;
     const skin = META.mastery.skins.find((s) => s.rank === rank);
     out.lines.push(
-      `Maîtrise : ${name} rang ${String(rank)}${skin ? ` (apparence « ${skin.name} »)` : ''}`,
+      skin
+        ? t('lines.masterySkin', { weapon: name, n: rank, skin: skin.name })
+        : t('lines.mastery', { weapon: name, n: rank }),
     );
   }
 
@@ -82,8 +84,11 @@ export function applyRunMeta(d: SaveData, r: RunMetaInput): RunMetaResult {
     const item = guaranteed ? grantRelic(d, rng, tied.id, 1) : grantRelic(d, rng);
     out.lines.push(
       item
-        ? `Relique : ${relicBase(item.base)?.name ?? item.base} (${rarityOf(item).name})`
-        : 'Relique perdue : inventaire plein.',
+        ? t('lines.relic', {
+            name: relicBase(item.base)?.name ?? item.base,
+            rarity: rarityOf(item).name,
+          })
+        : t('lines.relicLost'),
     );
   }
 
@@ -91,19 +96,19 @@ export function applyRunMeta(d: SaveData, r: RunMetaInput): RunMetaResult {
   const campaign = r.mode === 'campaign' || r.mode === 'hardcore';
   if (campaign && r.victory) {
     const tier = recordAscension(d, r.stage, r.ascension);
-    if (tier !== null) out.lines.push(`Ascension ${String(tier)} ouverte : ${r.stageName}`);
+    if (tier !== null) out.lines.push(t('lines.ascension', { n: tier, stage: r.stageName }));
   }
 
   // XP de compte.
   out.xp = Math.floor(r.score * META.account.scoreXp * r.xpMult * ascensionReward(r.ascension));
   const gain = addAccountXp(d, out.xp);
-  out.lines.push(`XP de compte : +${out.xp.toLocaleString('fr-FR')}`);
+  out.lines.push(t('lines.accountXp', { n: out.xp }));
   if (gain.levels.length > 0) {
     out.lines.push(
-      `Niveau de compte ${String(gain.levels[gain.levels.length - 1])} ! +${String(gain.fragments)} fragments`,
+      t('lines.accountLevel', { n: gain.levels[gain.levels.length - 1], f: gain.fragments }),
     );
   }
-  if (gain.paragon > 0) out.lines.push(`Paragon +${String(gain.paragon)} (point à placer)`);
-  for (const u of gain.unlocks) out.lines.push(`Débloqué : ${u}`);
+  if (gain.paragon > 0) out.lines.push(t('lines.paragon', { n: gain.paragon }));
+  for (const u of gain.unlocks) out.lines.push(t('lines.unlocked', { name: u }));
   return out;
 }

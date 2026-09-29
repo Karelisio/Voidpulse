@@ -5,6 +5,7 @@
  */
 import { RETENTION, type QuestTemplateDef } from '../content/data';
 import { Rng } from '../engine/rng';
+import { num } from '../i18n';
 import { dayKey, weekKey } from '../modes/modes';
 import type { QuestSlot, SaveData } from '../save/schema';
 import { addSeasonXp } from './season';
@@ -105,7 +106,7 @@ export function applyTally(d: SaveData, r: RunTally): string[] {
 
 export function questText(slot: QuestSlot): string {
   const t = BY_ID.get(slot.id);
-  return (t?.name ?? slot.id).replace('{n}', slot.target.toLocaleString('fr-FR'));
+  return (t?.name ?? slot.id).replace('{n}', num(slot.target));
 }
 
 export const questReward = (period: QuestPeriod): { fragments: number; seasonXp: number } =>

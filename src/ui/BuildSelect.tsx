@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { audio } from '../audio';
 import { uiSound } from '../audio/bridge';
 import { CHARACTERS, MODES, PASSIVES, WEAPONS } from '../content/data';
+import { t, useLang } from '../i18n';
 import { useSave } from '../state/save';
 import { ELEMENT_LABEL } from './cards';
 import { iconUrl } from './portraits';
@@ -13,6 +14,7 @@ function toggle(list: string[], id: string, max: number): string[] {
 }
 
 export function BuildSelect({ onStart, onBack }: { onStart: () => void; onBack: () => void }) {
+  useLang();
   const data = useSave((s) => s.data);
   const update = useSave((s) => s.update);
   const cfg = MODES.bossRush;
@@ -29,12 +31,18 @@ export function BuildSelect({ onStart, onBack }: { onStart: () => void; onBack: 
 
   return (
     <main className="select build">
-      <h2>Build</h2>
+      <h2>{t('select.buildTitle')}</h2>
       <p className="muted">
-        Armes niveau {cfg.weaponLevel} ({weapons.length}/{cfg.weapons}), passifs niveau{' '}
-        {cfg.passiveLevel} ({passives.length}/{cfg.passives}). La première arme ouvre le feu.
+        {t('select.buildInfo', {
+          weaponLevel: cfg.weaponLevel,
+          weapons: weapons.length,
+          weaponMax: cfg.weapons,
+          passiveLevel: cfg.passiveLevel,
+          passives: passives.length,
+          passiveMax: cfg.passives,
+        })}
       </p>
-      <section className="build-grid" aria-label="Armes">
+      <section className="build-grid" aria-label={t('select.weaponsAria')}>
         {WEAPONS.map((w) => {
           const on = weapons.includes(w.id);
           return (
@@ -57,7 +65,7 @@ export function BuildSelect({ onStart, onBack }: { onStart: () => void; onBack: 
           );
         })}
       </section>
-      <section className="build-grid" aria-label="Passifs">
+      <section className="build-grid" aria-label={t('select.passivesAria')}>
         {PASSIVES.map((p) => {
           const on = passives.includes(p.id);
           return (
@@ -91,7 +99,7 @@ export function BuildSelect({ onStart, onBack }: { onStart: () => void; onBack: 
             onStart();
           }}
         >
-          Affronter les boss
+          {t('select.startBuild')}
         </button>
         <button
           className="btn-ghost"
@@ -100,7 +108,7 @@ export function BuildSelect({ onStart, onBack }: { onStart: () => void; onBack: 
             onBack();
           }}
         >
-          Retour
+          {t('core.back')}
         </button>
       </div>
     </main>

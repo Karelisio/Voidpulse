@@ -3,6 +3,7 @@
  * Chaque modification est appliquée immédiatement et sauvegardée (écriture différée).
  */
 import { useState, type ReactNode } from 'react';
+import { num, setLanguage, t, useLang, type TKey } from '../i18n';
 import { QUALITY_PRESETS, type SaveData } from '../save/schema';
 import { notificationsAvailable, requestNotifications } from '../platform/notify';
 import { useSave } from '../state/save';
@@ -10,13 +11,16 @@ import { syncNotifications } from '../state/session';
 
 type Tab = 'audio' | 'controls' | 'display' | 'alerts' | 'save';
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'audio', label: 'Audio' },
-  { id: 'controls', label: 'Contrôles' },
-  { id: 'display', label: 'Affichage' },
-  { id: 'alerts', label: 'Alertes' },
-  { id: 'save', label: 'Sauvegarde' },
+const TABS: { id: Tab; label: TKey }[] = [
+  { id: 'audio', label: 'settings.tabAudio' },
+  { id: 'controls', label: 'settings.tabControls' },
+  { id: 'display', label: 'settings.tabDisplay' },
+  { id: 'alerts', label: 'settings.tabAlerts' },
+  { id: 'save', label: 'settings.tabSave' },
 ];
+
+/** Couleurs d'accent proposées pour Material You. */
+const ACCENTS = ['#7c5cff', '#3e8bff', '#1fa38a', '#e0a100', '#e5533d', '#d0459a'];
 
 function Row({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
   return (
@@ -111,6 +115,7 @@ function Choice<T extends string | number>(props: {
 const db = (v: number): string => `${v > 0 ? '+' : ''}${String(v)} dB`;
 
 function AudioTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) => void }) {
+  useLang();
   const a = d.audio;
   const vol = (key: 'master' | 'music' | 'sfx' | 'ui' | 'ambience', label: string) => (
     <Row label={label}>
@@ -130,12 +135,12 @@ function AudioTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) =>
   );
   return (
     <>
-      {vol('master', 'Volume général')}
-      {vol('music', 'Musique')}
-      {vol('sfx', 'Effets')}
-      {vol('ui', 'Interface')}
-      {vol('ambience', 'Ambiance')}
-      <Row label="Graves">
+      {vol('master', t('settings.volMaster'))}
+      {vol('music', t('settings.volMusic'))}
+      {vol('sfx', t('settings.volSfx'))}
+      {vol('ui', t('settings.volUi'))}
+      {vol('ambience', t('settings.volAmbience'))}
+      <Row label={t('settings.bass')}>
         <Slider
           id="eq-bass"
           value={a.bassDb}
@@ -150,7 +155,7 @@ function AudioTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) =>
           }}
         />
       </Row>
-      <Row label="Aigus">
+      <Row label={t('settings.treble')}>
         <Slider
           id="eq-treble"
           value={a.trebleDb}
@@ -165,7 +170,7 @@ function AudioTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) =>
           }}
         />
       </Row>
-      <Row label="Mode casque" hint="Spatialisation élargie des effets">
+      <Row label={t('settings.headphones')} hint={t('settings.headphonesHint')}>
         <Toggle
           id="headphones"
           value={a.headphones}
@@ -176,7 +181,7 @@ function AudioTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) =>
           }}
         />
       </Row>
-      <Row label="Couper le son">
+      <Row label={t('settings.mute')}>
         <Toggle
           id="muted"
           value={a.muted}
@@ -192,17 +197,18 @@ function AudioTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) =>
 }
 
 function ControlsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) => void }) {
+  useLang();
   const c = d.controls;
   return (
     <>
-      <Row label="Sensibilité du joystick">
+      <Row label={t('settings.sensitivity')}>
         <Slider
           id="sensitivity"
           value={c.sensitivity}
           min={0.6}
           max={1.6}
           step={0.05}
-          format={(v) => `×${v.toFixed(2).replace('.', ',')}`}
+          format={(v) => `×${num(v, 2)}`}
           onChange={(v) => {
             set((s) => {
               s.controls.sensitivity = v;
@@ -210,12 +216,12 @@ function ControlsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void)
           }}
         />
       </Row>
-      <Row label="Visée" hint="Automatique : cible l’ennemi le plus proche">
+      <Row label={t('settings.aim')} hint={t('settings.aimHint')}>
         <Choice
           value={c.aim}
           options={[
-            { value: 'auto', label: 'Automatique' },
-            { value: 'direction', label: 'Direction' },
+            { value: 'auto', label: t('settings.aimAuto') },
+            { value: 'direction', label: t('settings.aimDirection') },
           ]}
           onChange={(v) => {
             set((s) => {
@@ -224,7 +230,7 @@ function ControlsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void)
           }}
         />
       </Row>
-      <Row label="Mode gaucher" hint="Bouton de dash à gauche">
+      <Row label={t('settings.leftHanded')} hint={t('settings.leftHandedHint')}>
         <Toggle
           id="left-handed"
           value={c.leftHanded}
@@ -235,7 +241,7 @@ function ControlsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void)
           }}
         />
       </Row>
-      <Row label="Vibrations">
+      <Row label={t('settings.haptics')}>
         <Toggle
           id="haptics"
           value={c.haptics}
@@ -251,6 +257,7 @@ function ControlsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void)
 }
 
 function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) => void }) {
+  useLang();
   const p = d.display;
   const custom = (fn: (s: SaveData) => void) => {
     set((s) => {
@@ -260,14 +267,14 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
   };
   return (
     <>
-      <Row label="Qualité">
+      <Row label={t('settings.quality')}>
         <Choice
           value={p.preset}
           options={[
-            { value: 'low', label: 'Basse' },
-            { value: 'medium', label: 'Moyenne' },
-            { value: 'high', label: 'Haute' },
-            { value: 'custom', label: 'Perso' },
+            { value: 'low', label: t('settings.qualityLow') },
+            { value: 'medium', label: t('settings.qualityMedium') },
+            { value: 'high', label: t('settings.qualityHigh') },
+            { value: 'custom', label: t('settings.qualityCustom') },
           ]}
           onChange={(v) => {
             set((s) => {
@@ -277,7 +284,7 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           }}
         />
       </Row>
-      <Row label="Résolution" hint="Appliquée à la prochaine partie">
+      <Row label={t('settings.resolution')} hint={t('settings.resolutionHint')}>
         <Slider
           id="resolution"
           value={p.resolution}
@@ -291,7 +298,7 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           }}
         />
       </Row>
-      <Row label="Particules">
+      <Row label={t('settings.particles')}>
         <Slider
           id="particles"
           value={p.particles}
@@ -305,7 +312,7 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           }}
         />
       </Row>
-      <Row label="Images par seconde">
+      <Row label={t('settings.fps')}>
         <Choice
           value={p.fpsCap}
           options={[
@@ -319,7 +326,7 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           }}
         />
       </Row>
-      <Row label="Tremblement de l’écran">
+      <Row label={t('settings.shake')}>
         <Slider
           id="shake"
           value={p.shake}
@@ -333,7 +340,7 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           }}
         />
       </Row>
-      <Row label="Chiffres de dégâts">
+      <Row label={t('settings.damageNumbers')}>
         <Toggle
           id="damage-numbers"
           value={p.damageNumbers}
@@ -344,7 +351,7 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           }}
         />
       </Row>
-      <Row label="Réduire les flashs" hint="Accessibilité (photosensibilité)">
+      <Row label={t('settings.reduceFlashes')} hint={t('settings.reduceFlashesHint')}>
         <Toggle
           id="reduce-flashes"
           value={p.reduceFlashes}
@@ -355,12 +362,100 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           }}
         />
       </Row>
+      <Row label={t('core.language')}>
+        <Choice
+          value={p.language}
+          options={[
+            { value: 'fr', label: t('core.french') },
+            { value: 'en', label: t('core.english') },
+          ]}
+          onChange={(v) => {
+            set((s) => {
+              s.display.language = v;
+            });
+            setLanguage(v);
+          }}
+        />
+      </Row>
+      <Row label={t('settings.theme')}>
+        <Choice
+          value={p.theme}
+          options={[
+            { value: 'arcade', label: t('settings.themeArcade') },
+            { value: 'material', label: t('settings.themeMaterial') },
+            { value: 'light', label: t('settings.themeLight') },
+            { value: 'dark', label: t('settings.themeDark') },
+          ]}
+          onChange={(v) => {
+            set((s) => {
+              s.display.theme = v;
+            });
+          }}
+        />
+      </Row>
+      {p.theme === 'material' && (
+        <>
+          <Row label={t('settings.accent')}>
+            <div className="set-choice" role="radiogroup">
+              {ACCENTS.map((hex) => (
+                <button
+                  key={hex}
+                  role="radio"
+                  aria-checked={p.accent === hex}
+                  aria-label={t('settings.swatchAria', { hex })}
+                  className={p.accent === hex ? 'on' : ''}
+                  style={{
+                    background: hex,
+                    width: 36,
+                    height: 36,
+                    padding: 0,
+                    borderRadius: '50%',
+                  }}
+                  onClick={() => {
+                    set((s) => {
+                      s.display.accent = hex;
+                    });
+                  }}
+                />
+              ))}
+            </div>
+          </Row>
+          <Row label={t('settings.hudAccent')}>
+            <Toggle
+              id="hud-accent"
+              value={p.hudAccent}
+              onChange={(v) => {
+                set((s) => {
+                  s.display.hudAccent = v;
+                });
+              }}
+            />
+          </Row>
+        </>
+      )}
+      <Row label={t('settings.colorblind')}>
+        <Choice
+          value={p.colorblind}
+          options={[
+            { value: 'off', label: t('settings.colorblindOff') },
+            { value: 'deuteranopia', label: t('settings.colorblindDeuteranopia') },
+            { value: 'protanopia', label: t('settings.colorblindProtanopia') },
+            { value: 'tritanopia', label: t('settings.colorblindTritanopia') },
+          ]}
+          onChange={(v) => {
+            set((s) => {
+              s.display.colorblind = v;
+            });
+          }}
+        />
+      </Row>
     </>
   );
 }
 
 /** Notifications locales facultatives (désactivées par défaut). */
 function AlertsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) => void }) {
+  useLang();
   const n = d.retention.notifications;
   const [denied, setDenied] = useState(false);
   const toggle = (key: 'quests' | 'chest' | 'challenge', label: string, id: string) => (
@@ -380,10 +475,10 @@ function AlertsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) =
   return (
     <>
       <p className="set-note">
-        Rappels locaux, sans connexion : rien ne quitte l’appareil.
-        {!notificationsAvailable() && ' Disponibles dans l’application Android.'}
+        {t('settings.alertsNote')}
+        {!notificationsAvailable() && ` ${t('settings.androidOnly')}`}
       </p>
-      <Row label="Notifications">
+      <Row label={t('settings.notifications')}>
         <Toggle
           id="notify-enabled"
           value={n.enabled}
@@ -405,12 +500,12 @@ function AlertsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) =
           }}
         />
       </Row>
-      {denied && <p className="set-note">Autorisation refusée dans les réglages d’Android.</p>}
+      {denied && <p className="set-note">{t('settings.notifDenied')}</p>}
       {n.enabled && (
         <>
-          {toggle('quests', 'Nouvelles quêtes', 'notify-quests')}
-          {toggle('challenge', 'Nouveau défi du jour', 'notify-challenge')}
-          {toggle('chest', 'Coffre hors ligne plein', 'notify-chest')}
+          {toggle('quests', t('settings.notifQuests'), 'notify-quests')}
+          {toggle('challenge', t('settings.notifChallenge'), 'notify-challenge')}
+          {toggle('chest', t('settings.notifChest'), 'notify-chest')}
         </>
       )}
     </>
@@ -418,6 +513,7 @@ function AlertsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) =
 }
 
 function SaveTab() {
+  useLang();
   const exportText = useSave((s) => s.exportText);
   const importText = useSave((s) => s.importText);
   const reset = useSave((s) => s.reset);
@@ -426,27 +522,24 @@ function SaveTab() {
   const [confirmReset, setConfirmReset] = useState(false);
   return (
     <>
-      <p className="set-note">
-        Exporte ta progression sous forme de texte pour la garder ailleurs ou la transférer sur un
-        autre appareil.
-      </p>
+      <p className="set-note">{t('settings.saveNote')}</p>
       <div className="set-actions">
         <button
           className="btn-ghost"
           onClick={() => {
-            const t = exportText();
-            setText(t);
-            navigator.clipboard.writeText(t).then(
+            const exported = exportText();
+            setText(exported);
+            navigator.clipboard.writeText(exported).then(
               () => {
-                setMessage('Sauvegarde copiée dans le presse-papiers.');
+                setMessage(t('settings.copied'));
               },
               () => {
-                setMessage('Copie impossible : sélectionne le texte ci-dessous.');
+                setMessage(t('settings.copyFailed'));
               },
             );
           }}
         >
-          Exporter
+          {t('settings.export')}
         </button>
         <button
           className="btn-ghost"
@@ -454,7 +547,7 @@ function SaveTab() {
           onClick={() => {
             importText(text).then(
               () => {
-                setMessage('Sauvegarde importée.');
+                setMessage(t('settings.imported'));
               },
               (e: unknown) => {
                 setMessage(e instanceof Error ? e.message : String(e));
@@ -462,14 +555,14 @@ function SaveTab() {
             );
           }}
         >
-          Importer le texte
+          {t('settings.importText')}
         </button>
       </div>
       <textarea
         id="save-text"
         className="set-text"
         rows={4}
-        placeholder="Colle ici une sauvegarde exportée (VOIDPULSE1:…)"
+        placeholder={t('settings.pastePlaceholder')}
         value={text}
         onChange={(e) => {
           setText(e.target.value);
@@ -483,17 +576,17 @@ function SaveTab() {
       <div className="set-actions">
         {confirmReset ? (
           <>
-            <span className="set-warn">Toute la progression sera effacée.</span>
+            <span className="set-warn">{t('settings.resetWarn')}</span>
             <button
               className="btn-ghost danger"
               onClick={() => {
                 void reset().then(() => {
                   setConfirmReset(false);
-                  setMessage('Progression réinitialisée.');
+                  setMessage(t('settings.resetDone'));
                 });
               }}
             >
-              Confirmer
+              {t('core.confirm')}
             </button>
             <button
               className="btn-ghost"
@@ -501,7 +594,7 @@ function SaveTab() {
                 setConfirmReset(false);
               }}
             >
-              Annuler
+              {t('core.cancel')}
             </button>
           </>
         ) : (
@@ -511,7 +604,7 @@ function SaveTab() {
               setConfirmReset(true);
             }}
           >
-            Réinitialiser la progression
+            {t('settings.resetButton')}
           </button>
         )}
       </div>
@@ -520,32 +613,33 @@ function SaveTab() {
 }
 
 export function SettingsPanel({ onClose }: { onClose: () => void }) {
+  useLang();
   const d = useSave((s) => s.data);
   const update = useSave((s) => s.update);
   const error = useSave((s) => s.error);
   const [tab, setTab] = useState<Tab>('audio');
   return (
-    <div className="overlay settings" role="dialog" aria-label="Réglages">
+    <div className="overlay settings" role="dialog" aria-label={t('settings.title')}>
       <div className="set-panel">
         <header className="set-head">
-          <h2>Réglages</h2>
+          <h2>{t('settings.title')}</h2>
           <button className="btn-ghost" onClick={onClose}>
-            Fermer
+            {t('core.close')}
           </button>
         </header>
         {error && <p className="set-warn">{error}</p>}
         <nav className="set-tabs" role="tablist">
-          {TABS.map((t) => (
+          {TABS.map((tb) => (
             <button
-              key={t.id}
+              key={tb.id}
               role="tab"
-              aria-selected={tab === t.id}
-              className={tab === t.id ? 'on' : ''}
+              aria-selected={tab === tb.id}
+              className={tab === tb.id ? 'on' : ''}
               onClick={() => {
-                setTab(t.id);
+                setTab(tb.id);
               }}
             >
-              {t.label}
+              {t(tb.label)}
             </button>
           ))}
         </nav>

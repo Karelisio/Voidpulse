@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { audio } from '../audio';
 import { uiSound } from '../audio/bridge';
+import { t, useLang } from '../i18n';
 import type { CardView } from './cards';
 import { ELEMENT_LABEL } from './cards';
 
@@ -18,6 +19,7 @@ const STAGGER_MS = 420;
 const TICK_MS = 70;
 
 export function ChestOverlay({ view, onDone }: { view: ChestView; onDone: () => void }) {
+  useLang();
   const [revealed, setRevealed] = useState(0);
   const [spin, setSpin] = useState(0);
   const start = useRef(0);
@@ -53,8 +55,8 @@ export function ChestOverlay({ view, onDone }: { view: ChestView; onDone: () => 
   };
 
   return (
-    <div className="overlay chest" role="dialog" aria-label="Coffre d'élite" onClick={skip}>
-      <h2>Coffre d'élite</h2>
+    <div className="overlay chest" role="dialog" aria-label={t('run.chestTitle')} onClick={skip}>
+      <h2>{t('run.chestTitle')}</h2>
       <div className={`chest-slots n${String(total)}`}>
         {view.cards.map((c, i) => {
           const shown = i < revealed;
@@ -99,7 +101,7 @@ export function ChestOverlay({ view, onDone }: { view: ChestView; onDone: () => 
           onDone();
         }}
       >
-        Continuer
+        {t('core.continue')}
       </button>
     </div>
   );

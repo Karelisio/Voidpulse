@@ -2,7 +2,8 @@
  * Hôte d'une partie : relie la simulation, la boucle, le rendu, les contrôles, le game feel et
  * l'audio, et informe l'interface React des changements d'état (level-up, fin de run).
  */
-import { RESONANCE, STAGES } from '../content/data';
+import { RESONANCE, STAGES, WEAPONS, elementIndex } from '../content/data';
+import { elementPalette, hudAccent } from '../theme';
 import { Life } from '../engine/components';
 import { FixedLoop } from '../engine/loop';
 import type { HudState } from '../render/hud';
@@ -48,6 +49,21 @@ export class GameHost {
     q.reduceFlashes = d.reduceFlashes;
     this.renderer.applyQuality();
     this.loop.fpsCap = d.fpsCap;
+    this.renderer.hud.setAccent(hudAccent(d));
+    this.colorblind = d.colorblind;
+    this.applyElementTints();
+  }
+
+  private colorblind: DisplayPrefs['colorblind'] = 'off';
+
+  /** Daltonisme : les tirs sans apparence de maîtrise prennent la couleur de leur élément. */
+  private applyElementTints(): void {
+    if (this.colorblind === 'off') return;
+    const palette = elementPalette(this.colorblind);
+    const sim = this.sim;
+    WEAPONS.forEach((w, i) => {
+      if (sim.skinned[i] === 0) sim.weaponTint[i] = palette[elementIndex(w.element)];
+    });
   }
 
   /** Réglages du menu debug (méthodes : l'UI React ne mute pas l'hôte directement). */
@@ -137,6 +153,7 @@ export class GameHost {
 
   newRun(seed: string): void {
     this.sim = new RunSim({ ...this.options, seed });
+    this.applyElementTints();
     this.lastStatus = 'running';
     this.weaponsKey = '';
     if (this.bench) setupBench(this.sim, this.bench);

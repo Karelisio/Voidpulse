@@ -10,6 +10,7 @@ import type { FixedLoop } from '../engine/loop';
 import { ELEMENT_COLORS, PALETTE } from '../render/palette';
 import type { GameRenderer } from '../render/renderer';
 import { ENEMY_ACTION, EV, RUN_EVENT_KIND, RUN_EVENT_PHASE } from '../systems/events';
+import { t } from '../i18n';
 import type { RunSim } from '../systems/sim';
 import type { Haptics } from './haptics';
 
@@ -29,7 +30,12 @@ function eliteBanner(renderer: GameRenderer, eid: number, type: number): void {
   const names: string[] = [];
   const mask = Foe.affix[eid];
   for (let i = 0; i < AFFIXES.length; i++) if (mask & (1 << i)) names.push(AFFIXES[i].name);
-  renderer.hud.banner(`ÉLITE · ${ENEMIES[type]?.name ?? ''}`, names.join(' · '), 0xffb13d, 1.8);
+  renderer.hud.banner(
+    t('feel.elite', { name: ENEMIES[type]?.name ?? '' }),
+    names.join(' · '),
+    0xffb13d,
+    1.8,
+  );
 }
 
 /** Annonces des événements de run (apparition, activation, fin). */
@@ -39,32 +45,27 @@ function runEventFx(renderer: GameRenderer, kind: number, phase: number, x: numb
     switch (kind) {
       case RUN_EVENT_KIND.MERCHANT:
         hud.banner(
-          'MARCHAND AMBULANT',
-          `Il repart dans ${String(RUN_EVENTS.merchant.duration)} s : suivez la flèche dorée`,
+          t('feel.merchant'),
+          t('feel.merchantSub', { n: RUN_EVENTS.merchant.duration }),
           GOLD,
         );
         renderer.ring(x, y, 70, GOLD, 0.6);
         break;
       case RUN_EVENT_KIND.ALTAR:
-        hud.banner('AUTEL DE SACRIFICE', 'Restez dans son cercle pour l’invoquer', PALETTE.red);
+        hud.banner(t('feel.altar'), t('feel.altarSub'), PALETTE.red);
         renderer.ring(x, y, 80, PALETTE.red, 0.6);
         break;
       case RUN_EVENT_KIND.HORDE:
-        hud.banner('HORDE DORÉE !', 'Interceptez les scarabées : or et XP', GOLD);
+        hud.banner(t('feel.horde'), t('feel.hordeSub'), GOLD);
         renderer.screenFlash(GOLD, 0.18);
         break;
       case RUN_EVENT_KIND.RIFT:
-        hud.banner('FAILLE TEMPORELLE', 'Entrez-y pour suspendre le temps', RIFT);
+        hud.banner(t('feel.rift'), t('feel.riftSub'), RIFT);
         renderer.ring(x, y, 80, RIFT, 0.6);
         break;
     }
   } else if (phase === RUN_EVENT_PHASE.ACTIVATE && kind === RUN_EVENT_KIND.RIFT) {
-    hud.banner(
-      'TEMPS SUSPENDU',
-      `Ennemis ralentis · XP ×${String(RUN_EVENTS.rift.xp).replace('.', ',')}`,
-      RIFT,
-      2,
-    );
+    hud.banner(t('feel.timeStop'), t('feel.timeStopSub', { n: RUN_EVENTS.rift.xp }), RIFT, 2);
     renderer.screenFlash(RIFT, 0.35);
     renderer.ring(x, y, 320, RIFT, 0.8);
   }
@@ -124,8 +125,8 @@ export function dispatchEvents(
         renderer.ring(x, y, 260, PALETTE.yellow, 0.9);
         renderer.burst(x, y, PALETTE.yellow, 36, 300, 0.9, 1.4);
         renderer.hud.banner(
-          'RÉSURRECTION',
-          a > 0 ? `Encore ${String(a)}` : 'Dernière chance',
+          t('feel.revive'),
+          a > 0 ? t('feel.reviveLeft', { n: a }) : t('feel.reviveLast'),
           PALETTE.yellow,
           1.8,
         );
@@ -302,10 +303,10 @@ export function dispatchEvents(
         const queue = sim.state.rules.bossQueue.length;
         const title =
           queue > 0
-            ? `BOSS ${String(sim.state.director.bossCount)} / ${String(queue)}`
+            ? t('feel.bossQueue', { i: sim.state.director.bossCount, n: queue })
             : b
-              ? 'MINI-BOSS'
-              : 'BOSS FINAL';
+              ? t('feel.miniBoss')
+              : t('feel.finalBoss');
         if (def.id !== 'sentinel' || queue > 0) renderer.hud.banner(title, def.name, color, 2.2);
         haptics.boss();
         break;

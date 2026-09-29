@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { audio } from '../audio';
 import { uiSound } from '../audio/bridge';
 import { CHARACTERS, WEAPONS } from '../content/data';
+import { t, useLang } from '../i18n';
 import { isUnlocked } from '../meta/unlocks';
 import { useSave } from '../state/save';
 import { ELEMENT_LABEL } from './cards';
@@ -18,6 +19,7 @@ export function CharacterSelect({
   /** Menu debug : tous les personnages jouables. */
   forceUnlocked: boolean;
 }) {
+  useLang();
   const data = useSave((s) => s.data);
   const update = useSave((s) => s.update);
   const [selected, setSelected] = useState(() => {
@@ -30,8 +32,8 @@ export function CharacterSelect({
 
   return (
     <main className="select">
-      <h2>Pilote</h2>
-      <div className="roster" role="listbox" aria-label="Personnages">
+      <h2>{t('select.pilotTitle')}</h2>
+      <div className="roster" role="listbox" aria-label={t('select.rosterAria')}>
         {CHARACTERS.map((ch, i) => (
           <button
             key={ch.id}
@@ -59,7 +61,7 @@ export function CharacterSelect({
           <p className="muted">{c.description}</p>
           <dl>
             <div>
-              <dt>Arme</dt>
+              <dt>{t('select.weapon')}</dt>
               <dd>
                 {weapon && <img src={iconUrl(weapon.id)} alt="" width={22} height={22} />}
                 {weapon?.name ?? c.weapon}{' '}
@@ -71,7 +73,7 @@ export function CharacterSelect({
               <dd>{c.passive.description}</dd>
             </div>
             <div>
-              <dt>Dash · {c.dash.name}</dt>
+              <dt>{t('select.dashOf', { name: c.dash.name })}</dt>
               <dd>{c.dash.description}</dd>
             </div>
           </dl>
@@ -90,7 +92,7 @@ export function CharacterSelect({
             onStart();
           }}
         >
-          {open(selected) ? 'Décoller' : `Verrouillé : ${c.unlock.hint}`}
+          {open(selected) ? t('select.takeOff') : t('select.lockedHint', { hint: c.unlock.hint })}
         </button>
         <button
           className="btn-ghost"
@@ -99,7 +101,7 @@ export function CharacterSelect({
             onBack();
           }}
         >
-          Retour
+          {t('core.back')}
         </button>
       </div>
     </main>

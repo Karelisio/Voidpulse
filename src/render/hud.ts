@@ -4,6 +4,7 @@
  * sprites mis à l'échelle (aucune géométrie reconstruite) ; textes mis à jour seulement quand
  * leur valeur change.
  */
+import { t } from '../i18n';
 import { Container, Sprite, Text, Texture, type TextStyleOptions } from 'pixi.js';
 import { FRAME } from '../content/frames';
 import { PALETTE } from './palette';
@@ -96,7 +97,10 @@ export class Hud {
   private bannerT = Infinity;
   private bannerHold = 2.4;
   private readonly hpText = new Text({ text: '', style: style(11, PALETTE.ink) });
-  private readonly resText = new Text({ text: 'RÉSONANCE', style: style(10, 0xc9b8ff, '700') });
+  private readonly resText = new Text({
+    text: t('hud.resonance'),
+    style: style(10, 0xc9b8ff, '700'),
+  });
   private readonly bossText = new Text({ text: '', style: style(13, 0x6ff7ff, '700') });
   private readonly debugText = new Text({
     text: '',
@@ -218,11 +222,11 @@ export class Hud {
       this.res.set(s.eveil);
       const hue = (this.time * 0.6) % 1;
       this.res.fill.tint = hue < 0.33 ? 0xff7a2f : hue < 0.66 ? 0x7fe8ff : 0xfff06a;
-      this.resText.text = 'ÉVEIL';
+      this.resText.text = t('hud.eveil');
     } else {
       this.res.set(s.gauge / s.gaugeMax);
       this.res.fill.tint = s.gauge / s.gaugeMax > 0.8 ? 0xd98bff : PALETTE.violet;
-      this.resText.text = 'RÉSONANCE';
+      this.resText.text = t('hud.resonance');
     }
     const second = Math.floor(s.time);
     if (second !== this.lastSecond) {
@@ -232,7 +236,7 @@ export class Hud {
     }
     if (s.level !== this.lastLevel) {
       this.lastLevel = s.level;
-      this.level.text = `NV ${s.level}`;
+      this.level.text = t('hud.level', { n: s.level });
     }
     if (s.kills !== this.lastKills) {
       this.lastKills = s.kills;
@@ -279,6 +283,14 @@ export class Hud {
   }
 
   /** Bandeau d'annonce (événement, élite) : remplace le précédent, s'efface seul. */
+  /** Accent de Material You (option) : barre d'XP, niveau et joystick ; null : couleurs néon. */
+  setAccent(color: number | null): void {
+    const c = color ?? PALETTE.cyan;
+    this.xp.fill.tint = c;
+    this.level.style.fill = c;
+    this.joyKnob.tint = c;
+  }
+
   banner(title: string, subtitle: string, color: number, hold = 2.4): void {
     this.bannerTitle.text = title;
     this.bannerTitle.style.fill = color;

@@ -1,6 +1,7 @@
 /** Objectifs : quêtes du jour et de la semaine, passe de saison, succès. */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ACHIEVEMENTS, type AchievementDef } from '../../content/data';
+import { t, useLang, type TKey } from '../../i18n';
 import { evaluateAchievements } from '../../meta/achievements';
 import { readNow, safeNow } from '../../meta/clock';
 import { questsReady, refreshQuests } from '../../meta/quests';
@@ -17,10 +18,10 @@ import { QuestsTab } from './QuestsTab';
 import { SeasonTab } from './SeasonTab';
 
 const TABS = [
-  { id: 'quests', label: 'Quêtes' },
-  { id: 'season', label: 'Saison' },
-  { id: 'achievements', label: 'Succès' },
-] as const;
+  { id: 'quests', label: 'goals.tabQuests' },
+  { id: 'season', label: 'goals.tabSeason' },
+  { id: 'achievements', label: 'goals.tabAchievements' },
+] as const satisfies readonly { id: string; label: TKey }[];
 
 type TabId = (typeof TABS)[number]['id'];
 
@@ -51,6 +52,7 @@ function run<T>(fn: (d: SaveData, now: number) => T): { result: T; unlocked: Ach
 }
 
 export function GoalsScreen({ onBack }: { onBack: () => void }) {
+  useLang();
   const data = useSave((s) => s.data);
   const [tab, setTab] = useState<TabId>('quests');
   const [clock, setClock] = useState(() => Date.now());
@@ -108,33 +110,36 @@ export function GoalsScreen({ onBack }: { onBack: () => void }) {
     <main className="select meta goals">
       <header className="meta-head">
         <div className="meta-title">
-          <h2>Objectifs</h2>
-          <span className="meta-wallet" aria-label="Fragments">
-            <b>◆</b> {fmt(data.wallet.fragments)} <small>fragments</small>
+          <h2>{t('goals.title')}</h2>
+          <span className="meta-wallet" aria-label={t('goals.wallet')}>
+            <b>◆</b> {fmt(data.wallet.fragments)} <small>{t('goals.walletUnit')}</small>
           </span>
         </div>
-        <nav className="meta-tabs goals-tabs" role="tablist" aria-label="Sections">
-          {TABS.map((t) => (
+        <nav className="meta-tabs goals-tabs" role="tablist" aria-label={t('goals.sections')}>
+          {TABS.map((tb) => (
             <button
-              key={t.id}
-              id={`tab-${t.id}`}
+              key={tb.id}
+              id={`tab-${tb.id}`}
               role="tab"
-              aria-selected={tab === t.id}
-              className={tab === t.id ? 'on' : ''}
+              aria-selected={tab === tb.id}
+              className={tab === tb.id ? 'on' : ''}
               onClick={() => {
                 sfx('ui.click');
-                setTab(t.id);
+                setTab(tb.id);
               }}
             >
-              {t.label}
-              {t.id === 'achievements' ? (
+              {t(tb.label)}
+              {tb.id === 'achievements' ? (
                 <small className="goals-sub">
                   {done}/{ACHIEVEMENTS.length}
                 </small>
               ) : (
-                badges[t.id] > 0 && (
-                  <span className="goals-count" aria-label={`${String(badges[t.id])} à réclamer`}>
-                    {badges[t.id]}
+                badges[tb.id] > 0 && (
+                  <span
+                    className="goals-count"
+                    aria-label={t('goals.toClaim', { n: badges[tb.id] })}
+                  >
+                    {badges[tb.id]}
                   </span>
                 )
               )}
@@ -145,7 +150,10 @@ export function GoalsScreen({ onBack }: { onBack: () => void }) {
       {fresh.length > 0 && (
         <section className="goals-unlocked" aria-live="polite">
           <h3>
-            Succès débloqués ({fresh.length}) · +{fmt(fresh.reduce((n, a) => n + a.reward, 0))} ◆
+            {t('goals.unlockedTitle', {
+              n: fresh.length,
+              frags: fmt(fresh.reduce((n, a) => n + a.reward, 0)),
+            })}
           </h3>
           <ul>
             {fresh.slice(0, 4).map((a) => (
@@ -154,7 +162,7 @@ export function GoalsScreen({ onBack }: { onBack: () => void }) {
                 <b>+{fmt(a.reward)} ◆</b>
               </li>
             ))}
-            {fresh.length > 4 && <li>… et {fresh.length - 4} autres</li>}
+            {fresh.length > 4 && <li>{t('goals.andMore', { n: fresh.length - 4 })}</li>}
           </ul>
           <button
             className="btn-ghost"
@@ -163,7 +171,7 @@ export function GoalsScreen({ onBack }: { onBack: () => void }) {
               setFresh([]);
             }}
           >
-            OK
+            {t('core.ok')}
           </button>
         </section>
       )}
@@ -179,7 +187,7 @@ export function GoalsScreen({ onBack }: { onBack: () => void }) {
           onBack();
         }}
       >
-        Retour
+        {t('core.back')}
       </button>
       {toast !== '' && (
         <div className="goals-toast" role="status">

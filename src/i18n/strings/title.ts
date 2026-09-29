@@ -1,0 +1,37 @@
+/** Textes : écran titre et accueil. */
+import { defineStrings } from '../define';
+
+export default defineStrings(
+  {
+    tagline: 'Survis. Combine les éléments. Éveille la Résonance.',
+    play: 'Jouer',
+    progression: 'Progression',
+    goals: 'Objectifs',
+    bench: 'Scénario de charge (650 ennemis, 1 100 projectiles)',
+    hint: "Joystick : pose le pouce n'importe où. Dash : un second doigt. Clavier : ZQSD / flèches, Espace.",
+    streakDay: 'Série : jour {n}',
+    streakReward: '+{n} ◆',
+    seasonEndedOne: 'Saison terminée : 1 palier versé',
+    seasonEndedMany: 'Saison terminée : {n} paliers versés',
+    offlineChest: 'Coffre hors ligne',
+    chestClaimed: '+{n} ◆ récupérés',
+    chestFill: '{amount} / {cap} ◆',
+    claim: 'Récupérer',
+  },
+  {
+    tagline: 'Survive. Combine the elements. Awaken the Resonance.',
+    play: 'Play',
+    progression: 'Progression',
+    goals: 'Goals',
+    bench: 'Stress test (650 enemies, 1,100 projectiles)',
+    hint: 'Joystick: rest your thumb anywhere. Dash: a second finger. Keyboard: WASD / arrows, Space.',
+    streakDay: 'Streak: day {n}',
+    streakReward: '+{n} ◆',
+    seasonEndedOne: 'Season over: 1 tier paid out',
+    seasonEndedMany: 'Season over: {n} tiers paid out',
+    offlineChest: 'Offline chest',
+    chestClaimed: '+{n} ◆ collected',
+    chestFill: '{amount} / {cap} ◆',
+    claim: 'Collect',
+  },
+);

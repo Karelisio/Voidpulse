@@ -4,10 +4,12 @@
  */
 import { useEffect, useState } from 'react';
 import { audio } from '../audio';
+import { t, useLang } from '../i18n';
 import { TIER_DOWN, TIER_UP } from '../audio/music/intensity';
 import type { MusicDebug } from '../audio/music/director';
 
 export function MusicViz() {
+  useLang();
   const [d, setD] = useState<MusicDebug | null>(null);
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -17,20 +19,19 @@ export function MusicViz() {
       window.clearInterval(id);
     };
   }, []);
-  if (!d) return <div className="viz">Musique : moteur non prêt</div>;
+  if (!d) return <div className="viz">{t('training.vizNotReady')}</div>;
   const pct = (v: number): string => `${Math.round(Math.max(0, Math.min(1, v)) * 100)}%`;
   return (
     <div className="viz">
       <div className="viz-head">
         <span>♪ {d.scene ?? '—'}</span>
-        <span>
-          palier {d.tier} → appliqué {d.appliedTier}
-        </span>
+        <span>{t('training.vizTier', { tier: d.tier, applied: d.appliedTier })}</span>
         <span className={d.underruns > 0 ? 'viz-bad' : ''}>
-          {d.streaming ? 'stream' : 'repli'} · sous-alim. {d.underruns}
+          {d.streaming ? t('training.vizStream') : t('training.vizFallback')} ·{' '}
+          {t('training.vizUnderruns', { n: d.underruns })}
         </span>
       </div>
-      <div className="viz-meter" aria-label="Intensité">
+      <div className="viz-meter" aria-label={t('training.vizIntensity')}>
         {TIER_UP.map((t) => (
           <i key={`u${t}`} className="viz-up" style={{ left: pct(t) }} />
         ))}

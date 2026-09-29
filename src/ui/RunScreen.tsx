@@ -9,6 +9,7 @@ import { tallyOf } from '../meta/tally';
 import { audio, initAudio } from '../audio';
 import { GameAudio, uiSound } from '../audio/bridge';
 import { GameHost } from '../game/host';
+import { t, useLang } from '../i18n';
 import { useSave } from '../state/save';
 import { useUi, type LevelUpView } from '../state/ui';
 import { SettingsPanel } from './SettingsPanel';
@@ -188,7 +189,7 @@ function announce(host: GameHost, active: ActiveRun): void {
   const info = MODE_INFO[active.mode];
   const detail =
     active.mode === 'daily' && !active.counted
-      ? `${active.run.detail} · hors classement`
+      ? `${active.run.detail} · ${t('run.outOfRanking')}`
       : active.run.detail;
   host.renderer.hud.banner(info.name.toUpperCase(), detail, colorOf(info.color), 3);
 }
@@ -204,6 +205,7 @@ function pactView(host: GameHost): PactView {
 }
 
 export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => void }) {
+  useLang();
   const mount = useRef<HTMLDivElement>(null);
   const hostRef = useRef<GameHost | null>(null);
   const overlay = useUi((s) => s.overlay);
@@ -332,7 +334,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       {host && overlay === null && (
         <button
           className="pause-btn"
-          aria-label="Pause"
+          aria-label={t('run.pause')}
           onClick={() => {
             uiSound(audio(), 'ui.click');
             host.pause();
@@ -418,8 +420,8 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
         />
       )}
       {overlay === 'pause' && host && (
-        <div className="overlay pause" role="dialog" aria-label="Pause">
-          <h2>Pause</h2>
+        <div className="overlay pause" role="dialog" aria-label={t('run.pause')}>
+          <h2>{t('run.pause')}</h2>
           <div className="end-actions">
             <button
               className="btn-primary"
@@ -430,7 +432,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                 host.resume();
               }}
             >
-              Reprendre
+              {t('run.resume')}
             </button>
             <button
               className="btn-ghost"
@@ -439,7 +441,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                 setSettingsOpen(true);
               }}
             >
-              Réglages
+              {t('settings.title')}
             </button>
             <button
               className="btn-ghost"
@@ -448,7 +450,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                 onQuit();
               }}
             >
-              Quitter la partie
+              {t('run.quit')}
             </button>
           </div>
         </div>
@@ -495,7 +497,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                     host.setInvincible(e.target.checked);
                   }}
                 />
-                Invincible
+                {t('training.invincible')}
               </label>
               <div className="debug-row">
                 {[1, 2, 5].map((s) => (
@@ -528,14 +530,14 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                     host.sim.debugWeapon(debugWeapon);
                   }}
                 >
-                  Arme +1
+                  {t('run.dbgWeaponUp')}
                 </button>
                 <button
                   onClick={() => {
                     host.sim.debugEvolve(debugWeapon);
                   }}
                 >
-                  Évoluer
+                  {t('training.evolve')}
                 </button>
               </div>
               <div className="debug-row">
@@ -567,16 +569,16 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                     host.sim.debugElite(debugEnemy);
                   }}
                 >
-                  Élite
+                  {t('training.elite')}
                 </button>
               </div>
               <div className="debug-row">
                 {(
                   [
-                    ['merchant', 'Marchand'],
-                    ['altar', 'Autel'],
-                    ['horde', 'Horde'],
-                    ['rift', 'Faille'],
+                    ['merchant', t('run.dbgMerchant')],
+                    ['altar', t('run.dbgAltar')],
+                    ['horde', t('run.dbgHorde')],
+                    ['rift', t('run.dbgRift')],
                   ] as const
                 ).map(([kind, label]) => (
                   <button
@@ -595,35 +597,35 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                     host.sim.debugBoss();
                   }}
                 >
-                  Boss
+                  {t('training.boss')}
                 </button>
                 <button
                   onClick={() => {
                     host.sim.debugEveil();
                   }}
                 >
-                  Éveil
+                  {t('training.awakening')}
                 </button>
                 <button
                   onClick={() => {
                     host.sim.debugLevelUp();
                   }}
                 >
-                  Niveau +1
+                  {t('training.levelUp')}
                 </button>
                 <button
                   onClick={() => {
                     host.startBench({ enemies: 650, shots: 1100 });
                   }}
                 >
-                  Charge
+                  {t('run.dbgBench')}
                 </button>
                 <button
                   onClick={() => {
                     host.startBench({ enemies: 650, shots: 1100, mix: true });
                   }}
                 >
-                  Charge mixte
+                  {t('run.dbgBenchMix')}
                 </button>
               </div>
             </div>

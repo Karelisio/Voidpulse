@@ -1,4 +1,5 @@
 /** Surcouches des événements de run : marchand ambulant et autel de sacrifice. */
+import { t, useLang } from '../i18n';
 import type { AltarOfferKind } from '../systems/state';
 import type { MerchantView, SacrificeView } from './events';
 
@@ -11,11 +12,12 @@ export function MerchantOverlay({
   onBuy: (i: number) => void;
   onLeave: () => void;
 }) {
+  useLang();
   return (
-    <div className="overlay merchant" role="dialog" aria-label="Marchand ambulant">
-      <h2>Marchand</h2>
+    <div className="overlay merchant" role="dialog" aria-label={t('run.merchantAria')}>
+      <h2>{t('run.merchantTitle')}</h2>
       <p className="gold-line">
-        <span className="coin" aria-hidden="true" /> {view.gold} or
+        <span className="coin" aria-hidden="true" /> {t('run.goldAmount', { n: view.gold })}
       </p>
       <div className="cards">
         {view.offers.map((o, i) => (
@@ -35,13 +37,13 @@ export function MerchantOverlay({
                 onBuy(i);
               }}
             >
-              {o.sold ? 'Vendu' : `${String(o.price)} or`}
+              {o.sold ? t('run.sold') : t('run.goldAmount', { n: o.price })}
             </button>
           </div>
         ))}
       </div>
       <button className="btn-primary" id="merchant-leave" onClick={onLeave}>
-        Partir
+        {t('run.leave')}
       </button>
     </div>
   );
@@ -59,12 +61,13 @@ export function AltarOverlay({
   onChoose: (kind: AltarOfferKind) => void;
   onClose: () => void;
 }) {
+  useLang();
   return (
-    <div className="overlay altar" role="dialog" aria-label="Autel de sacrifice">
-      <h2>Autel de sacrifice</h2>
+    <div className="overlay altar" role="dialog" aria-label={t('run.altarTitle')}>
+      <h2>{t('run.altarTitle')}</h2>
       {result === null ? (
         <>
-          <p className="muted">Une offrande, un don. Ou rien.</p>
+          <p className="muted">{t('run.altarIntro')}</p>
           <div className="cards">
             {offers.map((o) => (
               <button
@@ -83,14 +86,14 @@ export function AltarOverlay({
             ))}
           </div>
           <button className="btn-ghost" id="altar-refuse" onClick={onClose}>
-            Refuser
+            {t('run.refuse')}
           </button>
         </>
       ) : (
         <>
           <p className="altar-result">{result}</p>
           <button className="btn-primary" id="altar-continue" onClick={onClose}>
-            Continuer
+            {t('core.continue')}
           </button>
         </>
       )}

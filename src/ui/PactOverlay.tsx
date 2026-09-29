@@ -1,6 +1,7 @@
 /** Pactes : offre de malus/bonus, sélection limitée, aperçu de la chaleur et du rang. */
 import { useState } from 'react';
 import { PACTS } from '../content/data';
+import { t, useLang } from '../i18n';
 import { rankOf } from '../systems/pacts';
 
 export interface PactView {
@@ -20,6 +21,7 @@ export function PactOverlay({
   view: PactView;
   onSeal: (choices: number[]) => void;
 }) {
+  useLang();
   const [chosen, setChosen] = useState<number[]>([]);
   const heat = view.heat + chosen.reduce((h, i) => h + PACTS.pacts[view.offer[i]].heat, 0);
   const toggle = (i: number): void => {
@@ -28,15 +30,18 @@ export function PactOverlay({
     );
   };
   return (
-    <div className="overlay pact" role="dialog" aria-label="Pactes">
-      <h2>{view.start ? 'Pactes' : 'Nouveau pacte'}</h2>
+    <div className="overlay pact" role="dialog" aria-label={t('run.pactsTitle')}>
+      <h2>{view.start ? t('run.pactsTitle') : t('run.pactNew')}</h2>
       <p className="muted">
         {view.start
-          ? `Scellez jusqu'à ${String(view.picks)} pactes : un malus contre un bonus.`
-          : 'Un pacte de plus, ou aucun.'}
+          ? view.picks === 1
+            ? t('run.pactIntroOne')
+            : t('run.pactIntroMany', { n: view.picks })
+          : t('run.pactMore')}
       </p>
       <p className="pact-rank">
-        Chaleur <b>{heat}</b> · Rang <b className={`rank rank-${rankOf(heat)}`}>{rankOf(heat)}</b>
+        {t('run.pactHeat')} <b>{heat}</b> · {t('run.pactRank')}{' '}
+        <b className={`rank rank-${rankOf(heat)}`}>{rankOf(heat)}</b>
       </p>
       <div className="cards">
         {view.offer.map((index, i) => {
@@ -69,7 +74,7 @@ export function PactOverlay({
           onSeal(chosen);
         }}
       >
-        {chosen.length > 0 ? 'Sceller' : 'Aucun pacte'}
+        {chosen.length > 0 ? t('run.pactSeal') : t('run.pactNone')}
       </button>
     </div>
   );

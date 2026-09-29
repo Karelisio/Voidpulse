@@ -1,3 +1,4 @@
+import { num, t, useLang } from '../i18n';
 import type { RunSummary } from '../state/ui';
 import { RunChart } from './RunChart';
 import { formatTime } from './summary';
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function EndOverlay({ summary, onAgain, onMenu }: Props) {
+  useLang();
   const total =
     summary.weapons.reduce((s, w) => s + w.damage, 0) +
       summary.reactionDamage +
@@ -21,28 +23,28 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
       icon: w.icon,
       cls: `el-${w.element}`,
     })),
-    { name: 'Réactions', damage: summary.reactionDamage, icon: '', cls: 'el-reaction' },
-    { name: 'Éveil', damage: summary.eveilDamage, icon: '', cls: 'el-eveil' },
-    { name: 'Dash', damage: summary.dashDamage, icon: '', cls: 'el-dash' },
+    { name: t('end.reactions'), damage: summary.reactionDamage, icon: '', cls: 'el-reaction' },
+    { name: t('end.awakening'), damage: summary.eveilDamage, icon: '', cls: 'el-eveil' },
+    { name: t('end.dash'), damage: summary.dashDamage, icon: '', cls: 'el-dash' },
   ].filter((r) => r.damage > 0);
   return (
-    <div className="overlay end" role="dialog" aria-label="Fin de la partie">
+    <div className="overlay end" role="dialog" aria-label={t('end.aria')}>
       <h2 className={summary.victory ? 'win' : 'loss'}>
-        {summary.victory ? 'Victoire' : 'Signal perdu'}
+        {summary.victory ? t('end.victory') : t('end.defeat')}
       </h2>
       <div className="end-rank">
         <span className={`rank rank-${summary.rank}`}>{summary.rank}</span>
         <span>
-          <b>{summary.score.toLocaleString('fr-FR')}</b> points
-          {summary.bestScore && <em> · record !</em>}
+          <b>{num(summary.score)}</b> {t('end.points')}
+          {summary.bestScore && <em> · {t('end.record')}</em>}
           <small>
             {summary.mode} · {summary.modeDetail} · {summary.character}
-            {summary.pacts.length > 0 ? ` · ${summary.pacts.join(', ')}` : ' · sans pacte'}
+            {summary.pacts.length > 0 ? ` · ${summary.pacts.join(', ')}` : ` · ${t('end.noPact')}`}
           </small>
         </span>
       </div>
       {summary.unlocked.length > 0 && (
-        <p className="end-unlock">Nouveau pilote : {summary.unlocked.join(', ')} !</p>
+        <p className="end-unlock">{t('end.newPilot', { list: summary.unlocked.join(', ') })}</p>
       )}
       {summary.modeLines.length > 0 && (
         <ul className="end-lines">
@@ -52,39 +54,39 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
         </ul>
       )}
       {summary.newStages.length > 0 && (
-        <p className="end-unlock">Nouveau secteur : {summary.newStages.join(', ')} !</p>
+        <p className="end-unlock">{t('end.newSector', { list: summary.newStages.join(', ') })}</p>
       )}
       {summary.newBosses.length > 0 && (
-        <p className="end-boss">Premier triomphe : {summary.newBosses.join(', ')}</p>
+        <p className="end-boss">{t('end.firstTriumph', { list: summary.newBosses.join(', ') })}</p>
       )}
       <dl className="end-stats">
         <div>
-          <dt>Temps</dt>
+          <dt>{t('end.time')}</dt>
           <dd>{formatTime(summary.time)}</dd>
         </div>
         <div>
-          <dt>Éliminations</dt>
+          <dt>{t('end.kills')}</dt>
           <dd>{summary.kills}</dd>
         </div>
         <div>
-          <dt>Niveau</dt>
+          <dt>{t('end.level')}</dt>
           <dd>{summary.level}</dd>
         </div>
         <div>
-          <dt>Éveils</dt>
+          <dt>{t('end.awakenings')}</dt>
           <dd>{summary.eveils}</dd>
         </div>
         <div>
-          <dt>Dégâts reçus</dt>
-          <dd>{Math.round(summary.damageTaken).toLocaleString('fr-FR')}</dd>
+          <dt>{t('end.damageTaken')}</dt>
+          <dd>{num(Math.round(summary.damageTaken))}</dd>
         </div>
         <div>
-          <dt>Dégâts/s moyens</dt>
-          <dd>{Math.round(total / Math.max(1, summary.time)).toLocaleString('fr-FR')}</dd>
+          <dt>{t('end.avgDps')}</dt>
+          <dd>{num(Math.round(total / Math.max(1, summary.time)))}</dd>
         </div>
       </dl>
       <RunChart data={summary.timeline} />
-      <h3>Dégâts</h3>
+      <h3>{t('end.damageHeading')}</h3>
       <ul className="dmg">
         {rows.map((r) => (
           <li key={r.name}>
@@ -96,17 +98,15 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
               <i className={r.cls} style={{ width: `${Math.max(2, (r.damage / total) * 100)}%` }} />
             </span>
             <span className="dmg-val">
-              {Math.round(r.damage).toLocaleString('fr-FR')}
-              <small>
-                {Math.round(r.damage / Math.max(1, summary.time)).toLocaleString('fr-FR')}/s
-              </small>
+              {num(Math.round(r.damage))}
+              <small>{num(Math.round(r.damage / Math.max(1, summary.time)))}/s</small>
             </span>
           </li>
         ))}
       </ul>
       {summary.reactions.length > 0 && (
         <>
-          <h3>Réactions déclenchées</h3>
+          <h3>{t('end.reactionsTriggered')}</h3>
           <ul className="chips">
             {summary.reactions.map((r) => (
               <li key={r.name} style={{ borderColor: r.color, color: r.color }}>
@@ -118,10 +118,10 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
       )}
       <div className="end-actions end-sticky">
         <button className="btn-primary" id="again" onClick={onAgain}>
-          Encore une partie
+          {t('end.again')}
         </button>
         <button className="btn-ghost" onClick={onMenu}>
-          Menu
+          {t('end.menu')}
         </button>
       </div>
     </div>

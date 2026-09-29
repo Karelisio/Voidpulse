@@ -1,6 +1,7 @@
 /** Talents : quatre branches de huit paliers, deux nœuds par palier, achat de rangs en fragments. */
 import { useState } from 'react';
 import { TALENTS, type TalentNodeDef } from '../../content/data';
+import { t, useLang } from '../../i18n';
 import { formatStats, statLabel } from '../../meta/stats';
 import {
   buyTalent,
@@ -36,6 +37,7 @@ function Node({
   selected: boolean;
   onSelect: () => void;
 }) {
+  useLang();
   const rank = talentRank(data, node.id);
   const state = canBuy(data, node);
   const cost = nextCost(data, node);
@@ -53,13 +55,18 @@ function Node({
       </span>
       <small className="meta-node-fx">{effect(node)}</small>
       <small className="meta-node-cost num">
-        {state === 'maxed' ? 'MAX' : state === 'locked' ? 'Verrouillé' : `◆ ${fmt(cost ?? 0)}`}
+        {state === 'maxed'
+          ? t('meta.max')
+          : state === 'locked'
+            ? t('core.locked')
+            : `◆ ${fmt(cost ?? 0)}`}
       </small>
     </button>
   );
 }
 
 export function TalentsTab() {
+  useLang();
   const data = useSave((s) => s.data);
   const [branch, setBranch] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -84,19 +91,19 @@ export function TalentsTab() {
           <div>
             <h3>{node.name}</h3>
             <small className="muted num">
-              Rang {String(rank)} / {String(node.cost.length)}
+              {t('meta.talentRank', { rank, max: node.cost.length })}
             </small>
           </div>
         </div>
         <p className="meta-fx">
-          {effect(node)} <span className="muted">par rang</span>
+          {effect(node)} <span className="muted">{t('meta.perRank')}</span>
         </p>
         {rank > 0 && (
-          <p className="muted num">Actuel : {formatStats(scaled(node.stats, rank)).join(' · ')}</p>
+          <p className="muted num">
+            {t('meta.current', { fx: formatStats(scaled(node.stats, rank)).join(' · ') })}
+          </p>
         )}
-        {state === 'locked' && (
-          <p className="muted">Investissez dans un nœud du palier précédent pour l’ouvrir.</p>
-        )}
+        {state === 'locked' && <p className="muted">{t('meta.talentLockedHint')}</p>}
         <button
           className="btn-primary"
           id="talent-buy"
@@ -109,10 +116,10 @@ export function TalentsTab() {
           }}
         >
           {state === 'maxed'
-            ? 'Rang maximal'
+            ? t('meta.maxRank')
             : state === 'locked'
-              ? 'Verrouillé'
-              : `Acheter (${fmt(cost ?? 0)}\u00a0◆)`}
+              ? t('core.locked')
+              : t('meta.buy', { n: fmt(cost ?? 0) })}
         </button>
       </section>
     );
@@ -120,7 +127,7 @@ export function TalentsTab() {
 
   return (
     <>
-      <div className="meta-subtabs" role="tablist" aria-label="Branches">
+      <div className="meta-subtabs" role="tablist" aria-label={t('meta.branches')}>
         {TALENTS.branches.map((br, i) => (
           <button
             key={br.id}
@@ -140,20 +147,20 @@ export function TalentsTab() {
         ))}
       </div>
 
-      <div className="meta-tree" aria-label={`Branche ${b.name}`}>
-        {Array.from({ length: TIERS }, (_, t) => (
-          <div key={t} className="meta-tier">
-            {t > 0 && (
+      <div className="meta-tree" aria-label={t('meta.branch', { name: b.name })}>
+        {Array.from({ length: TIERS }, (_, tier) => (
+          <div key={tier} className="meta-tier">
+            {tier > 0 && (
               <div className="meta-links" aria-hidden="true">
                 {[0, 1].map((c) => {
-                  const n = at(t, c);
+                  const n = at(tier, c);
                   return <i key={c} className={n && talentOpen(data, n) ? 'on' : ''} />;
                 })}
               </div>
             )}
             <div className="meta-row">
               {[0, 1].map((c) => {
-                const n = at(t, c);
+                const n = at(tier, c);
                 return n ? (
                   <Node
                     key={n.id}
@@ -178,7 +185,7 @@ export function TalentsTab() {
 
       <section className="meta-panel meta-reset">
         <p className="num">
-          Investi : <b>{fmt(spent)}&nbsp;◆</b>
+          {t('meta.invested')} <b>{fmt(spent)}&nbsp;◆</b>
         </p>
         <button
           className={armed ? 'btn-ghost danger' : 'btn-ghost'}
@@ -200,9 +207,7 @@ export function TalentsTab() {
             setArmed(false);
           }}
         >
-          {armed
-            ? `Confirmer : rembourser ${fmt(spent)}\u00a0◆`
-            : 'Réinitialiser l’arbre (remboursé)'}
+          {armed ? t('meta.resetConfirm', { n: fmt(spent) }) : t('meta.resetTree')}
         </button>
       </section>
     </>

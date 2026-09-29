@@ -2,6 +2,7 @@
  * Résultats des modes (module pur, testé) : classement de l'Infini, essai compté du défi du
  * jour, meilleur score de la semaine, records du Boss Rush et du Hardcore, fragments ramenés.
  */
+import { num, t } from '../i18n';
 import { MODES, type ModeId } from '../content/data';
 import type { SaveData } from '../save/schema';
 
@@ -40,7 +41,7 @@ export interface ModeRecord {
 export function recordMode(d: SaveData, r: ModeResult, fragMult = 1): ModeRecord {
   const out: ModeRecord = { fragments: 0, lines: [] };
   if (r.mode === 'training') {
-    out.lines.push('Entraînement : partie non comptée.');
+    out.lines.push(t('lines.trainingNotCounted'));
     return out;
   }
   const m = d.modes;
@@ -60,20 +61,22 @@ export function recordMode(d: SaveData, r: ModeResult, fragMult = 1): ModeRecord
       const rank = board.indexOf(entry);
       out.lines.push(
         rank >= 0
-          ? `Classement de l'Infini : ${String(rank + 1)}${rank === 0 ? 'er' : 'e'} !`
-          : 'Hors du classement de l’Infini.',
+          ? rank === 0
+            ? t('lines.endlessRankFirst')
+            : t('lines.endlessRank', { n: rank + 1 })
+          : t('lines.endlessOut'),
       );
       break;
     }
     case 'daily': {
       if (!r.counted) {
-        out.lines.push('Défi du jour : essai d’entraînement (seul le premier compte).');
+        out.lines.push(t('lines.dailyPractice'));
         break;
       }
       const h = m.daily.history.filter((x) => x.day !== r.period);
       h.unshift({ day: r.period, score: r.score, time: r.time, victory: r.victory });
       m.daily.history = h.slice(0, MODES.daily.history);
-      out.lines.push('Défi du jour : essai compté.');
+      out.lines.push(t('lines.dailyCounted'));
       break;
     }
     case 'weekly': {
@@ -85,7 +88,7 @@ export function recordMode(d: SaveData, r: ModeResult, fragMult = 1): ModeRecord
       m.weekly.runs++;
       if (r.score > m.weekly.best) {
         m.weekly.best = r.score;
-        out.lines.push('Défi de la semaine : nouveau record !');
+        out.lines.push(t('lines.weeklyRecord'));
       }
       break;
     }
@@ -94,7 +97,7 @@ export function recordMode(d: SaveData, r: ModeResult, fragMult = 1): ModeRecord
       if (r.bosses > b.bestBosses) b.bestBosses = r.bosses;
       if (r.victory && (b.bestTime === 0 || r.time < b.bestTime)) {
         b.bestTime = r.time;
-        out.lines.push('Boss Rush : meilleur temps !');
+        out.lines.push(t('lines.bossRushBest'));
       }
       break;
     }
@@ -114,9 +117,9 @@ export function recordMode(d: SaveData, r: ModeResult, fragMult = 1): ModeRecord
   d.wallet.fragments += out.fragments;
   if (out.fragments > 0) {
     out.lines.push(
-      `Fragments : +${String(out.fragments)}${
-        mult !== 1 ? ` (×${mult.toLocaleString('fr-FR', { maximumFractionDigits: 2 })})` : ''
-      }`,
+      mult !== 1
+        ? t('lines.fragmentsMult', { n: out.fragments, m: num(mult, 2) })
+        : t('lines.fragments', { n: out.fragments }),
     );
   }
   return out;
