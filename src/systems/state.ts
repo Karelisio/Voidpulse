@@ -5,7 +5,7 @@
  */
 import type { BossDef, PassiveDef, StageDef, WeaponDef, WeaponStats } from '../content/data';
 
-export type RunStatus = 'running' | 'levelup' | 'dead' | 'victory';
+export type RunStatus = 'running' | 'levelup' | 'chest' | 'dead' | 'victory';
 
 export interface SimInput {
   /** Direction de déplacement (norme ≤ 1). */
@@ -24,6 +24,42 @@ export interface PlayerStats {
   cooldownMult: number;
   damageMult: number;
   areaMult: number;
+  armor: number;
+  regen: number;
+  critChance: number;
+  critMult: number;
+  projectileSpeed: number;
+  durationMult: number;
+  amount: number;
+  luck: number;
+  growth: number;
+  greed: number;
+  dashCooldownMult: number;
+  statusMult: number;
+  gaugeMult: number;
+  /** Multiplicateur de dégâts par élément (noyaux). */
+  elementMult: Float32Array;
+}
+
+/** Paramètres d'archétype complets (valeurs par défaut appliquées, forme fixe). */
+export interface WeaponParamsN {
+  spread: number;
+  pattern: number;
+  explode: number;
+  split: number;
+  turn: number;
+  sweep: number;
+  track: number;
+  tick: number;
+  pull: number;
+  knock: number;
+  strike: number;
+  pool: number;
+  arm: number;
+  fork: number;
+  arcs: number;
+  heal: number;
+  critBonus: number;
 }
 
 export interface PlayerState {
@@ -54,6 +90,13 @@ export interface WeaponInstance {
   angle: number;
   /** Éclats actifs (armes orbitales). */
   shards: number;
+  params: WeaponParamsN;
+  evolved: boolean;
+  /** Impulsions de nova restantes et délai avant la suivante. */
+  pulses: number;
+  pulseT: number;
+  /** Limite la fréquence des sons des armes continues (orbite, aura). */
+  fxT: number;
 }
 
 export interface PassiveInstance {
@@ -75,12 +118,16 @@ export interface ResonanceState {
   recentHead: number;
   countById: Int32Array;
   eveils: number;
+  /** Réaction dominante de l'Éveil en cours (forme de l'ultime), -1 sinon. */
+  dominant: number;
 }
 
 export interface DirectorState {
   eventIndex: number;
   bossSpawned: boolean;
   densityMult: number;
+  /** Délai avant la prochaine élite (s). */
+  eliteT: number;
 }
 
 export type BossPhaseState = 'enter' | 'idle' | 'telegraph' | 'execute' | 'recover' | 'dying';
@@ -112,6 +159,20 @@ export interface LevelUpChoice {
   level: number;
 }
 
+export type ChestRewardKind = 'evolution' | 'weapon-up' | 'passive-up' | 'heal' | 'gold';
+
+export interface ChestReward {
+  kind: ChestRewardKind;
+  /** Index dans WEAPONS ou PASSIVES (-1 pour soin et fragments). */
+  index: number;
+  /** Niveau atteint, PV rendus ou fragments gagnés. */
+  value: number;
+}
+
+export interface ChestState {
+  rewards: ChestReward[];
+}
+
 export interface LevelUpState {
   choices: LevelUpChoice[];
   rerolls: number;
@@ -130,6 +191,11 @@ export interface RunStats {
   xpCollected: number;
   peakEnemies: number;
   bossKilled: boolean;
+  elitesKilled: number;
+  chests: number;
+  evolutions: number;
+  /** Fragments (monnaie méta) ramassés. */
+  fragments: number;
 }
 
 export interface RunState {
@@ -144,6 +210,7 @@ export interface RunState {
   director: DirectorState;
   boss: BossState;
   levelUp: LevelUpState;
+  chest: ChestState | null;
   stats: RunStats;
   debug: { invincible: boolean };
 }

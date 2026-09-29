@@ -11,6 +11,9 @@
     "novaInterval": 0.7,
     "novaRadius": 190,
     "novaDamage": 28,
-    "cooldownMult": 0.6
+    "cooldownMult": 0.6,
+    "ultimateScale": 0.8,
+    "finaleRadius": 300,
+    "finaleDamage": 90
   }
 }

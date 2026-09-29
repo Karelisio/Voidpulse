@@ -9,6 +9,8 @@ import { addComponent, addEntity, createWorld, query, type World } from 'bitecs'
 import {
   Body,
   BossTag,
+  Chest,
+  ChestTag,
   Bullet,
   BulletTag,
   EnemyTag,
@@ -39,7 +41,8 @@ export const POOL_SIZES = {
   bullets: 600,
   orbits: 32,
   gems: 900,
-  zones: 160,
+  zones: 256,
+  chests: 8,
 };
 
 export type PoolSizes = typeof POOL_SIZES;
@@ -54,6 +57,7 @@ export interface GameWorld {
   orbits: EntityPool;
   gems: EntityPool;
   zones: EntityPool;
+  chests: EntityPool;
 }
 
 export function createGameWorld(sizes: PoolSizes = POOL_SIZES): GameWorld {
@@ -78,6 +82,7 @@ export function createGameWorld(sizes: PoolSizes = POOL_SIZES): GameWorld {
     orbits: pool('orbits', OrbitTag, Pos, Look, Orbit),
     gems: pool('gems', GemTag, Pos, Vel, Look, Gem),
     zones: pool('zones', ZoneTag, Pos, Look, Zone),
+    chests: pool('chests', ChestTag, Pos, Look, Chest),
   };
 }
 

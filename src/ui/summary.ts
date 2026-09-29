@@ -18,10 +18,10 @@ export function buildSummary(
     damageTaken: st.stats.damageTaken,
     eveils: st.resonance.eveils,
     weapons: st.weapons.map((w) => ({
-      name: w.def.name,
+      name: w.evolved ? w.def.evolution.name : w.def.name,
       element: w.def.element,
       damage: st.stats.damageBySlot[w.slot],
-      icon: iconUrls[w.def.id] ?? '',
+      icon: iconUrls[w.evolved ? w.def.evolution.id : w.def.id] ?? '',
     })),
     reactionDamage: st.stats.damageBySlot[SLOT_REACTION],
     eveilDamage: st.stats.damageBySlot[SLOT_EVEIL],

@@ -11,6 +11,10 @@
   --vp-fire: #ff7a2f;
   --vp-frost: #7fe8ff;
   --vp-lightning: #fff06a;
+  --vp-poison: #9cff3d;
+  --vp-arcane: #ff6af0;
+  --vp-void: #a88aff;
+  --vp-gold: #ffd23d;
   --vp-font: 'Chakra Petch', system-ui, sans-serif;
 }
 
@@ -281,10 +285,34 @@ button:focus-visible {
   background: var(--vp-lightning);
 }
 
+.el-poison {
+  color: var(--vp-poison);
+  background: var(--vp-poison);
+}
+
+.el-arcane {
+  color: var(--vp-arcane);
+  background: var(--vp-arcane);
+}
+
+.el-void {
+  color: var(--vp-void);
+  background: var(--vp-void);
+}
+
 .card-element.el-fire,
 .card-element.el-frost,
-.card-element.el-lightning {
+.card-element.el-lightning,
+.card-element.el-poison,
+.card-element.el-arcane,
+.card-element.el-void {
   background: none;
+}
+
+.card-hint {
+  font-size: 12px;
+  color: var(--vp-gold);
+  opacity: 0.85;
 }
 
 .card-line {
@@ -741,4 +769,86 @@ button:focus-visible {
 :focus-visible {
   outline: 2px solid var(--vp-accent-2);
   outline-offset: 2px;
+}
+
+/* --- Coffre d'élite ----------------------------------------------------------------------- */
+
+.chest h2 {
+  color: var(--vp-gold);
+  text-shadow: 0 0 18px rgba(255, 210, 61, 0.6);
+}
+
+.chest-slots {
+  display: grid;
+  gap: 10px;
+  width: min(420px, 100%);
+}
+
+.chest-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel);
+  text-align: left;
+}
+
+.chest-slot.spinning .chest-icon img {
+  filter: blur(1.5px) saturate(1.6);
+  opacity: 0.8;
+}
+
+.chest-slot.shown {
+  animation: chest-pop 0.35s ease-out;
+  border-color: var(--vp-accent-2);
+}
+
+.chest-slot.kind-evolution {
+  border-color: var(--vp-gold);
+  box-shadow: 0 0 22px rgba(255, 210, 61, 0.45);
+}
+
+.chest-icon {
+  flex: none;
+  width: 64px;
+  height: 64px;
+}
+
+.chest-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+@keyframes chest-pop {
+  0% {
+    transform: scale(0.92);
+    box-shadow: 0 0 0 rgba(255, 210, 61, 0);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 28px rgba(255, 210, 61, 0.6);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chest-slot.shown {
+    animation: none;
+  }
+}
+
+.debug-row select {
+  max-width: 160px;
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #2a5;
+  background: #031;
+  color: #9dffb0;
+  font-family: monospace;
+  font-size: 11px;
 }

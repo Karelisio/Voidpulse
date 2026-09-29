@@ -1,0 +1,16 @@
+{
+  "burn": { "duration": 2.5, "interval": 0.5 },
+  "chill": { "decay": 0.22, "freeze": 1.2, "bossFactor": 0.25, "bossCap": 0.5 },
+  "shock": {
+    "bonus": 0.15,
+    "arcChance": 0.2,
+    "arcRange": 110,
+    "arcDamage": 0.35,
+    "arcCooldown": 0.35
+  },
+  "toxin": { "max": 12, "duration": 4, "dpsPerStack": 2 },
+  "expose": { "duration": 3, "max": 0.6 },
+  "entropy": { "bossFactor": 0.1, "pull": 40 },
+  "brittle": 0.3,
+  "percentBossFactor": 0.12
+}

@@ -2,10 +2,12 @@
  * Director de spawn : densité visée au fil du temps, répartition des types, montée des PV,
  * vagues scénarisées (anneau, ligne, essaim), déclenchement du boss.
  */
-import { ENEMIES, bossIndex, enemyIndex, type StageDef } from '../content/data';
-import { Pos } from '../engine/components';
+import { ENEMIES, PROGRESSION, bossIndex, enemyIndex, type StageDef } from '../content/data';
+import { Body, Foe, Life, Look, Pos } from '../engine/components';
+import { DT } from '../engine/constants';
 import { spawnBoss } from './boss';
-import { spawnEnemy } from './enemies';
+import { BEHAVIOR, BEHAVIOR_OF, spawnEnemy } from './enemies';
+import { EV } from './events';
 import type { RunSim } from './sim';
 
 /** Répartitions pré-calculées d'un stage (poids par type d'ennemi), sans allocation en jeu. */
@@ -77,6 +79,13 @@ export function updateDirector(sim: RunSim): void {
     dir.eventIndex++;
   }
 
+  // Élite périodique (porteuse d'un coffre).
+  dir.eliteT -= DT;
+  if (dir.eliteT <= 0 && dir.densityMult > 0) {
+    dir.eliteT = PROGRESSION.elite.every;
+    spawnElite(sim, t, hpScale);
+  }
+
   const target = curve(stage.density, t) * dir.densityMult;
   let deficit = target - sim.world.enemies.count;
   let budget = SPAWNS_PER_TICK;
@@ -85,6 +94,30 @@ export function updateDirector(sim: RunSim): void {
     if (spawnEnemy(sim, pickType(sim, t), sim.point.x, sim.point.y, hpScale) < 0) break;
     deficit--;
   }
+}
+
+/** Élite : type courant du stage (hors kamikazes), plus grosse, plus solide, porteuse d'un coffre. */
+export function spawnElite(sim: RunSim, t: number, hpScale: number): number {
+  let type = pickType(sim, t);
+  for (let tries = 0; tries < 6 && BEHAVIOR_OF[type] === BEHAVIOR.kamikaze; tries++)
+    type = pickType(sim, t);
+  if (BEHAVIOR_OF[type] === BEHAVIOR.kamikaze) type = 0;
+  sim.spawnPoint(60, 120);
+  const e = spawnEnemy(sim, type, sim.point.x, sim.point.y, hpScale);
+  if (e < 0) return -1;
+  const el = PROGRESSION.elite;
+  Foe.elite[e] = 1;
+  Life.hp[e] *= el.hp;
+  Life.max[e] = Life.hp[e];
+  Body.r[e] *= el.scale;
+  Body.mass[e] *= 3;
+  Look.scale[e] = el.scale;
+  Foe.dmg[e] *= el.damage;
+  Foe.speed[e] *= el.speed;
+  Foe.kbRes[e] = Math.max(Foe.kbRes[e], 0.8);
+  Foe.xp[e] *= el.xp;
+  sim.events.push(EV.ELITE_SPAWN, e, type, Pos.x[e], Pos.y[e], 0);
+  return e;
 }
 
 function runEvent(sim: RunSim, index: number, hpScale: number): void {

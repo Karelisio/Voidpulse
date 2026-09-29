@@ -23,6 +23,10 @@ export function updatePlayer(sim: RunSim): void {
 
   if (p.iFrames > 0) p.iFrames -= DT;
   if (p.dashCd > 0) p.dashCd -= DT;
+  if (p.stats.regen > 0 && p.hp < p.stats.maxHp && p.hp > 0) {
+    p.hp = Math.min(p.stats.maxHp, p.hp + p.stats.regen * DT);
+    Life.hp[eid] = p.hp;
+  }
 
   let mx = input.moveX;
   let my = input.moveY;
@@ -41,7 +45,7 @@ export function updatePlayer(sim: RunSim): void {
     input.dash = false;
     if (p.dashCd <= 0 && p.dashT <= 0) {
       p.dashT = PLAYER.dash.duration;
-      p.dashCd = PLAYER.dash.cooldown * p.stats.cooldownMult;
+      p.dashCd = PLAYER.dash.cooldown * p.stats.dashCooldownMult;
       p.dashX = len > 0.05 ? mx / Math.max(len, 1e-6) : p.faceX;
       p.dashY = len > 0.05 ? my / Math.max(len, 1e-6) : p.faceY;
       p.iFrames = Math.max(p.iFrames, PLAYER.dash.iFrames);
@@ -68,6 +72,8 @@ export function updatePlayer(sim: RunSim): void {
 export function damagePlayer(sim: RunSim, amount: number): boolean {
   const p = sim.state.player;
   if (p.iFrames > 0 || sim.state.debug.invincible || sim.state.status !== 'running') return false;
+  // Armure : réduction fixe, au plus 75 % du coup.
+  amount = Math.max(amount * 0.25, amount - p.stats.armor);
   p.hp -= amount;
   p.iFrames = PLAYER.iFrames;
   sim.state.stats.damageTaken += amount;

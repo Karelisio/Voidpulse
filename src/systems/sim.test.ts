@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { weaponIndex } from '../content/data';
 import { Life, Pos } from '../engine/components';
 import { RunSim } from './sim';
 
@@ -81,8 +82,8 @@ describe('RunSim', () => {
     const sim = new RunSim({ seed: 'resonance' });
     sim.state.debug.invincible = true;
     // Les trois armes dès le départ, pour forcer les réactions.
-    grantWeapon(sim, 1);
-    grantWeapon(sim, 2);
+    grantWeapon(sim, weaponIndex('frost'));
+    grantWeapon(sim, weaponIndex('arc'));
     expect(sim.state.weapons.length).toBe(3);
     sim.debugSpawn(0, 120);
     let reactions = 0;

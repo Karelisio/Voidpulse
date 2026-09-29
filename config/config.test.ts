@@ -3,6 +3,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { ZodType } from 'zod';
 import {
+  ARCHETYPES,
   BossDef,
   ELEMENTS,
   EnemyDef,
@@ -12,6 +13,7 @@ import {
   ReactionDef,
   ResonanceDef,
   StageDef,
+  StatusDef,
   WeaponDef,
 } from './schema';
 
@@ -28,6 +30,7 @@ describe('données de /config', () => {
   it('valident leurs schémas', () => {
     check(PlayerDef, 'player.json');
     check(ResonanceDef, 'resonance.json');
+    check(StatusDef, 'status.json');
     check(ProgressionDef, 'progression.json');
     check(WeaponDef.array(), 'weapons.json');
     check(PassiveDef.array(), 'passives.json');
@@ -46,6 +49,24 @@ describe('données de /config', () => {
         expect(pairs.has([ELEMENTS[i], ELEMENTS[j]].sort().join('+'))).toBe(true);
       }
     }
+  });
+
+  it('offrent 30 armes (5 par élément, 3 par archétype) et 25 passifs', () => {
+    const weapons = check(WeaponDef.array(), 'weapons.json');
+    const passives = check(PassiveDef.array(), 'passives.json');
+    expect(weapons).toHaveLength(30);
+    expect(passives).toHaveLength(25);
+    for (const el of ELEMENTS) expect(weapons.filter((w) => w.element === el)).toHaveLength(5);
+    for (const a of ARCHETYPES) expect(weapons.filter((w) => w.archetype === a)).toHaveLength(3);
+    const ids = [...weapons.flatMap((w) => [w.id, w.evolution.id]), ...passives.map((p) => p.id)];
+    expect(new Set(ids).size).toBe(ids.length);
+    const passiveIds = new Set(passives.map((p) => p.id));
+    for (const w of weapons) {
+      expect(passiveIds.has(w.evolution.passive)).toBe(true);
+      expect(w.levels).toHaveLength(7);
+    }
+    // Chaque passif sert au moins une évolution.
+    for (const p of passives) expect(weapons.some((w) => w.evolution.passive === p.id)).toBe(true);
   });
 
   it('référencent des identifiants existants', () => {

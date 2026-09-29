@@ -9,6 +9,7 @@ import type {
   PassiveDef,
   ReactionDef,
   StageDef,
+  StatusDef,
   WeaponDef,
 } from '../../config/schema';
 import bossesJson from '../../config/bosses.json';
@@ -18,6 +19,7 @@ import playerJson from '../../config/player.json';
 import progressionJson from '../../config/progression.json';
 import reactionsJson from '../../config/reactions.json';
 import resonanceJson from '../../config/resonance.json';
+import statusJson from '../../config/status.json';
 import protoStageJson from '../../config/stages/proto.json';
 import weaponsJson from '../../config/weapons.json';
 
@@ -30,7 +32,9 @@ export type {
   ReactionDef,
   ResonanceDef,
   StageDef,
+  StatusDef,
   WeaponDef,
+  WeaponParams,
   WeaponStats,
 } from '../../config/schema';
 export { ELEMENTS, type ElementId };
@@ -41,6 +45,7 @@ export const PASSIVES = passivesJson as PassiveDef[];
 export const ENEMIES = enemiesJson as EnemyDef[];
 export const REACTIONS = reactionsJson as ReactionDef[];
 export const RESONANCE = resonanceJson;
+export const STATUS: StatusDef = statusJson;
 export const BOSSES = bossesJson as BossDef[];
 export const PROGRESSION = progressionJson;
 export const STAGES: Partial<Record<string, StageDef>> = { proto: protoStageJson as StageDef };
@@ -50,6 +55,29 @@ export const NO_ELEMENT = 255;
 
 export function elementIndex(id: ElementId): number {
   return ELEMENTS.indexOf(id);
+}
+
+export function weaponIndex(id: string): number {
+  const i = WEAPONS.findIndex((w) => w.id === id);
+  if (i < 0) throw new Error(`Arme inconnue : ${id}`);
+  return i;
+}
+
+export function passiveIndex(id: string): number {
+  const i = PASSIVES.findIndex((p) => p.id === id);
+  if (i < 0) throw new Error(`Passif inconnu : ${id}`);
+  return i;
+}
+
+/** Passif requis par l'évolution de chaque arme (index dans PASSIVES). */
+export const EVOLUTION_PASSIVE = Int32Array.from(
+  WEAPONS.map((w) => passiveIndex(w.evolution.passive)),
+);
+
+export function reactionIndex(id: string): number {
+  const i = REACTIONS.findIndex((r) => r.id === id);
+  if (i < 0) throw new Error(`Réaction inconnue : ${id}`);
+  return i;
 }
 
 export function enemyIndex(id: string): number {

@@ -9,5 +9,14 @@
   "rerolls": 2,
   "banishes": 1,
   "locks": 1,
-  "gemMergeThreshold": 500
+  "gemMergeThreshold": 500,
+  "elite": {
+    "first": 45,
+    "every": 55,
+    "hp": 9,
+    "scale": 1.35,
+    "damage": 1.5,
+    "speed": 1.1,
+    "xp": 8
+  }
 }

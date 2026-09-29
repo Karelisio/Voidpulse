@@ -1,5 +1,5 @@
 /** Ennemis : apparition, comportements (5 archétypes), séparation des foules, contact. */
-import { ENEMIES, PLAYER } from '../content/data';
+import { ENEMIES, PLAYER, PROGRESSION } from '../content/data';
 import { FRAME } from '../content/frames';
 import { Body, Bullet, Foe, Life, Look, Pos, Status, Vel } from '../engine/components';
 import { DT } from '../engine/constants';
@@ -11,8 +11,8 @@ import { spawnZone, ZONE } from './zones';
 export const BEHAVIOR = { swarm: 0, tank: 1, shooter: 2, kamikaze: 3, teleporter: 4 } as const;
 /** Comportement de chaque type d'ennemi (index de config). */
 export const BEHAVIOR_OF = Uint8Array.from(ENEMIES.map((e) => BEHAVIOR[e.behavior]));
-/** Plus grand rayon d'ennemi ordinaire (marge des requêtes de grille). */
-export const MAX_ENEMY_RADIUS = Math.max(...ENEMIES.map((e) => e.radius));
+/** Plus grand rayon d'ennemi ordinaire ou élite (marge des requêtes de grille). */
+export const MAX_ENEMY_RADIUS = Math.max(...ENEMIES.map((e) => e.radius)) * PROGRESSION.elite.scale;
 
 const STATE = { MOVE: 0, CHARGE: 1, EXPLODED: 2 } as const;
 /** Au-delà de cette distance au joueur, un ennemi est replacé devant lui. */

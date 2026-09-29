@@ -71,7 +71,49 @@ export function dispatchEvents(
         haptics.death();
         break;
       case EV.FIRE:
+        // Nova : anneau à la portée de l'impulsion.
+        if (v > 0) {
+          const color = w < ELEMENT_COLORS.length ? ELEMENT_COLORS[w] : 0xffffff;
+          renderer.ring(x, y, v, color, 0.32, false, 0.8);
+          renderer.glow(x, y, v * 0.4, color, 0.18, 0.35);
+        }
         break;
+      case EV.STRIKE: {
+        const color = w < ELEMENT_COLORS.length ? ELEMENT_COLORS[w] : 0xffffff;
+        renderer.beam(x + 30, y - 320, x, y, color);
+        renderer.ring(x, y, v, color, 0.3);
+        renderer.burst(x, y, color, 8, 180, 0.35);
+        cam.shake(0.06);
+        break;
+      }
+      case EV.CHEST_DROP:
+        renderer.ring(x, y, 70, PALETTE.yellow, 0.6);
+        renderer.burst(x, y, PALETTE.yellow, 16, 200, 0.6, 1.2);
+        break;
+      case EV.CHEST_OPEN:
+        renderer.screenFlash(PALETTE.yellow, 0.25);
+        haptics.levelUp();
+        break;
+      case EV.EVOLUTION:
+        renderer.screenFlash(0xffffff, 0.45);
+        renderer.ring(cam.x, cam.y, 260, PALETTE.yellow, 0.8);
+        cam.shake(0.4);
+        haptics.eveil();
+        break;
+      case EV.ELITE_SPAWN:
+        renderer.ring(x, y, 90, PALETTE.yellow, 0.5, true);
+        break;
+      case EV.EVEIL_FINALE: {
+        const color = a >= 0 && a < REACTION_COLORS.length ? REACTION_COLORS[a] : 0xd98bff;
+        renderer.screenFlash(0xffffff, 0.5);
+        renderer.ring(x, y, v, color, 0.9);
+        renderer.ring(x, y, v * 0.6, 0xffffff, 0.6);
+        renderer.burst(x, y, color, 40, 420, 0.9, 1.6);
+        cam.shake(0.8);
+        loop.hitStopFor(6);
+        haptics.eveil();
+        break;
+      }
       case EV.BEAM: {
         const color = b < ELEMENT_COLORS.length ? ELEMENT_COLORS[b] : 0xffffff;
         renderer.beam(x, y, v, w, color);
@@ -81,9 +123,12 @@ export function dispatchEvents(
         const color = REACTION_COLORS[a] ?? 0xffffff;
         renderer.ring(x, y, v, color, 0.4);
         renderer.glow(x, y, v * 0.6, color, 0.3, 0.7);
-        renderer.burst(x, y, color, 10, 240, 0.45, 1.1);
-        cam.shake(0.14);
-        haptics.reaction();
+        // Forme ultime de l'Éveil (b = 1) : répétée, donc plus discrète.
+        renderer.burst(x, y, color, b === 1 ? 6 : 10, 240, 0.45, 1.1);
+        if (b !== 1) {
+          cam.shake(0.14);
+          haptics.reaction();
+        }
         break;
       }
       case EV.EVEIL_START:
@@ -113,7 +158,12 @@ export function dispatchEvents(
         haptics.tap();
         break;
       case EV.EXPLOSION: {
-        const color = a === 0 ? PALETTE.yellow : PALETTE.red;
+        const color =
+          a === 0
+            ? PALETTE.yellow
+            : a >= 3 && w < ELEMENT_COLORS.length
+              ? ELEMENT_COLORS[w]
+              : PALETTE.red;
         renderer.ring(x, y, v, color, 0.4);
         renderer.glow(x, y, v * 0.7, color, 0.25, 0.8);
         renderer.burst(x, y, color, 16, 260, 0.5, 1.2);

@@ -1,9 +1,10 @@
 /** Gemmes d'XP : apparition (fusion au-delà d'un seuil), aimantation, collecte, montée de niveau. */
 import { PLAYER, PROGRESSION } from '../content/data';
 import { FRAME } from '../content/frames';
-import { Gem, Look, Pos, Vel } from '../engine/components';
+import { Chest, Gem, Look, Pos, Vel } from '../engine/components';
 import { DT } from '../engine/constants';
 import { EV } from './events';
+import { openChest } from './loot';
 import { gainLevel } from './progression';
 import type { RunSim } from './sim';
 
@@ -45,6 +46,19 @@ export function dropGem(sim: RunSim, x: number, y: number, value: number): void 
   Look.frame[g] = gemFrame(value);
 }
 
+/** Coffre d'élite posé au sol (ramassé au contact). */
+export function dropChest(sim: RunSim, x: number, y: number): void {
+  const c = sim.spawnIn(sim.world.chests);
+  if (c < 0) return;
+  Pos.x[c] = x;
+  Pos.y[c] = y;
+  Pos.px[c] = x;
+  Pos.py[c] = y;
+  Chest.tier[c] = 1;
+  Look.frame[c] = FRAME.CHEST;
+  sim.events.push(EV.CHEST_DROP, 0, 0, x, y, 0);
+}
+
 /** Attire toutes les gemmes (fin de boss, aimant). */
 export function magnetizeAll(sim: RunSim): void {
   const pool = sim.world.gems;
@@ -70,7 +84,7 @@ export function updatePickups(sim: RunSim): void {
     }
     const d = Math.sqrt(d2);
     if (d < collect) {
-      const value = Gem.value[g];
+      const value = Gem.value[g] * p.stats.growth;
       p.xp += value;
       sim.state.stats.xpCollected += value;
       sim.events.push(EV.XP, 0, 0, Pos.x[g], Pos.y[g], value, 0, true);
@@ -87,5 +101,18 @@ export function updatePickups(sim: RunSim): void {
   while (p.xp >= p.xpNext) {
     p.xp -= p.xpNext;
     gainLevel(sim);
+  }
+  // Coffres : ouverture au contact (un seul par tick).
+  const chests = sim.world.chests;
+  for (let i = chests.count - 1; i >= 0; i--) {
+    const c = chests.active[i];
+    Look.rot[c] = Math.sin(sim.state.time * 3 + c) * 0.12;
+    const dx = px - Pos.x[c];
+    const dy = py - Pos.y[c];
+    if (dx * dx + dy * dy < (PLAYER.radius + 22) ** 2 && sim.state.status === 'running') {
+      chests.despawn(c);
+      openChest(sim);
+      break;
+    }
   }
 }

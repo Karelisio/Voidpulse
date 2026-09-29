@@ -10,11 +10,11 @@ export const EV = {
   /** a : PV restants, v : dégâts. */
   PLAYER_HURT: 3,
   PLAYER_DEATH: 4,
-  /** a : slot, b : index d'arme, x/y : origine. */
+  /** a : slot, b : index d'arme, x/y : origine, v : rayon (nova, 0 sinon), w : élément. */
   FIRE: 5,
   /** Segment d'éclair : a : slot, b : élément, x/y → v/w. */
   BEAM: 6,
-  /** a : index de réaction, x/y, v : rayon. */
+  /** a : index de réaction, b : 1 si forme ultime de l'Éveil, x/y, v : rayon. */
   REACTION: 7,
   EVEIL_START: 8,
   EVEIL_END: 9,
@@ -28,7 +28,7 @@ export const EV = {
   DASH: 13,
   /** x/y : origine. */
   ENEMY_SHOT: 14,
-  /** a : nature (0 kamikaze, 1 mine, 2 boss), x/y, v : rayon. */
+  /** a : nature (0 kamikaze, 1 mine de boss, 3 mine du joueur, 4 implosion), x/y, v : rayon, w : élément. */
   EXPLOSION: 15,
   /** x/y → v/w. */
   BLINK: 16,
@@ -48,6 +48,18 @@ export const EV = {
   RUN_END: 23,
   /** Fin d'une charge de boss, x/y. */
   BOSS_SLAM: 24,
+  /** Impact d'une frappe de zone (orage) : a : slot, b : index d'arme, x/y, v : rayon, w : élément. */
+  STRIKE: 25,
+  /** Coffre d'élite posé : x/y. */
+  CHEST_DROP: 26,
+  /** Coffre ouvert : a : nombre de récompenses. */
+  CHEST_OPEN: 27,
+  /** Arme évoluée : a : index d'arme. */
+  EVOLUTION: 28,
+  /** Élite apparue : a : eid, b : type. */
+  ELITE_SPAWN: 29,
+  /** Fin de l'Éveil : détonation fusionnée, x/y, v : rayon. */
+  EVEIL_FINALE: 30,
 } as const;
 
 export const TELEGRAPH_KIND = { KAMIKAZE: 0, BLINK: 1, BOSS: 2, SHOOTER: 3 } as const;

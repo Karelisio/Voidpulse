@@ -60,7 +60,8 @@ export interface HudState {
   gauge: number;
   gaugeMax: number;
   eveil: number;
-  weapons: readonly { id: string; level: number }[];
+  weapons: readonly { id: string; level: number; evolved: boolean }[];
+  passives: readonly { id: string; level: number }[];
   bossName: string | null;
   bossRatio: number;
   dashReady: number;
@@ -162,10 +163,10 @@ export class Hud {
     this.timer.position.set(width / 2, top + 6);
     this.kills.position.set(width - 12, top + 8);
     this.debugText.position.set(width - 12, top + 30);
-    // Sous la rangée d'icônes d'armes (hp.y + 42 … + 98).
+    // Sous les rangées d'icônes (armes : hp.y + 42, passifs : + 76 … + 124).
     const bw = Math.min(420, width * 0.7);
-    this.boss.place((width - bw) / 2, top + 126, bw, 8);
-    this.bossText.position.set(width / 2, top + 123);
+    this.boss.place((width - bw) / 2, top + 152, bw, 8);
+    this.bossText.position.set(width / 2, top + 149);
     this.dashX = leftHanded ? 70 : width - 70;
     this.dashY = height - safeBottom - 90;
     this.dash.position.set(this.dashX, this.dashY);
@@ -243,7 +244,8 @@ export class Hud {
 
   private updateWeapons(s: HudState): void {
     let key = '';
-    for (const w of s.weapons) key += `${w.id}${w.level};`;
+    for (const w of s.weapons) key += `${w.id}${w.level}${w.evolved ? '*' : ''};`;
+    for (const q of s.passives) key += `|${q.id}${q.level}`;
     if (key === this.weaponsKey) return;
     this.weaponsKey = key;
     for (const i of this.icons) i.destroy();
@@ -254,11 +256,29 @@ export class Hud {
     s.weapons.forEach((w, i) => {
       const icon = new Sprite(this.atlas.icons[w.id] ?? Texture.WHITE);
       icon.anchor.set(0.5);
-      icon.scale.set(0.46);
+      icon.scale.set(0.6);
       icon.position.set(26 + i * 34, y);
-      const lvl = new Text({ text: String(w.level), style: style(10, PALETTE.ink, '700') });
+      const lvl = new Text({
+        text: w.evolved ? '★' : String(w.level),
+        style: style(10, w.evolved ? PALETTE.yellow : PALETTE.ink, '700'),
+      });
       lvl.anchor.set(0.5, 0);
       lvl.position.set(26 + i * 34, y + 14);
+      this.container.addChild(icon, lvl);
+      this.icons.push(icon);
+      this.iconLevels.push(lvl);
+    });
+    // Passifs : rangée plus petite sous les armes.
+    const py = y + 34;
+    s.passives.forEach((q, i) => {
+      const icon = new Sprite(this.atlas.icons[q.id] ?? Texture.WHITE);
+      icon.anchor.set(0.5);
+      icon.scale.set(0.42);
+      icon.alpha = 0.9;
+      icon.position.set(22 + i * 24, py);
+      const lvl = new Text({ text: String(q.level), style: style(8, PALETTE.ink, '700') });
+      lvl.anchor.set(0.5, 0);
+      lvl.position.set(22 + i * 24, py + 9);
       this.container.addChild(icon, lvl);
       this.icons.push(icon);
       this.iconLevels.push(lvl);

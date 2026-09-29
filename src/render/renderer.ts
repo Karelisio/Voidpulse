@@ -4,9 +4,9 @@
  * simulation ; rendu déclenché par la boucle (pas de ticker Pixi).
  */
 import { Application, Container, Sprite, Texture } from 'pixi.js';
-import { BOSSES, ENEMIES } from '../content/data';
+import { BOSSES, ENEMIES, WEAPONS, colorOf } from '../content/data';
 import { FRAME } from '../content/frames';
-import { Foe, Gem, Life, Look, Pos, Status, Zone } from '../engine/components';
+import { Body, Foe, Gem, Life, Look, Pos, Status, Zone } from '../engine/components';
 import type { EntityPool } from '../engine/pool';
 import type { RunSim } from '../systems/sim';
 import { ZONE } from '../systems/zones';
@@ -59,6 +59,7 @@ export class GameRenderer {
   private readonly bg = new Background();
   private readonly zones: SpriteLayer;
   private readonly gems: SpriteLayer;
+  private readonly chests: SpriteLayer;
   private readonly enemies: SpriteLayer;
   private readonly marks: SpriteLayer;
   private readonly bullets: SpriteLayer;
@@ -77,7 +78,8 @@ export class GameRenderer {
     readonly quality: QualitySettings,
   ) {
     const fx = atlas.fx;
-    this.zones = new SpriteLayer(160, atlas.frames[FRAME.ZONE_RING], 'add');
+    this.zones = new SpriteLayer(272, atlas.frames[FRAME.ZONE_RING], 'add');
+    this.chests = new SpriteLayer(8, atlas.frames[FRAME.CHEST], 'normal');
     this.gems = new SpriteLayer(900, atlas.frames[FRAME.GEM_S], 'add');
     this.enemies = new SpriteLayer(1400, atlas.frames[FRAME.ENEMY_BASE], 'normal');
     this.marks = new SpriteLayer(1400, fx.spark, 'add', { rotation: false });
@@ -97,6 +99,7 @@ export class GameRenderer {
     this.world.addChild(
       this.zones.container,
       this.gems.container,
+      this.chests.container,
       this.enemies.container,
       this.marks.container,
       this.boss,
@@ -324,8 +327,9 @@ export class GameRenderer {
     );
 
     const w = sim.world;
-    this.syncZones(w.zones, alpha);
+    this.syncZones(sim, w.zones, alpha, px, py);
     this.syncSimple(this.gems, w.gems, alpha, 0, true);
+    this.syncSimple(this.chests, w.chests, alpha, 0, false);
     this.syncEnemies(w.enemies, alpha);
     this.syncBoss(sim, alpha);
     this.syncSimple(this.orbits, w.orbits, alpha, Math.PI / 2, false);
@@ -373,7 +377,7 @@ export class GameRenderer {
         : Look.scale[e] || 1;
       p.scaleX = s;
       p.scaleY = s;
-      p.color = particleColor(0xffffff, Look.alpha[e]);
+      p.color = particleColor(Look.tint[e], Look.alpha[e]);
     }
     layer.end();
   }
@@ -407,14 +411,27 @@ export class GameRenderer {
       else if (Status.burnT[e] > 0) tint = 0xffb489;
       else if (Status.chill[e] > 0.2) tint = 0xc4ecff;
       p.color = particleColor(tint, Look.alpha[e]);
+      if (Foe.elite[e] !== 0) {
+        const halo = marks.next();
+        if (halo) {
+          halo.texture = this.atlas.fx.ring;
+          halo.x = x;
+          halo.y = y;
+          const hs = (Body.r[e] / 58) * (1.35 + 0.08 * Math.sin(this.time * 5 + e));
+          halo.scaleX = hs;
+          halo.scaleY = hs;
+          halo.color = particleColor(ELITE_COLOR, 0.8);
+        }
+      }
       const m = Status.marks[e];
       if (m !== 0) {
         const mp = marks.next();
         if (mp) {
+          mp.texture = this.atlas.fx.spark;
           let el = 0;
           while (!(m & (1 << el))) el++;
           mp.x = x;
-          mp.y = y - ENEMY_MARK_OFFSET[Foe.type[e]];
+          mp.y = y - (Body.r[e] + 7);
           mp.scaleX = 1.3;
           mp.scaleY = 1.3;
           mp.color = particleColor(ELEMENT_COLORS[el], 0.95);
@@ -449,10 +466,28 @@ export class GameRenderer {
         : 0xffffff;
   }
 
-  private syncZones(pool: EntityPool, alpha: number): void {
+  private syncZones(sim: RunSim, pool: EntityPool, alpha: number, px: number, py: number): void {
     const frames = this.atlas.frames;
     const layer = this.zones;
     layer.begin();
+    // Auras des armes : disque translucide centré sur le joueur.
+    const weapons = sim.state.weapons;
+    const area = sim.state.player.stats.areaMult;
+    for (let i = 0; i < weapons.length; i++) {
+      const w = weapons[i];
+      if (w.def.archetype !== 'aura') continue;
+      const p = layer.next();
+      if (!p) break;
+      const r = w.stats.range * area;
+      p.texture = frames[FRAME.ZONE_POOL];
+      p.x = px;
+      p.y = py;
+      p.anchorX = 0.5;
+      p.rotation = this.time * 0.4;
+      p.scaleX = r / 60;
+      p.scaleY = r / 60;
+      p.color = particleColor(AURA_TINT[w.defIndex], 0.3 + 0.06 * Math.sin(this.time * 3));
+    }
     for (let i = 0; i < pool.count; i++) {
       const z = pool.active[i];
       const p = layer.next();
@@ -461,22 +496,61 @@ export class GameRenderer {
       p.texture = frames[Look.frame[z]];
       p.x = Pos.px[z] + (Pos.x[z] - Pos.px[z]) * alpha;
       p.y = Pos.py[z] + (Pos.y[z] - Pos.py[z]) * alpha;
-      if (kind === ZONE.CHARGE_LINE) {
-        p.anchorX = 0;
-        p.rotation = Zone.rot[z];
-        p.scaleX = Zone.w[z] / 64;
-        p.scaleY = Zone.h[z] / 56;
-        p.color = particleColor(PALETTE.red, 0.2 + 0.6 * Look.alpha[z]);
-      } else {
-        p.anchorX = 0.5;
-        p.rotation = kind === ZONE.MINE ? this.time * 1.5 : 0;
-        const s = Zone.r[z] / (kind === ZONE.VAPOR ? 60 : 58);
-        p.scaleX = s;
-        p.scaleY = s;
-        const color =
-          kind === ZONE.VAPOR ? 0xc4ecff : kind === ZONE.MINE ? PALETTE.red : PALETTE.violet;
-        p.color = particleColor(color, Look.alpha[z] * (kind === ZONE.VAPOR ? 0.55 : 0.9));
+      p.anchorX = 0.5;
+      p.rotation = 0;
+      const a = Look.alpha[z];
+      let s = Zone.r[z] / 58;
+      let color = Look.tint[z];
+      switch (kind) {
+        case ZONE.CHARGE_LINE:
+        case ZONE.BEAM:
+          p.anchorX = 0;
+          p.rotation = Zone.rot[z];
+          p.scaleX = Zone.w[z] / 64;
+          p.scaleY = Zone.h[z] / 56;
+          p.color =
+            kind === ZONE.BEAM
+              ? particleColor(color, 0.9 * a)
+              : particleColor(PALETTE.red, 0.2 + 0.6 * a);
+          continue;
+        case ZONE.VAPOR:
+          s = Zone.r[z] / 60;
+          color = 0xc4ecff;
+          p.color = particleColor(color, a * 0.55);
+          break;
+        case ZONE.MINE:
+          p.rotation = this.time * 1.5;
+          p.color = particleColor(PALETTE.red, a * 0.9);
+          break;
+        case ZONE.PMINE:
+          // Mine du joueur : taille du rayon de déclenchement, pulsation une fois armée.
+          s = (Zone.w[z] / 58) * (Zone.state[z] === 2 ? 1.25 + 0.2 * Math.sin(this.time * 30) : 1);
+          p.rotation = this.time * (Zone.state[z] === 2 ? 8 : 1);
+          p.color = particleColor(color, a);
+          break;
+        case ZONE.POOL:
+          s = Zone.r[z] / 60;
+          p.rotation = this.time * 0.3 + z;
+          p.color = particleColor(color, a * 0.7);
+          break;
+        case ZONE.STRIKE:
+          s = (Zone.r[z] / 58) * (1.25 - 0.25 * a);
+          p.color = particleColor(color, a);
+          break;
+        case ZONE.SURGE:
+          s = 1.2 + 0.15 * Math.sin(this.time * 20 + z);
+          p.color = particleColor(color, a);
+          break;
+        case ZONE.WELL:
+          s = Zone.r[z] / 60;
+          p.rotation = Look.rot[z];
+          p.color = particleColor(color, a * 0.9);
+          break;
+        default:
+          p.color = particleColor(PALETTE.violet, a * 0.9);
       }
+      p.scaleX = s;
+      p.scaleY = s;
     }
     layer.end();
   }
@@ -491,4 +565,5 @@ export class GameRenderer {
   }
 }
 
-const ENEMY_MARK_OFFSET = Float32Array.from(ENEMIES.map((e) => e.radius + 7));
+const ELITE_COLOR = 0xffd23d;
+const AURA_TINT = Uint32Array.from(WEAPONS.map((w) => colorOf(w.color)));

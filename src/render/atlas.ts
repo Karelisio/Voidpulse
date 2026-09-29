@@ -6,86 +6,15 @@
 import { CanvasSource, Rectangle, Texture } from 'pixi.js';
 import { BOSSES, ENEMIES, PASSIVES, WEAPONS, colorOf } from '../content/data';
 import { FRAME, FRAME_COUNT } from '../content/frames';
-import { css, mix, PALETTE } from './palette';
+import { drawIcon, iconColor } from './icons';
+import { mix, PALETTE } from './palette';
+import { circle, Pen, poly, type Ctx } from './pen';
 
 /** Résolution de dessin (texels par unité monde) : net jusqu'à un DPR de 2. */
 const RES = 2;
 const ATLAS = 1024;
-
-type Ctx = CanvasRenderingContext2D;
-
-/** Crayon néon : en mode « blanc », toutes les couleurs deviennent blanches (flash de coup). */
-class Pen {
-  constructor(
-    readonly ctx: Ctx,
-    readonly white: boolean,
-  ) {}
-
-  col(color: number, alpha = 1): string {
-    return this.white ? `rgba(255,255,255,${Math.min(1, alpha * 1.6)})` : css(color, alpha);
-  }
-
-  /** Trait néon : halo coloré + cœur clair. */
-  stroke(color: number, width: number, glow: number, path: (c: Ctx) => void): void {
-    const c = this.ctx;
-    c.save();
-    c.lineJoin = 'round';
-    c.lineCap = 'round';
-    c.shadowColor = this.col(color);
-    c.shadowBlur = glow;
-    c.strokeStyle = this.col(color);
-    c.lineWidth = width;
-    c.beginPath();
-    path(c);
-    c.stroke();
-    c.shadowBlur = 0;
-    c.strokeStyle = this.col(mix(color, 0xffffff, 0.55));
-    c.lineWidth = width * 0.4;
-    c.beginPath();
-    path(c);
-    c.stroke();
-    c.restore();
-  }
-
-  fill(color: number, alpha: number, path: (c: Ctx) => void, glow = 0): void {
-    const c = this.ctx;
-    c.save();
-    if (glow > 0) {
-      c.shadowColor = this.col(color);
-      c.shadowBlur = glow;
-    }
-    c.fillStyle = this.col(color, this.white ? Math.max(alpha, 0.85) : alpha);
-    c.beginPath();
-    path(c);
-    c.fill();
-    c.restore();
-  }
-
-  radial(color: number, r: number, inner: number, outer: number): void {
-    const c = this.ctx;
-    const g = c.createRadialGradient(0, 0, 0, 0, 0, r);
-    g.addColorStop(0, this.col(color, inner));
-    g.addColorStop(1, this.col(color, outer));
-    c.fillStyle = g;
-    c.beginPath();
-    c.arc(0, 0, r, 0, Math.PI * 2);
-    c.fill();
-  }
-}
-
-const poly = (c: Ctx, n: number, r: number, rot = 0): void => {
-  for (let i = 0; i < n; i++) {
-    const a = rot + (i / n) * Math.PI * 2;
-    if (i === 0) c.moveTo(Math.cos(a) * r, Math.sin(a) * r);
-    else c.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-  }
-  c.closePath();
-};
-
-const circle = (c: Ctx, r: number, x = 0, y = 0): void => {
-  c.moveTo(x + r, y);
-  c.arc(x, y, r, 0, Math.PI * 2);
-};
+/** Taille des icônes dans l'atlas (unités ; dessinées sur une grille de 64). */
+const ICON = 48;
 
 // --- Sprites ---------------------------------------------------------------------------
 
@@ -339,6 +268,229 @@ function drawOrbFrost(p: Pen): void {
   });
 }
 
+// --- Projectiles et zones blancs (teintés au rendu par la couleur de l'élément) ----------
+
+function drawShotBolt(p: Pen): void {
+  p.fill(
+    PALETTE.white,
+    0.85,
+    (c) => {
+      c.moveTo(13, 0);
+      c.lineTo(2, -3.2);
+      c.lineTo(-12, 0);
+      c.lineTo(2, 3.2);
+      c.closePath();
+    },
+    10,
+  );
+  p.fill(PALETTE.white, 1, (c) => {
+    c.ellipse(3, 0, 6, 1.3, 0, 0, Math.PI * 2);
+  });
+}
+
+function drawShotOrb(p: Pen): void {
+  p.radial(PALETTE.white, 9, 0.9, 0);
+  p.fill(
+    PALETTE.white,
+    1,
+    (c) => {
+      circle(c, 3.6);
+    },
+    8,
+  );
+}
+
+function drawShotShard(p: Pen): void {
+  const shard = (c: Ctx): void => {
+    c.moveTo(12, 0);
+    c.lineTo(-2, -5);
+    c.lineTo(-10, 0);
+    c.lineTo(-2, 5);
+    c.closePath();
+  };
+  p.fill(PALETTE.white, 0.45, shard, 10);
+  p.stroke(PALETTE.white, 1.6, 8, shard);
+}
+
+function drawShotDisc(p: Pen): void {
+  p.stroke(PALETTE.white, 2.4, 10, (c) => {
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2;
+      c.moveTo(Math.cos(a) * 4, Math.sin(a) * 4);
+      c.quadraticCurveTo(
+        Math.cos(a + 0.9) * 14,
+        Math.sin(a + 0.9) * 14,
+        Math.cos(a + 1.9) * 12,
+        Math.sin(a + 1.9) * 12,
+      );
+    }
+  });
+  p.fill(PALETTE.white, 1, (c) => {
+    circle(c, 3);
+  });
+}
+
+function drawShotMissile(p: Pen): void {
+  p.fill(
+    PALETTE.white,
+    0.95,
+    (c) => {
+      c.moveTo(10, 0);
+      c.lineTo(-5, -4.5);
+      c.lineTo(-2, 0);
+      c.lineTo(-5, 4.5);
+      c.closePath();
+    },
+    9,
+  );
+  p.fill(PALETTE.white, 0.5, (c) => {
+    c.ellipse(-8, 0, 5, 1.8, 0, 0, Math.PI * 2);
+  });
+}
+
+function drawShotVoid(p: Pen): void {
+  p.radial(PALETTE.white, 13, 0.55, 0);
+  p.fill(PALETTE.void, 1, (c) => {
+    circle(c, 5.5);
+  });
+  p.stroke(PALETTE.white, 1.8, 10, (c) => {
+    circle(c, 6.5);
+  });
+}
+
+function drawOrbGeneric(p: Pen): void {
+  p.radial(PALETTE.white, 15, 0.7, 0);
+  p.stroke(PALETTE.white, 2, 8, (c) => {
+    circle(c, 7);
+  });
+  p.fill(PALETTE.white, 1, (c) => {
+    circle(c, 3.2);
+  });
+}
+
+function drawPool(p: Pen): void {
+  p.radial(PALETTE.white, 60, 0.32, 0.05);
+  p.stroke(PALETTE.white, 1.6, 6, (c) => {
+    circle(c, 56);
+  });
+  const c = p.ctx;
+  c.globalAlpha = 0.45;
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 + 0.4;
+    c.save();
+    c.translate(Math.cos(a) * 30, Math.sin(a) * 30);
+    p.radial(PALETTE.white, 16, 0.4, 0);
+    c.restore();
+  }
+  c.globalAlpha = 1;
+}
+
+function drawPlayerMine(p: Pen): void {
+  p.stroke(PALETTE.white, 1.2, 4, (c) => {
+    circle(c, 58);
+  });
+  p.fill(
+    PALETTE.white,
+    0.9,
+    (c) => {
+      poly(c, 6, 13, 0);
+    },
+    12,
+  );
+  p.fill(PALETTE.void, 1, (c) => {
+    circle(c, 5);
+  });
+}
+
+function drawStrike(p: Pen): void {
+  p.stroke(PALETTE.white, 3, 10, (c) => {
+    circle(c, 58);
+  });
+  p.stroke(PALETTE.white, 1.6, 6, (c) => {
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+      c.moveTo(Math.cos(a) * 34, Math.sin(a) * 34);
+      c.lineTo(Math.cos(a) * 50, Math.sin(a) * 50);
+    }
+  });
+  p.radial(PALETTE.white, 58, 0.18, 0);
+}
+
+function drawBeam(p: Pen): void {
+  // Bandeau 64 × 56 étiré (ancre à gauche) : cœur clair, bords doux.
+  const c = p.ctx;
+  const g = c.createLinearGradient(0, -28, 0, 28);
+  g.addColorStop(0, 'rgba(255,255,255,0)');
+  g.addColorStop(0.35, 'rgba(255,255,255,0.55)');
+  g.addColorStop(0.5, 'rgba(255,255,255,1)');
+  g.addColorStop(0.65, 'rgba(255,255,255,0.55)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = g;
+  c.fillRect(-32, -28, 64, 56);
+}
+
+function drawSurge(p: Pen): void {
+  p.radial(PALETTE.white, 18, 0.9, 0);
+  p.stroke(PALETTE.white, 1.4, 8, (c) => {
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      c.moveTo(Math.cos(a) * 6, Math.sin(a) * 6);
+      c.lineTo(Math.cos(a + 0.3) * 11, Math.sin(a + 0.3) * 11);
+      c.lineTo(Math.cos(a - 0.1) * 16, Math.sin(a - 0.1) * 16);
+    }
+  });
+}
+
+function drawWell(p: Pen): void {
+  p.radial(PALETTE.white, 60, 0.05, 0.3);
+  p.stroke(PALETTE.white, 2.2, 8, (c) => {
+    for (let k = 0; k < 3; k++) {
+      const off = (k / 3) * Math.PI * 2;
+      for (let i = 0; i <= 40; i++) {
+        const t = i / 40;
+        const a = off + t * Math.PI * 2.2;
+        const r = 56 * (1 - t) + 4;
+        if (i === 0) c.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+        else c.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+    }
+  });
+  p.fill(PALETTE.void, 1, (c) => {
+    circle(c, 9);
+  });
+}
+
+function drawChest(p: Pen): void {
+  const gold = 0xffd23d;
+  const body = (c: Ctx): void => {
+    c.rect(-15, -6, 30, 18);
+  };
+  const lid = (c: Ctx): void => {
+    c.moveTo(-15, -6);
+    c.lineTo(-15, -11);
+    c.quadraticCurveTo(0, -20, 15, -11);
+    c.lineTo(15, -6);
+    c.closePath();
+  };
+  p.radial(gold, 30, 0.35, 0);
+  p.fill(0x2a1630, 1, body);
+  p.fill(0x3a1d44, 1, lid);
+  p.stroke(gold, 2.2, 12, body);
+  p.stroke(gold, 2.2, 12, lid);
+  p.stroke(PALETTE.cyan, 1.6, 8, (c) => {
+    c.moveTo(0, -12);
+    c.lineTo(0, 11);
+  });
+  p.fill(
+    PALETTE.white,
+    1,
+    (c) => {
+      c.rect(-3, -4, 6, 6);
+    },
+    8,
+  );
+}
+
 function drawVapor(p: Pen): void {
   p.radial(0xdfe7ff, 60, 0.42, 0);
   const c = p.ctx;
@@ -388,116 +540,6 @@ function drawMine(p: Pen): void {
   });
 }
 
-// --- Icônes (armes, passifs) -------------------------------------------------------------
-
-function drawIcon(p: Pen, id: string, color: number): void {
-  p.fill(color, 0.12, (x) => {
-    poly(x, 6, 27, Math.PI / 6);
-  });
-  p.stroke(color, 1.6, 6, (x) => {
-    poly(x, 6, 27, Math.PI / 6);
-  });
-  switch (id) {
-    case 'ember':
-      p.fill(
-        color,
-        0.9,
-        (x) => {
-          x.moveTo(0, -16);
-          x.bezierCurveTo(12, -4, 10, 14, 0, 16);
-          x.bezierCurveTo(-10, 14, -12, -4, 0, -16);
-        },
-        10,
-      );
-      p.fill(0xffe16a, 1, (x) => {
-        x.ellipse(0, 6, 4, 7, 0, 0, Math.PI * 2);
-      });
-      break;
-    case 'frost':
-      p.stroke(color, 2.4, 8, (x) => {
-        for (let i = 0; i < 3; i++) {
-          const a = (i / 3) * Math.PI;
-          x.moveTo(Math.cos(a) * 16, Math.sin(a) * 16);
-          x.lineTo(-Math.cos(a) * 16, -Math.sin(a) * 16);
-        }
-      });
-      break;
-    case 'arc':
-      p.fill(
-        color,
-        1,
-        (x) => {
-          x.moveTo(4, -17);
-          x.lineTo(-8, 2);
-          x.lineTo(0, 2);
-          x.lineTo(-4, 17);
-          x.lineTo(9, -3);
-          x.lineTo(1, -3);
-          x.closePath();
-        },
-        10,
-      );
-      break;
-    case 'vitality':
-      p.fill(
-        color,
-        0.9,
-        (x) => {
-          x.moveTo(0, 13);
-          x.bezierCurveTo(-18, 0, -12, -16, 0, -6);
-          x.bezierCurveTo(12, -16, 18, 0, 0, 13);
-        },
-        8,
-      );
-      break;
-    case 'swiftness':
-      p.stroke(color, 3, 8, (x) => {
-        for (let i = 0; i < 2; i++) {
-          x.moveTo(-10 + i * 10, -12);
-          x.lineTo(2 + i * 10, 0);
-          x.lineTo(-10 + i * 10, 12);
-        }
-      });
-      break;
-    case 'magnet':
-      p.stroke(color, 4, 8, (x) => {
-        x.arc(0, 0, 11, Math.PI, 0, true);
-        x.moveTo(-11, 0);
-        x.lineTo(-11, -12);
-        x.moveTo(11, 0);
-        x.lineTo(11, -12);
-      });
-      break;
-    case 'capacitor':
-      p.stroke(color, 2.4, 8, (x) => {
-        x.rect(-9, -13, 18, 26);
-        x.moveTo(-4, -17);
-        x.lineTo(4, -17);
-      });
-      p.fill(color, 0.9, (x) => {
-        x.rect(-5, -2, 10, 11);
-      });
-      break;
-    case 'amplifier':
-      p.stroke(color, 3, 8, (x) => {
-        x.moveTo(-10, 4);
-        x.lineTo(0, -8);
-        x.lineTo(10, 4);
-        x.moveTo(-10, 14);
-        x.lineTo(0, 2);
-        x.lineTo(10, 14);
-      });
-      break;
-    default:
-      p.stroke(color, 3.4, 8, (x) => {
-        x.moveTo(0, -12);
-        x.lineTo(0, 12);
-        x.moveTo(-12, 0);
-        x.lineTo(12, 0);
-      });
-  }
-}
-
 // --- Construction ------------------------------------------------------------------------
 
 interface Entry {
@@ -524,22 +566,6 @@ export interface Atlas {
   icons: Record<string, Texture>;
   /** Icônes en data URL (cartes de level-up React). */
   iconUrls: Record<string, string>;
-}
-
-export function iconColor(kind: 'weapon' | 'passive', id: string): number {
-  if (kind === 'weapon') {
-    const w = WEAPONS.find((x) => x.id === id);
-    return w ? colorOf(w.color) : PALETTE.cyan;
-  }
-  return id === 'vitality'
-    ? PALETTE.magenta
-    : id === 'swiftness'
-      ? PALETTE.lime
-      : id === 'magnet'
-        ? PALETTE.violet
-        : id === 'capacitor'
-          ? PALETTE.yellow
-          : PALETTE.orange;
 }
 
 export function buildAtlas(): Atlas {
@@ -591,6 +617,20 @@ export function buildAtlas(): Atlas {
   });
   add(`f${FRAME.ZONE_RECT}`, 64, 64, drawRect);
   add(`f${FRAME.ZONE_MINE}`, 128, 128, drawMine);
+  add(`f${FRAME.SHOT_BOLT}`, 30, 12, drawShotBolt);
+  add(`f${FRAME.SHOT_ORB}`, 22, 22, drawShotOrb);
+  add(`f${FRAME.SHOT_SHARD}`, 28, 14, drawShotShard);
+  add(`f${FRAME.SHOT_DISC}`, 34, 34, drawShotDisc);
+  add(`f${FRAME.SHOT_MISSILE}`, 30, 14, drawShotMissile);
+  add(`f${FRAME.SHOT_VOID}`, 30, 30, drawShotVoid);
+  add(`f${FRAME.ORB_GENERIC}`, 34, 34, drawOrbGeneric);
+  add(`f${FRAME.ZONE_POOL}`, 128, 128, drawPool);
+  add(`f${FRAME.ZONE_PMINE}`, 128, 128, drawPlayerMine);
+  add(`f${FRAME.ZONE_STRIKE}`, 128, 128, drawStrike);
+  add(`f${FRAME.ZONE_BEAM}`, 64, 56, drawBeam);
+  add(`f${FRAME.ZONE_SURGE}`, 40, 40, drawSurge);
+  add(`f${FRAME.ZONE_WELL}`, 128, 128, drawWell);
+  add(`f${FRAME.CHEST}`, 64, 48, drawChest);
   add('spark', 16, 16, (p) => {
     p.fill(
       PALETTE.white,
@@ -643,14 +683,16 @@ export function buildAtlas(): Atlas {
       c.fillText(String(d), 0, 1);
     });
   }
-  const iconIds: [string, 'weapon' | 'passive'][] = [
-    ...WEAPONS.map((w): [string, 'weapon'] => [w.id, 'weapon']),
-    ...PASSIVES.map((p): [string, 'passive'] => [p.id, 'passive']),
-    ['heal', 'passive'],
+  const iconIds = [
+    ...WEAPONS.flatMap((w) => [w.id, w.evolution.id]),
+    ...PASSIVES.map((p) => p.id),
+    'heal',
+    'gold',
   ];
-  for (const [id, kind] of iconIds)
-    add(`i:${id}`, 64, 64, (p) => {
-      drawIcon(p, id, iconColor(kind, id));
+  for (const id of iconIds)
+    add(`i:${id}`, ICON, ICON, (p) => {
+      p.ctx.scale(ICON / 64, ICON / 64);
+      drawIcon(p, id, iconColor(id));
     });
 
   // Rangement en étagères (entrées triées par hauteur).
@@ -699,7 +741,7 @@ export function buildAtlas(): Atlas {
   }
   const icons: Record<string, Texture> = {};
   const iconUrls: Record<string, string> = {};
-  for (const [id, kind] of iconIds) {
+  for (const id of iconIds) {
     icons[id] = tex(`i:${id}`);
     const small = document.createElement('canvas');
     small.width = 128;
@@ -707,7 +749,7 @@ export function buildAtlas(): Atlas {
     const sctx = small.getContext('2d');
     if (sctx) {
       sctx.setTransform(2, 0, 0, 2, 64, 64);
-      drawIcon(new Pen(sctx, false), id, iconColor(kind, id));
+      drawIcon(new Pen(sctx, false), id, iconColor(id));
       iconUrls[id] = small.toDataURL('image/png');
     }
   }

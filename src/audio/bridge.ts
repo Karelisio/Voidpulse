@@ -127,6 +127,25 @@ export class GameAudio implements AudioBridge {
           sfx.play('boss.death');
           e.duck(-8, 0.05, 1.5, 2);
           break;
+        case EV.STRIKE:
+          if (b < FIRE_IDS.length) sfx.play(FIRE_IDS[b], pan, 0.8);
+          break;
+        case EV.CHEST_DROP:
+          sfx.play('chest.drop', pan);
+          break;
+        case EV.CHEST_OPEN:
+          e.duck(-6, 0.03, 0.8, 1);
+          break;
+        case EV.EVOLUTION:
+          e.duck(-8, 0.03, 1.2, 1.5);
+          break;
+        case EV.ELITE_SPAWN:
+          sfx.play('elite.spawn', pan);
+          break;
+        case EV.EVEIL_FINALE:
+          if (!sfx.play('eveil.finale')) sfx.play('boss.slam', 0, 1.2);
+          e.duck(-6, 0.02, 0.4, 1);
+          break;
         case EV.BOSS_SLAM:
           sfx.play('boss.slam', pan);
           break;

@@ -2,7 +2,14 @@
  * Progression de run : courbe d'XP, statistiques du joueur (passifs), cartes de montée de
  * niveau (3 choix, reroll / bannir / verrouiller limités). Hors boucle chaude.
  */
-import { PASSIVES, PLAYER, PROGRESSION, WEAPONS } from '../content/data';
+import {
+  ELEMENTS,
+  EVOLUTION_PASSIVE,
+  PASSIVES,
+  PLAYER,
+  PROGRESSION,
+  WEAPONS,
+} from '../content/data';
 import { Life } from '../engine/components';
 import { EV } from './events';
 import { healPlayer } from './player';
@@ -15,15 +22,34 @@ export function xpToNext(level: number): number {
   return Math.round(a * level ** b + c);
 }
 
-export function computeStats(sim: RunSim): PlayerStats {
-  const stats: PlayerStats = {
+/** Statistiques de base du joueur (sans passif). */
+export function baseStats(): PlayerStats {
+  return {
     maxHp: PLAYER.maxHp,
     speed: PLAYER.speed,
     pickupRadius: PLAYER.pickupRadius,
     cooldownMult: 1,
     damageMult: 1,
     areaMult: 1,
+    armor: 0,
+    regen: 0,
+    critChance: PLAYER.critChance,
+    critMult: PLAYER.critMult,
+    projectileSpeed: 1,
+    durationMult: 1,
+    amount: 0,
+    luck: 0,
+    growth: 1,
+    greed: 1,
+    dashCooldownMult: 1,
+    statusMult: 1,
+    gaugeMult: 1,
+    elementMult: new Float32Array(ELEMENTS.length).fill(1),
   };
+}
+
+export function computeStats(sim: RunSim): PlayerStats {
+  const stats = baseStats();
   for (const p of sim.state.passives) {
     const per = p.def.perLevel;
     const n = p.level;
@@ -33,6 +59,22 @@ export function computeStats(sim: RunSim): PlayerStats {
     stats.cooldownMult *= Math.max(0.3, 1 - (per.cooldown ?? 0) * n);
     stats.damageMult *= 1 + (per.damage ?? 0) * n;
     stats.areaMult *= 1 + (per.area ?? 0) * n;
+    stats.armor += (per.armor ?? 0) * n;
+    stats.regen += (per.regen ?? 0) * n;
+    stats.critChance += (per.critChance ?? 0) * n;
+    stats.critMult += (per.critMult ?? 0) * n;
+    stats.projectileSpeed *= 1 + (per.projectileSpeed ?? 0) * n;
+    stats.durationMult *= 1 + (per.duration ?? 0) * n;
+    stats.amount += (per.amount ?? 0) * n;
+    stats.luck += (per.luck ?? 0) * n;
+    stats.growth *= 1 + (per.growth ?? 0) * n;
+    stats.greed *= 1 + (per.greed ?? 0) * n;
+    stats.dashCooldownMult *= Math.max(0.3, 1 - (per.dashCooldown ?? 0) * n);
+    stats.statusMult *= 1 + (per.status ?? 0) * n;
+    stats.gaugeMult *= 1 + (per.gauge ?? 0) * n;
+    for (let k = 0; k < ELEMENTS.length; k++) {
+      stats.elementMult[k] *= 1 + (per[ELEMENTS[k]] ?? 0) * n;
+    }
   }
   return stats;
 }
@@ -67,14 +109,16 @@ function candidates(sim: RunSim): { choice: LevelUpChoice; weight: number }[] {
   WEAPONS.forEach((def, index) => {
     const owned = st.weapons.find((w) => w.defIndex === index);
     const choice: LevelUpChoice | null = owned
-      ? owned.level < maxWeaponLevel(def)
+      ? owned.level < maxWeaponLevel(def) && !owned.evolved
         ? { kind: 'weapon-up', index, level: owned.level + 1 }
         : null
       : st.weapons.length < PROGRESSION.maxWeapons
         ? { kind: 'weapon-new', index, level: 1 }
         : null;
     // Les premières armes sont favorisées : la Résonance demande au moins deux éléments.
-    const weight = owned ? 1.3 : st.weapons.length < 3 ? 2.6 : 1.1;
+    // Un élément encore absent de l'arsenal est privilégié (nouvelles réactions possibles).
+    let weight = owned ? 1.3 : st.weapons.length < 3 ? 2.6 : 1.1;
+    if (!owned && !st.weapons.some((w) => w.def.element === def.element)) weight *= 1.3;
     if (choice && !banned.has(choiceKey(choice))) out.push({ choice, weight });
   });
   PASSIVES.forEach((def, index) => {
@@ -86,7 +130,10 @@ function candidates(sim: RunSim): { choice: LevelUpChoice; weight: number }[] {
       : st.passives.length < PROGRESSION.maxPassives
         ? { kind: 'passive-new', index, level: 1 }
         : null;
-    if (choice && !banned.has(choiceKey(choice))) out.push({ choice, weight: owned ? 1 : 0.8 });
+    // Passif requis par l'évolution d'une arme possédée : mis en avant.
+    const evolves = st.weapons.some((w) => !w.evolved && EVOLUTION_PASSIVE[w.defIndex] === index);
+    const weight = (owned ? 1 : 0.8) * (evolves ? 1.8 : 1);
+    if (choice && !banned.has(choiceKey(choice))) out.push({ choice, weight });
   });
   return out;
 }

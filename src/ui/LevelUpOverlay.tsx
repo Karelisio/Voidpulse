@@ -37,6 +37,7 @@ export function LevelUpOverlay({ view, onChoose, onReroll, onBanish, onLock }: P
                     {l}
                   </span>
                 ))}
+                {c.hint && <span className="card-hint">{c.hint}</span>}
               </span>
             </button>
             <div className="card-tools">

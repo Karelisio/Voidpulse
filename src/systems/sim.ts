@@ -3,7 +3,14 @@
  * (choix de level-up, debug). Aucune dépendance au DOM, à Pixi ou à l'audio : tourne telle
  * quelle dans Node (tests, simulateur d'équilibrage).
  */
-import { ENEMIES, PROGRESSION, STAGES, WEAPONS } from '../content/data';
+import {
+  ENEMIES,
+  EVOLUTION_PASSIVE,
+  PASSIVES,
+  PROGRESSION,
+  STAGES,
+  WEAPONS,
+} from '../content/data';
 import { resetEntity, Pos } from '../engine/components';
 import { DT } from '../engine/constants';
 import { EventQueue } from '../engine/events';
@@ -15,20 +22,23 @@ import { createBossState, spawnBoss, updateBoss } from './boss';
 import { processDeaths, updateBullets, updateShots, updateStatuses } from './combat';
 import { planStage, updateDirector, type StagePlan } from './director';
 import { separateEnemies, spawnEnemy, updateEnemies } from './enemies';
-import { updatePickups } from './pickups';
+import { dropChest, updatePickups } from './pickups';
 import { spawnPlayer, updatePlayer } from './player';
 import {
   applyChoice,
   banish,
+  baseStats,
   computeStats,
   gainLevel,
   lock,
+  refreshStats,
   reroll,
   xpToNext,
 } from './progression';
+import { closeChest } from './loot';
 import { createResonance, startEveil, updateResonance } from './resonance';
 import type { RunState, SimInput } from './state';
-import { addWeapon, updateWeapons } from './weapons';
+import { addWeapon, levelUpWeapon, maxWeaponLevel, updateWeapons } from './weapons';
 import { updateZones } from './zones';
 
 export interface RunOptions {
@@ -45,9 +55,15 @@ export class RunSim {
   /** Grille des ennemis : 44 × 44 cellules de 64 unités autour du joueur. */
   readonly grid = new SpatialGrid(64, 44, 44, this.world.enemies.capacity);
   readonly scratch = new Int32Array(this.world.enemies.capacity);
-  readonly aoeBuffers = [0, 1, 2, 3].map(() => new Int32Array(this.world.enemies.capacity));
+  /** Tampons de requête empilables (coup → réaction → zone → coup…), voir combat.takeBuffer. */
+  readonly aoeBuffers = [0, 1, 2, 3, 4, 5].map(() => new Int32Array(this.world.enemies.capacity));
   aoeDepth = 0;
-  readonly chainList = new Int32Array(16);
+  /** Tampons dédiés : têtes chercheuses, zones (mines, rayons, orbes). */
+  readonly homingScratch = new Int32Array(this.world.enemies.capacity);
+  readonly zoneScratch = new Int32Array(this.world.enemies.capacity);
+  readonly chainList = new Int32Array(64);
+  /** Listes d'exclusion des réactions en chaîne (prisme, chaîne toxique). */
+  readonly reactList = new Int32Array(32);
   readonly bossList = new Int32Array(1);
   /** Point de sortie de spawnPoint (réutilisé : aucune allocation). */
   readonly point = { x: 0, y: 0 };
@@ -89,12 +105,17 @@ export class RunSim {
         dashY: 0,
         faceX: 0,
         faceY: -1,
-        stats: { maxHp: 0, speed: 0, pickupRadius: 0, cooldownMult: 1, damageMult: 1, areaMult: 1 },
+        stats: baseStats(),
       },
       weapons: [],
       passives: [],
       resonance: createResonance(),
-      director: { eventIndex: 0, bossSpawned: false, densityMult: 1 },
+      director: {
+        eventIndex: 0,
+        bossSpawned: false,
+        densityMult: 1,
+        eliteT: PROGRESSION.elite.first,
+      },
       boss: createBossState(),
       levelUp: {
         choices: [],
@@ -104,6 +125,7 @@ export class RunSim {
         locked: null,
         banished: new Set(),
       },
+      chest: null,
       stats: {
         kills: 0,
         killsByType: new Int32Array(ENEMIES.length),
@@ -112,6 +134,10 @@ export class RunSim {
         xpCollected: 0,
         peakEnemies: 0,
         bossKilled: false,
+        elitesKilled: 0,
+        chests: 0,
+        evolutions: 0,
+        fragments: 0,
       },
       debug: { invincible: false },
     };
@@ -184,6 +210,7 @@ export class RunSim {
     this.world.orbits,
     this.world.gems,
     this.world.zones,
+    this.world.chests,
   ];
 
   private storePrevious(): void {
@@ -228,6 +255,11 @@ export class RunSim {
     return lock(this, i);
   }
 
+  /** Fin de l'animation d'un coffre. */
+  closeChest(): void {
+    closeChest(this);
+  }
+
   // --- Debug ------------------------------------------------------------------------------
 
   debugSpawn(type: number, count: number): void {
@@ -250,5 +282,27 @@ export class RunSim {
 
   debugEveil(): void {
     startEveil(this);
+  }
+
+  /** Ajoute une arme (ou la monte d'un niveau si elle est déjà équipée). */
+  debugWeapon(defIndex: number): void {
+    const w = this.state.weapons.find((x) => x.defIndex === defIndex);
+    if (w) levelUpWeapon(w);
+    else addWeapon(this, defIndex);
+  }
+
+  /** Arme au niveau max + passif requis, et un coffre aux pieds du joueur : évolution. */
+  debugEvolve(defIndex: number): void {
+    let w = this.state.weapons.find((x) => x.defIndex === defIndex);
+    w ??= addWeapon(this, defIndex) ?? undefined;
+    if (!w) return;
+    while (w.level < maxWeaponLevel(w.def)) levelUpWeapon(w);
+    const pi = EVOLUTION_PASSIVE[defIndex];
+    if (!this.state.passives.some((p) => p.defIndex === pi)) {
+      this.state.passives.push({ def: PASSIVES[pi], defIndex: pi, level: 1 });
+      refreshStats(this);
+    }
+    const p = this.state.player.eid;
+    dropChest(this, Pos.x[p] + 30, Pos.y[p]);
   }
 }

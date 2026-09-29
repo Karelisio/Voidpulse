@@ -1,9 +1,10 @@
 /** État de l'interface (Zustand) : écran courant, surcouches, réglages de debug. */
 import { create } from 'zustand';
 import type { CardView } from '../ui/cards';
+import type { ChestView } from '../ui/ChestOverlay';
 
 export type Screen = 'title' | 'run';
-export type Overlay = null | 'levelup' | 'pause' | 'end';
+export type Overlay = null | 'levelup' | 'chest' | 'pause' | 'end';
 
 export interface RunSummary {
   victory: boolean;
@@ -32,6 +33,7 @@ interface UiState {
   screen: Screen;
   overlay: Overlay;
   levelUp: LevelUpView | null;
+  chest: ChestView | null;
   summary: RunSummary | null;
   debugUnlocked: boolean;
   debugPanel: boolean;
@@ -39,6 +41,7 @@ interface UiState {
   setScreen: (screen: Screen) => void;
   setOverlay: (overlay: Overlay) => void;
   showLevelUp: (view: LevelUpView) => void;
+  showChest: (view: ChestView) => void;
   showEnd: (summary: RunSummary) => void;
   unlockDebug: () => void;
   toggleDebugPanel: () => void;
@@ -49,6 +52,7 @@ export const useUi = create<UiState>((set) => ({
   screen: 'title',
   overlay: null,
   levelUp: null,
+  chest: null,
   summary: null,
   debugUnlocked: new URLSearchParams(location.search).has('debug'),
   debugPanel: false,
@@ -61,6 +65,9 @@ export const useUi = create<UiState>((set) => ({
   },
   showLevelUp: (levelUp) => {
     set({ overlay: 'levelup', levelUp });
+  },
+  showChest: (chest) => {
+    set({ overlay: 'chest', chest });
   },
   showEnd: (summary) => {
     set({ overlay: 'end', summary });

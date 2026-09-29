@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ENEMIES } from '../content/data';
+import { ENEMIES, WEAPONS } from '../content/data';
 import { audio, initAudio } from '../audio';
 import { GameAudio, uiSound } from '../audio/bridge';
 import { GameHost } from '../game/host';
@@ -7,7 +7,8 @@ import { useSave } from '../state/save';
 import { useUi, type LevelUpView } from '../state/ui';
 import { SettingsPanel } from './SettingsPanel';
 import type { RunStatus } from '../systems/state';
-import { cardView } from './cards';
+import { cardView, rewardView, rouletteIcons } from './cards';
+import { ChestOverlay } from './ChestOverlay';
 import { EndOverlay } from './EndOverlay';
 import { LevelUpOverlay } from './LevelUpOverlay';
 import { MusicViz } from './MusicViz';
@@ -23,8 +24,9 @@ declare global {
 function levelUpView(host: GameHost): LevelUpView {
   const lu = host.sim.state.levelUp;
   const urls = host.renderer.atlas.iconUrls;
+  const owned = host.sim.state.weapons.map((w) => ({ defIndex: w.defIndex, evolved: w.evolved }));
   return {
-    cards: lu.choices.map((c) => cardView(c, urls)),
+    cards: lu.choices.map((c) => cardView(c, urls, owned)),
     rerolls: lu.rerolls,
     banishes: lu.banishes,
     locks: lu.locks,
@@ -55,21 +57,30 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
   const summary = useUi((s) => s.summary);
   const debugUnlocked = useUi((s) => s.debugUnlocked);
   const debugPanel = useUi((s) => s.debugPanel);
-  const { showLevelUp, showEnd, setOverlay, toggleDebugPanel } = useUi.getState();
+  const { showLevelUp, showChest, showEnd, setOverlay, toggleDebugPanel } = useUi.getState();
+  const chest = useUi((s) => s.chest);
   const [host, setHost] = useState<GameHost | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [debugWeapon, setDebugWeapon] = useState(0);
 
   const onStatus = useCallback(
     (host: GameHost, status: RunStatus) => {
       if (status === 'levelup') showLevelUp(levelUpView(host));
-      else if (status === 'dead' || status === 'victory') {
+      else if (status === 'chest') {
+        const urls = host.renderer.atlas.iconUrls;
+        const rewards = host.sim.state.chest?.rewards ?? [];
+        showChest({
+          cards: rewards.map((r, i) => rewardView(r, urls, i)),
+          roulette: rouletteIcons(urls),
+        });
+      } else if (status === 'dead' || status === 'victory') {
         recordRun(host);
         window.setTimeout(() => {
           showEnd(buildSummary(host.sim, host.renderer.atlas.iconUrls));
         }, 900);
       } else if (useUi.getState().overlay === 'levelup') setOverlay(null);
     },
-    [showLevelUp, showEnd, setOverlay],
+    [showLevelUp, showChest, showEnd, setOverlay],
   );
 
   useEffect(() => {
@@ -190,6 +201,15 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           }}
         />
       )}
+      {overlay === 'chest' && chest && host && (
+        <ChestOverlay
+          view={chest}
+          onDone={() => {
+            setOverlay(null);
+            host.sim.closeChest();
+          }}
+        />
+      )}
       {overlay === 'pause' && host && (
         <div className="overlay pause" role="dialog" aria-label="Pause">
           <h2>Pause</h2>
@@ -277,6 +297,35 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                     ×{s}
                   </button>
                 ))}
+              </div>
+              <div className="debug-row">
+                <select
+                  id="debug-weapon"
+                  value={debugWeapon}
+                  onChange={(e) => {
+                    setDebugWeapon(Number(e.target.value));
+                  }}
+                >
+                  {WEAPONS.map((w, i) => (
+                    <option key={w.id} value={i}>
+                      {w.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => {
+                    host.sim.debugWeapon(debugWeapon);
+                  }}
+                >
+                  Arme +1
+                </button>
+                <button
+                  onClick={() => {
+                    host.sim.debugEvolve(debugWeapon);
+                  }}
+                >
+                  Évoluer
+                </button>
               </div>
               <div className="debug-row">
                 {ENEMIES.map((e, i) => (

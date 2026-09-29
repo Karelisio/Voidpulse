@@ -2,7 +2,7 @@
  * Hôte d'une partie : relie la simulation, la boucle, le rendu, les contrôles, le game feel et
  * l'audio, et informe l'interface React des changements d'état (level-up, fin de run).
  */
-import { RESONANCE } from '../content/data';
+import { PLAYER, RESONANCE } from '../content/data';
 import { Life } from '../engine/components';
 import { FixedLoop } from '../engine/loop';
 import type { HudState } from '../render/hud';
@@ -95,6 +95,7 @@ export class GameHost {
       gaugeMax: RESONANCE.gaugeMax,
       eveil: 0,
       weapons: [],
+      passives: [],
       bossName: null,
       bossRatio: 0,
       dashReady: 1,
@@ -178,15 +179,21 @@ export class GameHost {
     h.gauge = st.resonance.gauge;
     h.eveil = st.resonance.eveilT / RESONANCE.eveil.duration;
     let key = '';
-    for (const w of st.weapons) key += `${w.def.id}${w.level}`;
+    for (const w of st.weapons) key += `${w.def.id}${w.level}${w.evolved ? '*' : ''}`;
+    for (const q of st.passives) key += `|${q.def.id}${q.level}`;
     if (key !== this.weaponsKey) {
       this.weaponsKey = key;
-      h.weapons = st.weapons.map((w) => ({ id: w.def.id, level: w.level }));
+      h.weapons = st.weapons.map((w) => ({
+        id: w.evolved ? w.def.evolution.id : w.def.id,
+        level: w.level,
+        evolved: w.evolved,
+      }));
+      h.passives = st.passives.map((q) => ({ id: q.def.id, level: q.level }));
     }
     h.bossName = this.renderer.bossName(this.sim);
     const be = st.boss.eid;
     h.bossRatio = be >= 0 ? Math.max(0, lifeRatio(be)) : 0;
-    h.dashReady = 1 - Math.max(0, p.dashCd) / 2.2;
+    h.dashReady = 1 - Math.max(0, p.dashCd) / (PLAYER.dash.cooldown * p.stats.dashCooldownMult);
     const input = this.input;
     h.touch = input.isTouch;
     h.joyActive = input.joyActive;
