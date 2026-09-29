@@ -49,6 +49,17 @@ export interface LifetimeStats {
   bestTime: number;
   bestLevel: number;
   playSeconds: number;
+  /** Élites abattues (déblocages). */
+  elites: number;
+}
+
+/** Profil : personnage choisi, personnages débloqués, meilleurs rang et score. */
+export interface ProfileData {
+  character: string;
+  unlocked: string[];
+  /** Index du meilleur rang atteint (PACTS.ranks), -1 si aucun. */
+  bestRank: number;
+  bestScore: number;
 }
 
 export interface SaveData {
@@ -60,6 +71,7 @@ export interface SaveData {
   controls: ControlPrefs;
   display: DisplayPrefs;
   stats: LifetimeStats;
+  profile: ProfileData;
 }
 
 export function defaultSave(now = Date.now()): SaveData {
@@ -91,7 +103,21 @@ export function defaultSave(now = Date.now()): SaveData {
       theme: 'arcade',
       language: 'fr',
     },
-    stats: { runs: 0, victories: 0, kills: 0, bestTime: 0, bestLevel: 0, playSeconds: 0 },
+    stats: {
+      runs: 0,
+      victories: 0,
+      kills: 0,
+      bestTime: 0,
+      bestLevel: 0,
+      playSeconds: 0,
+      elites: 0,
+    },
+    profile: {
+      character: 'vex',
+      unlocked: ['vex', 'nova', 'volt', 'toxa'],
+      bestRank: -1,
+      bestScore: 0,
+    },
   };
 }
 

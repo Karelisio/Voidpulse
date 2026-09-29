@@ -1,12 +1,14 @@
 /** Résumé de fin de run pour l'écran de fin (statistiques de la simulation). */
 import { REACTIONS } from '../content/data';
 import type { RunSummary } from '../state/ui';
-import { SLOT_EVEIL, SLOT_REACTION } from '../systems/events';
+import { SLOT_DASH, SLOT_EVEIL, SLOT_REACTION } from '../systems/events';
+import { heat, rankOf, runScore } from '../systems/pacts';
 import type { RunSim } from '../systems/sim';
 
 export function buildSummary(
   sim: RunSim,
   iconUrls: Readonly<Partial<Record<string, string>>>,
+  record: { bestScore: boolean; unlocked: string[] } = { bestScore: false, unlocked: [] },
 ): RunSummary {
   const st = sim.state;
   return {
@@ -30,6 +32,13 @@ export function buildSummary(
       count: st.resonance.countById[i],
       color: r.color,
     })).filter((r) => r.count > 0),
+    dashDamage: st.stats.damageBySlot[SLOT_DASH],
+    character: st.character.name,
+    pacts: st.pacts.taken.map((p) => p.name),
+    rank: rankOf(heat(st)),
+    score: runScore(st),
+    bestScore: record.bestScore,
+    unlocked: record.unlocked,
   };
 }
 

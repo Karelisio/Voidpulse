@@ -406,7 +406,7 @@
     "unlock": {
       "kind": "rank",
       "value": 3,
-      "hint": "Finir une partie au rang S."
+      "hint": "Remporter une partie au rang S."
     }
   }
 ]

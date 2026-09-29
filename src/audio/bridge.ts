@@ -38,6 +38,8 @@ const ACTION_IDS: Record<number, string> = {
   [ENEMY_ACTION.ENRAGE]: 'elite.enrage',
   [ENEMY_ACTION.VOLATILE]: 'elite.volatile',
 };
+/** Accents sonores des dashs (index = DASH_KINDS) : blink, éclair, nuée, soin, mine. */
+const DASH_ACCENT = ['', 'blink', 'fire.arc', 'fire.miasma', '', '', '', '', 'xp', 'mine', '', ''];
 const APPEAR_IDS: Record<number, string> = {
   [RUN_EVENT_KIND.MERCHANT]: 'event.merchant',
   [RUN_EVENT_KIND.ALTAR]: 'event.altar',
@@ -135,6 +137,16 @@ export class GameAudio implements AudioBridge {
         }
         case EV.DASH:
           sfx.play('dash');
+          // Accent du dash du personnage (sons existants).
+          if (a < DASH_ACCENT.length && DASH_ACCENT[a]) sfx.play(DASH_ACCENT[a], 0, 0.7);
+          break;
+        case EV.DASH_END:
+          if (a === 5) sfx.play('fire.singularity', pan, 0.7);
+          else if (a === 6) sfx.play('boss.slam', pan, 0.6);
+          else if (a === 11) sfx.play('freeze', pan);
+          break;
+        case EV.PACT:
+          sfx.play('altar.sacrifice');
           break;
         case EV.ENEMY_SHOT:
           sfx.play(b === 1 ? 'boss.shot' : 'enemy.shot', pan);

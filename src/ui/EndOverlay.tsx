@@ -11,7 +11,8 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
   const total =
     summary.weapons.reduce((s, w) => s + w.damage, 0) +
       summary.reactionDamage +
-      summary.eveilDamage || 1;
+      summary.eveilDamage +
+      summary.dashDamage || 1;
   const rows = [
     ...summary.weapons.map((w) => ({
       name: w.name,
@@ -21,12 +22,27 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
     })),
     { name: 'Réactions', damage: summary.reactionDamage, icon: '', cls: 'el-reaction' },
     { name: 'Éveil', damage: summary.eveilDamage, icon: '', cls: 'el-eveil' },
+    { name: 'Dash', damage: summary.dashDamage, icon: '', cls: 'el-dash' },
   ].filter((r) => r.damage > 0);
   return (
     <div className="overlay end" role="dialog" aria-label="Fin de la partie">
       <h2 className={summary.victory ? 'win' : 'loss'}>
         {summary.victory ? 'Victoire' : 'Signal perdu'}
       </h2>
+      <div className="end-rank">
+        <span className={`rank rank-${summary.rank}`}>{summary.rank}</span>
+        <span>
+          <b>{summary.score.toLocaleString('fr-FR')}</b> points
+          {summary.bestScore && <em> · record !</em>}
+          <small>
+            {summary.character}
+            {summary.pacts.length > 0 ? ` · ${summary.pacts.join(', ')}` : ' · sans pacte'}
+          </small>
+        </span>
+      </div>
+      {summary.unlocked.length > 0 && (
+        <p className="end-unlock">Nouveau pilote : {summary.unlocked.join(', ')} !</p>
+      )}
       <dl className="end-stats">
         <div>
           <dt>Temps</dt>

@@ -957,3 +957,206 @@ button:focus-visible {
   text-align: center;
   color: var(--vp-gold);
 }
+
+/* --- Sélection du pilote -------------------------------------------------------------------- */
+
+.select {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  min-height: 100%;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px
+    calc(18px + env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+}
+
+.select h2 {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 0 14px var(--vp-accent-2);
+}
+
+.roster {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  width: min(460px, 100%);
+}
+
+.roster-cell {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel);
+  color: var(--vp-fg);
+  font: 600 12px var(--vp-font);
+  cursor: pointer;
+}
+
+.roster-cell.on {
+  border-color: var(--char);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--char) 45%, transparent);
+}
+
+.roster-cell.locked img {
+  filter: grayscale(1) brightness(0.45);
+}
+
+.roster-cell.locked span {
+  color: var(--vp-muted);
+}
+
+.char-sheet {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 14px;
+  width: min(460px, 100%);
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--char) 55%, var(--vp-line));
+  background: var(--vp-panel);
+}
+
+.char-text h3 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--char);
+}
+
+.char-text h3 small {
+  font-size: 13px;
+  color: var(--vp-muted);
+  font-weight: 600;
+}
+
+.char-text p {
+  margin: 4px 0 8px;
+}
+
+.char-text dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.char-text dt {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--vp-accent-2);
+}
+
+.char-text dd {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+/* --- Pactes et rang ------------------------------------------------------------------------- */
+
+.pact h2 {
+  color: #ff5a78;
+  text-shadow: 0 0 18px rgba(255, 62, 94, 0.6);
+}
+
+.pact-rank {
+  margin: 0;
+  font-size: 15px;
+}
+
+.card.pact-card {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 12px 14px;
+  color: var(--vp-fg);
+  font-family: var(--vp-font);
+  text-align: left;
+  cursor: pointer;
+}
+
+.card.pact-card.on {
+  border-color: #ff5a78;
+  box-shadow: 0 0 18px rgba(255, 62, 94, 0.35);
+}
+
+.card.pact-card:disabled {
+  opacity: 0.45;
+}
+
+.heat {
+  color: #ff5a78;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.rank {
+  font-weight: 800;
+  color: var(--vp-muted);
+}
+
+.rank-B {
+  color: var(--vp-accent-2);
+}
+
+.rank-A {
+  color: var(--vp-poison);
+}
+
+.rank-S {
+  color: var(--vp-gold);
+}
+
+.rank-SS {
+  color: #ff9a3d;
+}
+
+.rank-SSS {
+  color: #ff5a78;
+  text-shadow: 0 0 12px rgba(255, 62, 94, 0.7);
+}
+
+.end-rank {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.end-rank .rank {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.end-rank > span:last-child {
+  display: grid;
+  gap: 2px;
+  font-size: 16px;
+}
+
+.end-rank small {
+  color: var(--vp-muted);
+  font-size: 12px;
+}
+
+.end-rank em {
+  color: var(--vp-gold);
+  font-style: normal;
+}
+
+.end-unlock {
+  margin: 0;
+  font-weight: 700;
+  color: var(--vp-gold);
+}
+
+.el-dash {
+  background: var(--vp-accent-2);
+}

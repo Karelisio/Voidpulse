@@ -229,10 +229,23 @@ export function dispatchEvents(
       case EV.XP:
         if ((i & 3) === 0) renderer.glow(x, y, 6, PALETTE.cyan, 0.2, 0.6);
         break;
-      case EV.DASH:
-        renderer.ring(x, y, 40, PALETTE.cyan, 0.25, true);
-        renderer.burst(x, y, PALETTE.cyan, 8, 120, 0.3, 0.9);
+      case EV.DASH: {
+        // Couleur du personnage ; la téléportation glacée éclate au départ.
+        const color = colorOf(sim.state.character.color);
+        renderer.ring(x, y, a === 1 ? 90 : 40, color, 0.25, true);
+        renderer.burst(x, y, color, a === 1 ? 16 : 8, 120, 0.3, 0.9);
         haptics.tap();
+        break;
+      }
+      case EV.DASH_END: {
+        const color = colorOf(sim.state.character.color);
+        renderer.ring(x, y, v, color, 0.4);
+        renderer.burst(x, y, color, 14, 220, 0.4, 1.1);
+        if (a === 6) cam.shake(0.2);
+        break;
+      }
+      case EV.PACT:
+        renderer.screenFlash(PALETTE.red, 0.2);
         break;
       case EV.EXPLOSION: {
         // 0 kamikaze, 1 mine de boss, 3 mine du joueur, 4 implosion, 5 obus, 6 élite

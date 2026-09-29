@@ -2,14 +2,14 @@
  * Hôte d'une partie : relie la simulation, la boucle, le rendu, les contrôles, le game feel et
  * l'audio, et informe l'interface React des changements d'état (level-up, fin de run).
  */
-import { PLAYER, RESONANCE } from '../content/data';
+import { RESONANCE } from '../content/data';
 import { Life } from '../engine/components';
 import { FixedLoop } from '../engine/loop';
 import type { HudState } from '../render/hud';
 import { DEFAULT_QUALITY, GameRenderer, type QualitySettings } from '../render/renderer';
 import { benchTick, setupBench, type BenchConfig } from '../systems/bench';
 import type { ControlPrefs, DisplayPrefs } from '../save/schema';
-import { RunSim } from '../systems/sim';
+import { RunSim, type RunOptions } from '../systems/sim';
 import type { RunStatus } from '../systems/state';
 import { dispatchEvents, type AudioSink } from './feel';
 import { Haptics } from './haptics';
@@ -73,8 +73,10 @@ export class GameHost {
     readonly renderer: GameRenderer,
     readonly input: GameInput,
     seed: string,
+    /** Options de run (personnage, pactes) reprises à chaque nouvelle partie. */
+    readonly options: Omit<RunOptions, 'seed'>,
   ) {
-    this.sim = new RunSim({ seed });
+    this.sim = new RunSim({ ...options, seed });
     this.loop = new FixedLoop({
       step: () => {
         this.step();
@@ -119,12 +121,13 @@ export class GameHost {
     seed: string,
     quality: QualitySettings = DEFAULT_QUALITY,
     inputSettings: InputSettings = DEFAULT_INPUT,
+    options: Omit<RunOptions, 'seed'> = {},
   ): Promise<GameHost> {
     const renderer = await GameRenderer.create(parent, quality);
     renderer.leftHanded = inputSettings.leftHanded;
     const input = new GameInput(renderer.app.canvas, inputSettings, () => renderer.hud.dashButton);
     input.attach();
-    return new GameHost(renderer, input, seed);
+    return new GameHost(renderer, input, seed, options);
   }
 
   start(): void {
@@ -133,7 +136,7 @@ export class GameHost {
   }
 
   newRun(seed: string): void {
-    this.sim = new RunSim({ seed });
+    this.sim = new RunSim({ ...this.options, seed });
     this.lastStatus = 'running';
     this.weaponsKey = '';
     if (this.bench) setupBench(this.sim, this.bench);
@@ -195,7 +198,13 @@ export class GameHost {
     h.bossName = this.renderer.bossName(this.sim);
     const be = st.boss.eid;
     h.bossRatio = be >= 0 ? Math.max(0, lifeRatio(be)) : 0;
-    h.dashReady = 1 - Math.max(0, p.dashCd) / (PLAYER.dash.cooldown * p.stats.dashCooldownMult);
+    // Dash prêt si une charge reste ; sinon progression de la recharge (0 sous le pacte Ancre).
+    h.dashReady =
+      st.pacts.mods.noDash > 0
+        ? 0
+        : p.dashCharges > 0
+          ? 1
+          : 1 - Math.max(0, p.dashCd) / (p.dash.cooldown * p.stats.dashCooldownMult);
     const input = this.input;
     h.touch = input.isTouch;
     h.joyActive = input.joyActive;

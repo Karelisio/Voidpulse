@@ -375,7 +375,8 @@ export class GameRenderer {
     this.syncSimple(this.shots, w.shots, alpha, 0, false);
 
     const f = this.atlas;
-    this.player.texture = Look.flash[pe] > 0 ? f.flash[FRAME.PLAYER] : f.frames[FRAME.PLAYER];
+    const pf = Look.frame[pe];
+    this.player.texture = Look.flash[pe] > 0 ? f.flash[pf] : f.frames[pf];
     if (Look.flash[pe] > 0) Look.flash[pe] -= dt;
     this.player.position.set(px, py);
     this.player.rotation = Look.rot[pe];

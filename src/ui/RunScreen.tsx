@@ -9,6 +9,9 @@ import { SettingsPanel } from './SettingsPanel';
 import type { RunStatus } from '../systems/state';
 import { cardView, rewardView, rouletteIcons } from './cards';
 import { ChestOverlay } from './ChestOverlay';
+import { PactOverlay, type PactView } from './PactOverlay';
+import { applyUnlocks } from '../meta/unlocks';
+import { heat, rankIndex, runScore } from '../systems/pacts';
 import { AltarOverlay, MerchantOverlay } from './EventOverlays';
 import { altarResultText, altarView, merchantView } from './events';
 import { EndOverlay } from './EndOverlay';
@@ -56,18 +59,42 @@ function levelUpView(host: GameHost): LevelUpView {
   };
 }
 
-/** Statistiques de toute la carrière, écrites tout de suite en fin de run. */
-function recordRun(host: GameHost): void {
+/**
+ * Statistiques de toute la carrière, écrites tout de suite en fin de run : meilleurs rang et
+ * score, personnages débloqués (renvoyés pour l'écran de fin).
+ */
+function recordRun(host: GameHost): { bestScore: boolean; unlocked: string[] } {
   const st = host.sim.state;
+  const score = runScore(st);
+  const rank = rankIndex(heat(st));
+  const out = { bestScore: false, unlocked: [] as string[] };
+  const before = useSave.getState().data;
+  out.bestScore = score > before.profile.bestScore;
   void useSave.getState().commit((d) => {
     const s = d.stats;
     s.runs++;
     if (st.status === 'victory') s.victories++;
     s.kills += st.stats.kills;
+    s.elites += st.stats.elitesKilled;
     s.bestTime = Math.max(s.bestTime, st.time);
     s.bestLevel = Math.max(s.bestLevel, st.player.level);
     s.playSeconds += st.time;
+    d.profile.bestScore = Math.max(d.profile.bestScore, score);
+    // Le rang ne compte qu'en cas de victoire (sinon, des pactes suivis d'une défaite suffiraient).
+    if (st.status === 'victory') d.profile.bestRank = Math.max(d.profile.bestRank, rank);
+    out.unlocked = applyUnlocks(d).map((c) => c.name);
   });
+  return out;
+}
+
+function pactView(host: GameHost): PactView {
+  const st = host.sim.state;
+  return {
+    offer: [...st.pacts.offer],
+    picks: st.pacts.picks,
+    heat: heat(st),
+    start: st.time === 0,
+  };
 }
 
 export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => void }) {
@@ -82,6 +109,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
   const chest = useUi((s) => s.chest);
   const merchant = useUi((s) => s.merchant);
   const altar = useUi((s) => s.altar);
+  const pact = useUi((s) => s.pact);
   const [host, setHost] = useState<GameHost | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [debugWeapon, setDebugWeapon] = useState(0);
@@ -97,12 +125,13 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           cards: rewards.map((r, i) => rewardView(r, urls, i)),
           roulette: rouletteIcons(urls),
         });
-      } else if (status === 'merchant') showMerchantOf(host);
+      } else if (status === 'pact') useUi.getState().showPact(pactView(host));
+      else if (status === 'merchant') showMerchantOf(host);
       else if (status === 'altar') showAltarOf(host);
       else if (status === 'dead' || status === 'victory') {
-        recordRun(host);
+        const record = recordRun(host);
         window.setTimeout(() => {
-          showEnd(buildSummary(host.sim, host.renderer.atlas.iconUrls));
+          showEnd(buildSummary(host.sim, host.renderer.atlas.iconUrls, record));
         }, 900);
       } else if (useUi.getState().overlay === 'levelup') setOverlay(null);
     },
@@ -127,7 +156,10 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       aim: prefs.controls.aim,
     };
     void Promise.all([
-      GameHost.create(el, `run-${Date.now()}`, quality, inputSettings),
+      GameHost.create(el, `run-${Date.now()}`, quality, inputSettings, {
+        character: prefs.profile.character,
+        pactChoice: !bench,
+      }),
       initAudio(),
     ]).then(([host, engine]) => {
       if (disposed) {
@@ -233,6 +265,17 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           onDone={() => {
             setOverlay(null);
             host.sim.closeChest();
+          }}
+        />
+      )}
+      {overlay === 'pact' && pact && host && (
+        <PactOverlay
+          key={pact.offer.join(',')}
+          view={pact}
+          onSeal={(choices) => {
+            uiSound(audio(), choices.length > 0 ? 'ui.confirm' : 'ui.back');
+            setOverlay(null);
+            host.sim.sealPacts(choices);
           }}
         />
       )}

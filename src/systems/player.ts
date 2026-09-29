@@ -1,5 +1,5 @@
 /** Joueur : déplacement, dash (recharge, invulnérabilité), ralentissement, dégâts subis. */
-import { PLAYER } from '../content/data';
+import { CHARACTERS, PLAYER } from '../content/data';
 import { Body, Life, Look, Pos, Vel } from '../engine/components';
 import { DT } from '../engine/constants';
 import { FRAME } from '../content/frames';
@@ -13,7 +13,7 @@ export function spawnPlayer(sim: RunSim): number {
   Body.mass[eid] = 1;
   Life.hp[eid] = PLAYER.maxHp;
   Life.max[eid] = PLAYER.maxHp;
-  Look.frame[eid] = FRAME.PLAYER;
+  Look.frame[eid] = FRAME.PLAYER_BASE + CHARACTERS.indexOf(sim.state.character);
   return eid;
 }
 

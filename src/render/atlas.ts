@@ -6,13 +6,14 @@
  * Halos pré-calculés : aucun filtre en jeu.
  */
 import { CanvasSource, Rectangle, Texture } from 'pixi.js';
-import { BOSSES, ENEMIES, PASSIVES, WEAPONS, colorOf } from '../content/data';
+import { BOSSES, CHARACTERS, ENEMIES, PASSIVES, WEAPONS, colorOf } from '../content/data';
 import { FRAME, FRAME_COUNT } from '../content/frames';
 import { drawEnemyArt } from './enemy-art';
 import { drawIcon, iconColor } from './icons';
 import { PALETTE } from './palette';
 import { circle, Pen, poly, type Ctx } from './pen';
 import { drawAltar, drawCoin, drawMerchant, drawMound, drawRift } from './prop-art';
+import { drawShip } from './ship-art';
 
 /** Résolution de dessin (texels par unité monde) : net jusqu'à un DPR de 2. */
 const RES = 2;
@@ -644,6 +645,17 @@ export function buildAtlas(): Atlas {
     side.push({ key, w, h, draw, flash });
   };
   add(`f${FRAME.PLAYER}`, 56, 56, drawPlayer, true);
+  CHARACTERS.forEach((c, i) => {
+    addSide(
+      `f${FRAME.PLAYER_BASE + i}`,
+      56,
+      56,
+      (p) => {
+        drawShip(p, c.id);
+      },
+      true,
+    );
+  });
   ENEMIES.forEach((e, i) => {
     const s = Math.ceil(e.radius * 3 + 16);
     add(
