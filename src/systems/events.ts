@@ -24,7 +24,7 @@ export const EV = {
   LEVEL_UP: 11,
   /** v : valeur (cosmétique). */
   XP: 12,
-  /** x/y, v/w : direction. */
+  /** Départ d'un dash : a : type (DASH_KINDS), x/y, v/w : direction. */
   DASH: 13,
   /** x/y : origine. */
   ENEMY_SHOT: 14,
@@ -77,6 +77,10 @@ export const EV = {
   PURCHASE: 36,
   /** Offrande à l'autel : a : 0 sang, 1 chair, 2 or. */
   SACRIFICE: 37,
+  /** Pactes scellés : a : nombre, b : chaleur totale. */
+  PACT: 38,
+  /** Fin d'un dash : a : type, x/y : arrivée, v : rayon de l'effet. */
+  DASH_END: 39,
 } as const;
 
 /** Actions d'ennemis signalées au rendu et à l'audio. */
@@ -116,3 +120,5 @@ export const TELEGRAPH_KIND = {
 /** Emplacement fictif des dégâts de réaction et d'Éveil dans les statistiques. */
 export const SLOT_REACTION = 6;
 export const SLOT_EVEIL = 7;
+/** Dégâts des dashs (éclair, charge, nuée, mine). */
+export const SLOT_DASH = 8;

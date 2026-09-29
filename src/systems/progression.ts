@@ -5,6 +5,7 @@
 import {
   ELEMENTS,
   EVOLUTION_PASSIVE,
+  type CharacterStats,
   PASSIVES,
   PLAYER,
   PROGRESSION,
@@ -45,41 +46,63 @@ export function baseStats(): PlayerStats {
     statusMult: 1,
     gaugeMult: 1,
     elementMult: new Float32Array(ELEMENTS.length).fill(1),
+    frozenBonus: 0,
+    shockBonus: 0,
+    toxinMax: 0,
+    healMult: 1,
   };
 }
 
-export function computeStats(sim: RunSim): PlayerStats {
-  const stats = baseStats();
-  for (const p of sim.state.passives) {
-    const per = p.def.perLevel;
-    const n = p.level;
-    stats.maxHp += (per.maxHp ?? 0) * n;
-    stats.speed *= 1 + (per.speed ?? 0) * n;
-    stats.pickupRadius *= 1 + (per.pickupRadius ?? 0) * n;
-    stats.cooldownMult *= Math.max(0.3, 1 - (per.cooldown ?? 0) * n);
-    stats.damageMult *= 1 + (per.damage ?? 0) * n;
-    stats.areaMult *= 1 + (per.area ?? 0) * n;
-    stats.armor += (per.armor ?? 0) * n;
-    stats.regen += (per.regen ?? 0) * n;
-    stats.critChance += (per.critChance ?? 0) * n;
-    stats.critMult += (per.critMult ?? 0) * n;
-    stats.projectileSpeed *= 1 + (per.projectileSpeed ?? 0) * n;
-    stats.durationMult *= 1 + (per.duration ?? 0) * n;
-    stats.amount += (per.amount ?? 0) * n;
-    stats.luck += (per.luck ?? 0) * n;
-    stats.growth *= 1 + (per.growth ?? 0) * n;
-    stats.greed *= 1 + (per.greed ?? 0) * n;
-    stats.dashCooldownMult *= Math.max(0.3, 1 - (per.dashCooldown ?? 0) * n);
-    stats.statusMult *= 1 + (per.status ?? 0) * n;
-    stats.gaugeMult *= 1 + (per.gauge ?? 0) * n;
-    for (let k = 0; k < ELEMENTS.length; k++) {
-      stats.elementMult[k] *= 1 + (per[ELEMENTS[k]] ?? 0) * n;
-    }
+/** Applique `n` fois les statistiques `per` (passif par niveau, ou personnage avec n = 1). */
+function applyStats(stats: PlayerStats, per: CharacterStats, n: number): void {
+  stats.maxHp += (per.maxHp ?? 0) * n;
+  stats.speed *= 1 + (per.speed ?? 0) * n;
+  stats.pickupRadius *= 1 + (per.pickupRadius ?? 0) * n;
+  stats.cooldownMult *= Math.max(0.3, 1 - (per.cooldown ?? 0) * n);
+  stats.damageMult *= 1 + (per.damage ?? 0) * n;
+  stats.areaMult *= 1 + (per.area ?? 0) * n;
+  stats.armor += (per.armor ?? 0) * n;
+  stats.regen += (per.regen ?? 0) * n;
+  stats.critChance += (per.critChance ?? 0) * n;
+  stats.critMult += (per.critMult ?? 0) * n;
+  stats.projectileSpeed *= 1 + (per.projectileSpeed ?? 0) * n;
+  stats.durationMult *= 1 + (per.duration ?? 0) * n;
+  stats.amount += (per.amount ?? 0) * n;
+  stats.luck += (per.luck ?? 0) * n;
+  stats.growth *= 1 + (per.growth ?? 0) * n;
+  stats.greed *= 1 + (per.greed ?? 0) * n;
+  stats.dashCooldownMult *= Math.max(0.3, 1 - (per.dashCooldown ?? 0) * n);
+  stats.statusMult *= 1 + (per.status ?? 0) * n;
+  stats.gaugeMult *= 1 + (per.gauge ?? 0) * n;
+  for (let k = 0; k < ELEMENTS.length; k++) {
+    stats.elementMult[k] *= 1 + (per[ELEMENTS[k]] ?? 0) * n;
   }
-  // Bonus de la run (autel, marchand).
-  const bonus = sim.state.bonus;
+  stats.frozenBonus += (per.frozenBonus ?? 0) * n;
+  stats.shockBonus += (per.shockBonus ?? 0) * n;
+  stats.toxinMax += (per.toxinMax ?? 0) * n;
+  stats.healMult += (per.healMult ?? 0) * n;
+}
+
+export function computeStats(sim: RunSim): PlayerStats {
+  const st = sim.state;
+  const stats = baseStats();
+  applyStats(stats, st.character.passive.stats, 1);
+  for (const p of st.passives) applyStats(stats, p.def.perLevel, p.level);
+  // Bonus de la run (autel, marchand), puis pactes.
+  const bonus = st.bonus;
   stats.maxHp = Math.max(10, stats.maxHp + bonus.maxHp);
   stats.damageMult *= 1 + bonus.damage;
+  const m = st.pacts.mods;
+  stats.maxHp = Math.max(10, Math.round(stats.maxHp * m.maxHp));
+  stats.damageMult *= m.damage;
+  stats.growth *= m.xp;
+  stats.greed *= m.gold;
+  stats.speed *= m.speed;
+  stats.areaMult *= m.area;
+  stats.pickupRadius *= m.pickup;
+  stats.luck += m.luck;
+  stats.amount += m.amount;
+  stats.critChance += m.critChance;
   return stats;
 }
 

@@ -1,0 +1,153 @@
+{
+  "offer": 6,
+  "maxStart": 3,
+  "milestones": [240, 540],
+  "milestoneOffer": 3,
+  "maxTotal": 6,
+  "ranks": [
+    ["C", 0],
+    ["B", 1],
+    ["A", 3],
+    ["S", 5],
+    ["SS", 8],
+    ["SSS", 11]
+  ],
+  "scorePerHeat": 0.1,
+  "pacts": [
+    {
+      "id": "frenzy",
+      "name": "Frénésie",
+      "heat": 2,
+      "malus": "Ennemis 20 % plus rapides.",
+      "bonus": "+20 % d'XP.",
+      "mods": {
+        "enemySpeed": 1.2,
+        "xp": 1.2
+      }
+    },
+    {
+      "id": "glass",
+      "name": "Chair de verre",
+      "heat": 3,
+      "malus": "−30 % de PV max.",
+      "bonus": "+25 % de dégâts.",
+      "mods": {
+        "maxHp": 0.7,
+        "damage": 1.25
+      }
+    },
+    {
+      "id": "fasting",
+      "name": "Jeûne",
+      "heat": 3,
+      "malus": "Plus aucun soin.",
+      "bonus": "+40 % d'or, +5 % de chance.",
+      "mods": {
+        "noHeal": 1,
+        "gold": 1.4,
+        "luck": 0.05
+      }
+    },
+    {
+      "id": "wrath",
+      "name": "Colère du gardien",
+      "heat": 2,
+      "malus": "Les boss sont enragés d'emblée.",
+      "bonus": "+1 récompense par coffre.",
+      "mods": {
+        "bossRage": 1,
+        "chestRewards": 1
+      }
+    },
+    {
+      "id": "tide",
+      "name": "Marée",
+      "heat": 2,
+      "malus": "+30 % d'ennemis.",
+      "bonus": "+15 % d'XP et d'or.",
+      "mods": {
+        "density": 1.3,
+        "xp": 1.15,
+        "gold": 1.15
+      }
+    },
+    {
+      "id": "hunt",
+      "name": "Chasse",
+      "heat": 2,
+      "malus": "Élites deux fois plus fréquentes.",
+      "bonus": "+15 % de chance.",
+      "mods": {
+        "eliteRate": 0.5,
+        "luck": 0.15
+      }
+    },
+    {
+      "id": "curse",
+      "name": "Malédiction",
+      "heat": 2,
+      "malus": "Élites : un affixe de plus.",
+      "bonus": "+50 % d'or.",
+      "mods": {
+        "eliteAffixes": 1,
+        "gold": 1.5
+      }
+    },
+    {
+      "id": "fury",
+      "name": "Fureur",
+      "heat": 2,
+      "malus": "Dégâts subis +30 %.",
+      "bonus": "+15 % de dégâts.",
+      "mods": {
+        "enemyDamage": 1.3,
+        "damage": 1.15
+      }
+    },
+    {
+      "id": "bulwark",
+      "name": "Rempart",
+      "heat": 2,
+      "malus": "Ennemis +40 % de PV.",
+      "bonus": "+1 projectile.",
+      "mods": {
+        "enemyHp": 1.4,
+        "amount": 1
+      }
+    },
+    {
+      "id": "anchor",
+      "name": "Ancre",
+      "heat": 3,
+      "malus": "Dash désactivé.",
+      "bonus": "+15 % de vitesse et de zone.",
+      "mods": {
+        "noDash": 1,
+        "speed": 1.15,
+        "area": 1.15
+      }
+    },
+    {
+      "id": "barrage",
+      "name": "Barrage",
+      "heat": 1,
+      "malus": "Projectiles ennemis 30 % plus rapides.",
+      "bonus": "+10 % de chance de critique.",
+      "mods": {
+        "bulletSpeed": 1.3,
+        "critChance": 0.1
+      }
+    },
+    {
+      "id": "gloom",
+      "name": "Pénombre",
+      "heat": 1,
+      "malus": "Rayon de ramassage −40 %.",
+      "bonus": "+10 % d'XP.",
+      "mods": {
+        "pickup": 0.6,
+        "xp": 1.1
+      }
+    }
+  ]
+}

@@ -107,11 +107,12 @@ export function spawnEnemy(
   Pos.py[e] = y;
   Body.r[e] = def.radius;
   Body.mass[e] = def.mass;
-  Life.hp[e] = def.hp * hpScale;
-  Life.max[e] = def.hp * hpScale;
+  const mods = sim.state.pacts.mods;
+  Life.hp[e] = def.hp * hpScale * mods.enemyHp;
+  Life.max[e] = Life.hp[e];
   Foe.type[e] = type;
   Foe.state[e] = STATE.MOVE;
-  Foe.speed[e] = def.speed * sim.rng.spawn.range(0.9, 1.1);
+  Foe.speed[e] = def.speed * mods.enemySpeed * sim.rng.spawn.range(0.9, 1.1);
   Foe.dmg[e] = def.damage;
   Foe.xp[e] = def.xp;
   Foe.kbRes[e] = def.knockbackRes;
@@ -205,8 +206,9 @@ export function fireBullet(
   Pos.y[b] = y;
   Pos.px[b] = x;
   Pos.py[b] = y;
-  Vel.x[b] = dx * speed;
-  Vel.y[b] = dy * speed;
+  const k = speed * sim.state.pacts.mods.bulletSpeed;
+  Vel.x[b] = dx * k;
+  Vel.y[b] = dy * k;
   Bullet.dmg[b] = dmg;
   Bullet.ttl[b] = 6;
   Bullet.r[b] = radius;

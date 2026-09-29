@@ -39,6 +39,7 @@ import { EV, SLOT_REACTION } from './events';
 import { damagePlayer, slowPlayer } from './player';
 import { applyMark } from './resonance';
 import type { RunSim } from './sim';
+import type { PlayerStats } from './state';
 import { blind } from './zones';
 
 export const FIRE = elementIndex('fire');
@@ -109,7 +110,7 @@ export function hitFoe(
   let dmg = amount;
   const crit = HIT.forceCrit || sim.rng.combat.next() < stats.critChance + HIT.critBonus;
   if (crit) dmg *= stats.critMult;
-  dmg *= damageTakenMult(e, el);
+  dmg *= damageTakenMult(e, el, stats);
   // Entropie : fraction des PV max (réduite contre les boss), hors critique.
   if (el === VOID && power > 0)
     dmg += power * Life.max[e] * (isBoss ? STATUS.entropy.bossFactor : 1);
@@ -170,11 +171,12 @@ export function hitFoe(
  * Multiplicateur des dégâts subis par un ennemi : exposition, fragilité, électrisation
  * (additifs), puis protection d'un soutien et blindage d'élite (multiplicatifs).
  */
-export function damageTakenMult(e: number, el: number): number {
+export function damageTakenMult(e: number, el: number, stats: PlayerStats): number {
   let mult = 1;
   if (Status.exposeT[e] > 0) mult += Status.exposeAmt[e];
   if (Status.brittleT[e] > 0) mult += STATUS.brittle;
-  if (el === LIGHTNING && Status.shockT[e] > 0) mult += STATUS.shock.bonus;
+  if (el === LIGHTNING && Status.shockT[e] > 0) mult += STATUS.shock.bonus + stats.shockBonus;
+  if (Status.freezeT[e] > 0) mult += stats.frozenBonus;
   if (Foe.guardT[e] > 0) mult *= Foe.guard[e];
   if ((Foe.affix[e] & AFFIX.ARMORED) !== 0) mult *= ARMORED_MULT;
   return mult;
@@ -244,7 +246,10 @@ export function applyStatus(
       if (power > Status.shockT[e]) Status.shockT[e] = power;
       break;
     case POISON:
-      Status.toxStacks[e] = Math.min(STATUS.toxin.max, Status.toxStacks[e] + power);
+      Status.toxStacks[e] = Math.min(
+        STATUS.toxin.max + sim.state.player.stats.toxinMax,
+        Status.toxStacks[e] + power,
+      );
       Status.toxT[e] = STATUS.toxin.duration;
       toxSlot[e] = slot;
       break;

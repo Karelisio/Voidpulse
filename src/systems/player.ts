@@ -3,6 +3,7 @@ import { PLAYER } from '../content/data';
 import { Body, Life, Look, Pos, Vel } from '../engine/components';
 import { DT } from '../engine/constants';
 import { FRAME } from '../content/frames';
+import { dashEnd, dashStart } from './dash';
 import { EV } from './events';
 import type { RunSim } from './sim';
 
@@ -22,12 +23,21 @@ export function updatePlayer(sim: RunSim): void {
   const input = sim.input;
 
   if (p.iFrames > 0) p.iFrames -= DT;
-  if (p.dashCd > 0) p.dashCd -= DT;
+  // Recharge du dash : une charge à la fois.
+  const dash = p.dash;
+  if (p.dashCharges < dash.charges) {
+    p.dashCd -= DT;
+    if (p.dashCd <= 0) {
+      p.dashCharges++;
+      p.dashCd = p.dashCharges < dash.charges ? dash.cooldown * p.stats.dashCooldownMult : 0;
+    }
+  }
   if (p.slowT > 0) {
     p.slowT -= DT;
     if (p.slowT <= 0) p.slowAmt = 0;
   }
-  if (p.stats.regen > 0 && p.hp < p.stats.maxHp && p.hp > 0) {
+  const noHeal = sim.state.pacts.mods.noHeal > 0;
+  if (p.stats.regen > 0 && !noHeal && p.hp < p.stats.maxHp && p.hp > 0) {
     p.hp = Math.min(p.stats.maxHp, p.hp + p.stats.regen * DT);
     Life.hp[eid] = p.hp;
   }
@@ -44,24 +54,39 @@ export function updatePlayer(sim: RunSim): void {
     p.faceY = my / Math.max(len, 1e-6);
   }
 
-  // Dash : direction du déplacement (ou du regard), invulnérabilité brève.
+  // Dash : direction du déplacement (ou du regard), invulnérabilité brève, effet du personnage.
   if (input.dash) {
     input.dash = false;
-    if (p.dashCd <= 0 && p.dashT <= 0) {
-      p.dashT = PLAYER.dash.duration;
-      p.dashCd = PLAYER.dash.cooldown * p.stats.dashCooldownMult;
+    if (p.dashCharges > 0 && p.dashT <= 0 && sim.state.pacts.mods.noDash <= 0) {
+      if (p.dashCharges === dash.charges) p.dashCd = dash.cooldown * p.stats.dashCooldownMult;
+      p.dashCharges--;
+      p.dashT = dash.duration;
       p.dashX = len > 0.05 ? mx / Math.max(len, 1e-6) : p.faceX;
       p.dashY = len > 0.05 ? my / Math.max(len, 1e-6) : p.faceY;
-      p.iFrames = Math.max(p.iFrames, PLAYER.dash.iFrames);
-      sim.events.push(EV.DASH, 0, 0, Pos.x[eid], Pos.y[eid], p.dashX, p.dashY);
+      p.dashFromX = Pos.x[eid];
+      p.dashFromY = Pos.y[eid];
+      p.iFrames = Math.max(p.iFrames, dash.iFrames);
+      sim.events.push(EV.DASH, p.dashKind, 0, Pos.x[eid], Pos.y[eid], p.dashX, p.dashY);
+      // Téléportation : pas de trajet, l'effet d'arrivée a lieu tout de suite.
+      if (dashStart(sim, p.dashFromX, p.dashFromY, p.dashX, p.dashY)) {
+        p.dashT = 0;
+        dashEnd(sim, Pos.x[eid], Pos.y[eid]);
+      }
     }
   }
 
   if (p.dashT > 0) {
     p.dashT -= DT;
-    const speed = PLAYER.dash.distance / PLAYER.dash.duration;
+    const speed = dash.distance / dash.duration;
     Vel.x[eid] = p.dashX * speed;
     Vel.y[eid] = p.dashY * speed;
+    if (p.dashT <= 0) {
+      Pos.x[eid] += Vel.x[eid] * DT;
+      Pos.y[eid] += Vel.y[eid] * DT;
+      dashEnd(sim, Pos.x[eid], Pos.y[eid]);
+      Vel.x[eid] = 0;
+      Vel.y[eid] = 0;
+    }
   } else {
     const speed = p.stats.speed * (1 - p.slowAmt);
     Vel.x[eid] = mx * speed;
@@ -77,7 +102,8 @@ export function updatePlayer(sim: RunSim): void {
 export function damagePlayer(sim: RunSim, amount: number): boolean {
   const p = sim.state.player;
   if (p.iFrames > 0 || sim.state.debug.invincible || sim.state.status !== 'running') return false;
-  // Armure : réduction fixe, au plus 75 % du coup.
+  // Pactes (Fureur), puis armure : réduction fixe, au plus 75 % du coup.
+  amount *= sim.state.pacts.mods.enemyDamage;
   amount = Math.max(amount * 0.25, amount - p.stats.armor);
   p.hp -= amount;
   p.iFrames = PLAYER.iFrames;
@@ -115,8 +141,10 @@ export function slowPlayer(sim: RunSim, amount: number, seconds: number): void {
   if (seconds > p.slowT) p.slowT = seconds;
 }
 
+/** Soin (multiplié par les soins reçus du personnage ; aucun sous le pacte Jeûne). */
 export function healPlayer(sim: RunSim, amount: number): void {
   const p = sim.state.player;
-  p.hp = Math.min(p.stats.maxHp, p.hp + amount);
+  if (sim.state.pacts.mods.noHeal > 0) return;
+  p.hp = Math.min(p.stats.maxHp, p.hp + amount * p.stats.healMult);
   Life.hp[p.eid] = p.hp;
 }

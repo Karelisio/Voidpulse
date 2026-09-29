@@ -1,0 +1,412 @@
+[
+  {
+    "id": "vex",
+    "name": "Vex",
+    "title": "Pilote d'essai",
+    "description": "Polyvalente, elle progresse plus vite que les autres.",
+    "color": "#3ee6ff",
+    "element": "fire",
+    "weapon": "ember",
+    "passive": {
+      "name": "Apprentie rapide",
+      "description": "+10 % d'XP.",
+      "stats": {
+        "growth": 0.1
+      }
+    },
+    "dash": {
+      "kind": "standard",
+      "name": "Propulsion",
+      "description": "Courte poussée qui rend brièvement intouchable.",
+      "distance": 150,
+      "duration": 0.16,
+      "cooldown": 2.2,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 0,
+      "radius": 0
+    },
+    "unlock": {
+      "kind": "default",
+      "value": 0,
+      "hint": ""
+    }
+  },
+  {
+    "id": "nova",
+    "name": "Nova",
+    "title": "Cryomancienne",
+    "description": "Gèle, puis brise ce qui est gelé.",
+    "color": "#7fe8ff",
+    "element": "frost",
+    "weapon": "frost",
+    "passive": {
+      "name": "Cœur de givre",
+      "description": "Les ennemis gelés subissent +25 % de dégâts ; givre +10 %.",
+      "stats": {
+        "frozenBonus": 0.25,
+        "frost": 0.1
+      }
+    },
+    "dash": {
+      "kind": "blink",
+      "name": "Transfert glacé",
+      "description": "Téléportation instantanée ; le point de départ gèle les ennemis proches.",
+      "distance": 160,
+      "duration": 0.05,
+      "cooldown": 2.2,
+      "iFrames": 0.3,
+      "charges": 1,
+      "power": 0.8,
+      "radius": 90
+    },
+    "unlock": {
+      "kind": "default",
+      "value": 0,
+      "hint": ""
+    }
+  },
+  {
+    "id": "volt",
+    "name": "Volt",
+    "title": "Tempêtier",
+    "description": "Chaque déplacement est une décharge.",
+    "color": "#fff06a",
+    "element": "lightning",
+    "weapon": "arc",
+    "passive": {
+      "name": "Conducteur",
+      "description": "Les électrisés subissent +15 % de dégâts de foudre en plus ; foudre +10 %.",
+      "stats": {
+        "shockBonus": 0.15,
+        "lightning": 0.1
+      }
+    },
+    "dash": {
+      "kind": "lightning",
+      "name": "Éclair",
+      "description": "Le dash foudroie les ennemis traversés.",
+      "distance": 170,
+      "duration": 0.16,
+      "cooldown": 2.2,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 18,
+      "radius": 34
+    },
+    "unlock": {
+      "kind": "default",
+      "value": 0,
+      "hint": ""
+    }
+  },
+  {
+    "id": "toxa",
+    "name": "Toxa",
+    "title": "Alchimiste",
+    "description": "Laisse le poison travailler à sa place.",
+    "color": "#9cff3d",
+    "element": "poison",
+    "weapon": "acidpool",
+    "passive": {
+      "name": "Virulence",
+      "description": "+4 charges de toxines au maximum ; poison +10 %.",
+      "stats": {
+        "toxinMax": 4,
+        "poison": 0.1
+      }
+    },
+    "dash": {
+      "kind": "cloud",
+      "name": "Nuée",
+      "description": "Laisse un nuage toxique au point de départ.",
+      "distance": 150,
+      "duration": 0.16,
+      "cooldown": 2.2,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 6,
+      "radius": 70
+    },
+    "unlock": {
+      "kind": "default",
+      "value": 0,
+      "hint": ""
+    }
+  },
+  {
+    "id": "lyra",
+    "name": "Lyra",
+    "title": "Arcaniste",
+    "description": "Accorde les éléments entre eux plus vite que quiconque.",
+    "color": "#ff6af0",
+    "element": "arcane",
+    "weapon": "runes",
+    "passive": {
+      "name": "Résonance innée",
+      "description": "Jauge de Résonance +25 % ; arcane +10 %.",
+      "stats": {
+        "gauge": 0.25,
+        "arcane": 0.1
+      }
+    },
+    "dash": {
+      "kind": "phase",
+      "name": "Déphasage",
+      "description": "Plus long et intouchable deux fois plus longtemps.",
+      "distance": 170,
+      "duration": 0.2,
+      "cooldown": 2.2,
+      "iFrames": 0.6,
+      "charges": 1,
+      "power": 0,
+      "radius": 0
+    },
+    "unlock": {
+      "kind": "runs",
+      "value": 3,
+      "hint": "Jouer 3 parties."
+    }
+  },
+  {
+    "id": "kael",
+    "name": "Kael",
+    "title": "Pèlerin du vide",
+    "description": "Attire le monde vers lui, puis l'efface.",
+    "color": "#8a5cff",
+    "element": "void",
+    "weapon": "voidshard",
+    "passive": {
+      "name": "Gravité",
+      "description": "Vide +20 % ; zone +10 %.",
+      "stats": {
+        "void": 0.2,
+        "area": 0.1
+      }
+    },
+    "dash": {
+      "kind": "rift",
+      "name": "Faille",
+      "description": "À l'arrivée, aspire les ennemis alentour.",
+      "distance": 150,
+      "duration": 0.16,
+      "cooldown": 2.2,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 260,
+      "radius": 150
+    },
+    "unlock": {
+      "kind": "victories",
+      "value": 1,
+      "hint": "Remporter une partie."
+    }
+  },
+  {
+    "id": "brakka",
+    "name": "Brakka",
+    "title": "Colosse",
+    "description": "Lent, massif, inarrêtable.",
+    "color": "#ff8a3d",
+    "element": "fire",
+    "weapon": "brazier",
+    "passive": {
+      "name": "Carapace",
+      "description": "+40 PV max, +2 d'armure, −10 % de vitesse.",
+      "stats": {
+        "maxHp": 40,
+        "armor": 2,
+        "speed": -0.1
+      }
+    },
+    "dash": {
+      "kind": "charge",
+      "name": "Charge",
+      "description": "Courte ruée qui renverse et blesse les ennemis à l'arrivée.",
+      "distance": 120,
+      "duration": 0.14,
+      "cooldown": 2.6,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 30,
+      "radius": 90
+    },
+    "unlock": {
+      "kind": "kills",
+      "value": 3000,
+      "hint": "Abattre 3 000 ennemis."
+    }
+  },
+  {
+    "id": "sable",
+    "name": "Sable",
+    "title": "Chasseuse",
+    "description": "Ne rate jamais un point faible.",
+    "color": "#ffd23d",
+    "element": "lightning",
+    "weapon": "railgun",
+    "passive": {
+      "name": "Œil de faucon",
+      "description": "+30 % de dégâts critiques, +5 % de chance de critique.",
+      "stats": {
+        "critMult": 0.3,
+        "critChance": 0.05
+      }
+    },
+    "dash": {
+      "kind": "double",
+      "name": "Double saut",
+      "description": "Deux dashs avant recharge.",
+      "distance": 150,
+      "duration": 0.16,
+      "cooldown": 2.6,
+      "iFrames": 0.25,
+      "charges": 2,
+      "power": 0,
+      "radius": 0
+    },
+    "unlock": {
+      "kind": "bestLevel",
+      "value": 20,
+      "hint": "Atteindre le niveau 20 dans une partie."
+    }
+  },
+  {
+    "id": "mira",
+    "name": "Mira",
+    "title": "Botaniste",
+    "description": "Guérit plus vite qu'on ne la blesse.",
+    "color": "#7dff9a",
+    "element": "poison",
+    "weapon": "wasps",
+    "passive": {
+      "name": "Sève",
+      "description": "+0,5 PV/s, soins reçus +25 %.",
+      "stats": {
+        "regen": 0.5,
+        "healMult": 0.25
+      }
+    },
+    "dash": {
+      "kind": "heal",
+      "name": "Floraison",
+      "description": "Chaque dash rend 4 PV.",
+      "distance": 150,
+      "duration": 0.16,
+      "cooldown": 2.2,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 4,
+      "radius": 0
+    },
+    "unlock": {
+      "kind": "runs",
+      "value": 8,
+      "hint": "Jouer 8 parties."
+    }
+  },
+  {
+    "id": "orin",
+    "name": "Orin",
+    "title": "Artificier",
+    "description": "Transforme chaque retraite en piège.",
+    "color": "#ff5a1f",
+    "element": "fire",
+    "weapon": "firemine",
+    "passive": {
+      "name": "Démolition",
+      "description": "+15 % de zone, +15 % de durée.",
+      "stats": {
+        "area": 0.15,
+        "duration": 0.15
+      }
+    },
+    "dash": {
+      "kind": "mine",
+      "name": "Charge creuse",
+      "description": "Dépose une mine au point de départ.",
+      "distance": 150,
+      "duration": 0.16,
+      "cooldown": 2.2,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 40,
+      "radius": 80
+    },
+    "unlock": {
+      "kind": "elites",
+      "value": 40,
+      "hint": "Abattre 40 élites."
+    }
+  },
+  {
+    "id": "zeph",
+    "name": "Zeph",
+    "title": "Coureur",
+    "description": "Personne ne le rattrape.",
+    "color": "#5affc8",
+    "element": "lightning",
+    "weapon": "voltdisc",
+    "passive": {
+      "name": "Vélocité",
+      "description": "+15 % de vitesse, recharge du dash −30 %.",
+      "stats": {
+        "speed": 0.15,
+        "dashCooldown": 0.3
+      }
+    },
+    "dash": {
+      "kind": "glide",
+      "name": "Glissade",
+      "description": "Dash long et rapide.",
+      "distance": 240,
+      "duration": 0.2,
+      "cooldown": 2.2,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 0,
+      "radius": 0
+    },
+    "unlock": {
+      "kind": "bestTime",
+      "value": 600,
+      "hint": "Survivre 10 minutes dans une partie."
+    }
+  },
+  {
+    "id": "ysolde",
+    "name": "Ysolde",
+    "title": "Oracle",
+    "description": "Voit venir chaque choix, et fige le temps autour d'elle.",
+    "color": "#c9a8ff",
+    "element": "arcane",
+    "weapon": "prismray",
+    "passive": {
+      "name": "Clairvoyance",
+      "description": "+1 relance, +1 bannissement, +1 verrou, +10 % de chance.",
+      "stats": {
+        "rerolls": 1,
+        "banishes": 1,
+        "locks": 1,
+        "luck": 0.1
+      }
+    },
+    "dash": {
+      "kind": "stasis",
+      "name": "Stase",
+      "description": "À l'arrivée, fige brièvement les ennemis proches.",
+      "distance": 150,
+      "duration": 0.16,
+      "cooldown": 3,
+      "iFrames": 0.25,
+      "charges": 1,
+      "power": 1,
+      "radius": 120
+    },
+    "unlock": {
+      "kind": "rank",
+      "value": 3,
+      "hint": "Finir une partie au rang S."
+    }
+  }
+]

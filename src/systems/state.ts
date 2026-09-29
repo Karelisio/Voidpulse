@@ -3,9 +3,20 @@
  * montée de niveau et statistiques. Structures créées une fois par run (aucune allocation
  * en cours de partie, hormis les cartes de level-up, hors boucle chaude).
  */
-import type { BossDef, PassiveDef, StageDef, WeaponDef, WeaponStats } from '../content/data';
+import type {
+  BossDef,
+  CharacterDef,
+  DashDef,
+  PactDef,
+  PassiveDef,
+  RunModKey,
+  StageDef,
+  WeaponDef,
+  WeaponStats,
+} from '../content/data';
 
-export type RunStatus = 'running' | 'levelup' | 'chest' | 'merchant' | 'altar' | 'dead' | 'victory';
+export type RunStatus =
+  'running' | 'levelup' | 'chest' | 'merchant' | 'altar' | 'pact' | 'dead' | 'victory';
 
 export interface SimInput {
   /** Direction de déplacement (norme ≤ 1). */
@@ -39,6 +50,12 @@ export interface PlayerStats {
   gaugeMult: number;
   /** Multiplicateur de dégâts par élément (noyaux). */
   elementMult: Float32Array;
+  /** Personnage : dégâts en plus sur les gelés, sur les électrisés (foudre), charges de toxines. */
+  frozenBonus: number;
+  shockBonus: number;
+  toxinMax: number;
+  /** Multiplicateur des soins reçus. */
+  healMult: number;
 }
 
 /** Paramètres d'archétype complets (valeurs par défaut appliquées, forme fixe). */
@@ -79,6 +96,13 @@ export interface PlayerState {
   /** Ralentissement (givre ennemi) : durée restante et intensité (fraction de vitesse ôtée). */
   slowT: number;
   slowAmt: number;
+  /** Dash du personnage : définition, index du type (DASH_KINDS), charges disponibles. */
+  dash: DashDef;
+  dashKind: number;
+  dashCharges: number;
+  /** Départ du dash en cours (effets d'arrivée). */
+  dashFromX: number;
+  dashFromY: number;
   stats: PlayerStats;
 }
 
@@ -279,11 +303,27 @@ export interface RunStats {
   runEvents: number;
 }
 
+/** Modificateurs de run cumulés des pactes (multiplicateurs à 1, additifs et drapeaux à 0). */
+export type RunMods = Record<RunModKey, number>;
+
+export interface PactState {
+  /** Pactes scellés (dans l'ordre). */
+  taken: PactDef[];
+  /** Offre en cours (index dans PACTS.pacts) et nombre de pactes qu'elle permet de prendre. */
+  offer: number[];
+  picks: number;
+  /** Paliers déjà passés ; paliers actifs seulement si la run propose des pactes. */
+  milestone: number;
+  enabled: boolean;
+  mods: RunMods;
+}
+
 export interface RunState {
   tick: number;
   time: number;
   status: RunStatus;
   stage: StageDef;
+  character: CharacterDef;
   player: PlayerState;
   weapons: WeaponInstance[];
   passives: PassiveInstance[];
@@ -296,6 +336,7 @@ export interface RunState {
   merchant: MerchantState | null;
   altar: AltarState | null;
   bonus: RunBonus;
+  pacts: PactState;
   stats: RunStats;
   debug: { invincible: boolean };
 }

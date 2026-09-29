@@ -17,6 +17,7 @@ import { spawnBoss } from './boss';
 import { affixesAt, makeElite } from './elites';
 import { BEHAVIOR, spawnEnemy } from './enemies';
 import { EV } from './events';
+import { updatePactMilestones } from './pacts';
 import { updateRunEvents } from './runevents';
 import type { RunSim } from './sim';
 
@@ -108,13 +109,14 @@ export function updateDirector(sim: RunSim): void {
   // Élite périodique (porteuse d'un coffre).
   dir.eliteT -= DT;
   if (dir.eliteT <= 0 && dir.densityMult > 0) {
-    dir.eliteT = PROGRESSION.elite.every;
+    dir.eliteT = PROGRESSION.elite.every * st.pacts.mods.eliteRate;
     spawnElite(sim, t, hpScale);
   }
 
   updateRunEvents(sim);
+  updatePactMilestones(sim);
 
-  const target = curve(stage.density, t) * dir.densityMult;
+  const target = curve(stage.density, t) * dir.densityMult * st.pacts.mods.density;
   dir.target = target;
   let deficit = target - sim.world.enemies.count;
   let budget = SPAWNS_PER_TICK;
@@ -145,7 +147,7 @@ export function spawnElite(sim: RunSim, t: number, hpScale: number, forced = -1)
   sim.spawnPoint(60, 120);
   const e = spawnEnemy(sim, type, sim.point.x, sim.point.y, hpScale);
   if (e < 0) return -1;
-  makeElite(sim, e, affixesAt(t));
+  makeElite(sim, e, affixesAt(t) + sim.state.pacts.mods.eliteAffixes);
   sim.events.push(EV.ELITE_SPAWN, e, type, Pos.x[e], Pos.y[e], 0);
   return e;
 }
@@ -204,7 +206,7 @@ function runWave(sim: RunSim, index: number, hpScale: number): void {
       const cy = sim.point.y;
       const leader = spawnEnemy(sim, type, cx, cy, hpScale);
       if (leader >= 0 && w.elite) {
-        makeElite(sim, leader, affixesAt(sim.state.time));
+        makeElite(sim, leader, affixesAt(sim.state.time) + sim.state.pacts.mods.eliteAffixes);
         sim.events.push(EV.ELITE_SPAWN, leader, type, cx, cy, 0);
       }
       const minion = sim.plan.waveMinion[index];

@@ -51,9 +51,12 @@ export function spawnBoss(sim: RunSim, index: number): void {
   Pos.py[e] = Pos.y[e];
   Body.r[e] = def.radius;
   Body.mass[e] = 50;
-  Life.hp[e] = def.hp;
-  Life.max[e] = def.hp;
-  Foe.speed[e] = def.speed;
+  // Pactes : PV des ennemis ; « Colère du gardien » : boss enragé d'emblée (PV et vitesse +25 %).
+  const mods = sim.state.pacts.mods;
+  const rage = mods.bossRage > 0 ? 1.25 : 1;
+  Life.hp[e] = def.hp * mods.enemyHp * rage;
+  Life.max[e] = Life.hp[e];
+  Foe.speed[e] = def.speed * rage;
   Foe.dmg[e] = def.contactDamage;
   Look.frame[e] = FRAME.BOSS_BASE + index;
   const b = sim.state.boss;
@@ -194,7 +197,7 @@ function beginPattern(sim: RunSim, b: BossState, dx: number, dy: number): void {
   }
   b.pattern = index;
   b.state = 'telegraph';
-  b.timer = TELEGRAPH_TIME[index] * (def.phases[b.phase].rage ? 0.8 : 1);
+  b.timer = TELEGRAPH_TIME[index] * ((def.phases[b.phase].rage || sim.state.pacts.mods.bossRage > 0) ? 0.8 : 1);
   b.dirX = dx;
   b.dirY = dy;
   const e = b.eid;
@@ -217,7 +220,7 @@ function beginPattern(sim: RunSim, b: BossState, dx: number, dy: number): void {
 function beginExecute(sim: RunSim, b: BossState): void {
   const e = b.eid;
   const def = b.def!;
-  const rage = def.phases[b.phase].rage;
+  const rage = (def.phases[b.phase].rage || sim.state.pacts.mods.bossRage > 0);
   b.state = 'execute';
   switch (b.pattern) {
     case P.RADIAL:
@@ -266,7 +269,7 @@ function beginExecute(sim: RunSim, b: BossState): void {
 
 function executePattern(sim: RunSim, b: BossState, x: number, y: number): void {
   const def = b.def!;
-  const rage = def.phases[b.phase].rage;
+  const rage = (def.phases[b.phase].rage || sim.state.pacts.mods.bossRage > 0);
   let done = false;
   switch (b.pattern) {
     case P.RADIAL:

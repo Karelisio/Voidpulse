@@ -4,9 +4,32 @@
  */
 import { z } from 'zod';
 import { ELEMENTS } from './elements';
-import { BEHAVIORS, BIOMES, ENEMY_PARAMS, RUN_EVENTS, type EnemyParam } from './keys';
+import {
+  BEHAVIORS,
+  BIOMES,
+  CHARACTER_EXTRAS,
+  DASH_KINDS,
+  ENEMY_PARAMS,
+  RUN_EVENTS,
+  RUN_MOD_ADD,
+  RUN_MOD_MULT,
+  UNLOCK_KINDS,
+  type EnemyParam,
+} from './keys';
 
-export { BEHAVIORS, BIOMES, ELEMENTS, ENEMY_PARAMS, RUN_EVENTS, type EnemyParam };
+export {
+  BEHAVIORS,
+  BIOMES,
+  CHARACTER_EXTRAS,
+  DASH_KINDS,
+  ELEMENTS,
+  ENEMY_PARAMS,
+  RUN_EVENTS,
+  RUN_MOD_ADD,
+  RUN_MOD_MULT,
+  UNLOCK_KINDS,
+  type EnemyParam,
+};
 export const Element = z.enum(ELEMENTS);
 export type Element = z.infer<typeof Element>;
 
@@ -191,6 +214,43 @@ export const PassiveStats = z
   .partial();
 export type PassiveStats = z.infer<typeof PassiveStats>;
 
+/** Statistiques d'un personnage : appliquées une fois, malus permis (valeurs négatives). */
+export const CharacterStats = z.partialRecord(
+  z.enum([...(Object.keys(PassiveStats.shape) as (keyof PassiveStats)[]), ...CHARACTER_EXTRAS]),
+  z.number(),
+);
+export type CharacterStats = z.infer<typeof CharacterStats>;
+
+export const DashDef = z.object({
+  kind: z.enum(DASH_KINDS),
+  name: z.string(),
+  description: z.string(),
+  distance: nonNegative,
+  duration: positive,
+  cooldown: positive,
+  iFrames: nonNegative,
+  charges: z.number().int().positive(),
+  /** Puissance de l'effet (dégâts, soin, statut) et rayon, selon le type. */
+  power: nonNegative,
+  radius: nonNegative,
+});
+export type DashDef = z.infer<typeof DashDef>;
+
+export const CharacterDef = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  name: z.string(),
+  title: z.string(),
+  description: z.string(),
+  color: hex,
+  element: Element,
+  /** Arme de départ (id de weapons.json). */
+  weapon: z.string(),
+  passive: z.object({ name: z.string(), description: z.string(), stats: CharacterStats }),
+  dash: DashDef,
+  unlock: z.object({ kind: z.enum(UNLOCK_KINDS), value: nonNegative, hint: z.string() }),
+});
+export type CharacterDef = z.infer<typeof CharacterDef>;
+
 export const PassiveDef = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   name: z.string(),
@@ -290,6 +350,33 @@ export const RunEventsDef = z.object({
   }),
 });
 export type RunEventsDef = z.infer<typeof RunEventsDef>;
+
+export const PactDef = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  name: z.string(),
+  /** Chaleur : la somme détermine le rang de la run. */
+  heat: z.number().int().positive(),
+  malus: z.string(),
+  bonus: z.string(),
+  mods: z.partialRecord(z.enum([...RUN_MOD_MULT, ...RUN_MOD_ADD]), z.number()),
+});
+export type PactDef = z.infer<typeof PactDef>;
+
+export const PactsDef = z.object({
+  /** Pactes proposés au départ, et au plus combien d'entre eux. */
+  offer: z.number().int().positive(),
+  maxStart: z.number().int().positive(),
+  /** Paliers (s) où un pacte de plus est proposé (au plus un parmi `milestoneOffer`). */
+  milestones: z.array(positive),
+  milestoneOffer: z.number().int().positive(),
+  maxTotal: z.number().int().positive(),
+  /** Rangs [lettre, chaleur minimale], croissants. */
+  ranks: z.array(z.tuple([z.string(), nonNegative])).min(2),
+  /** Multiplicateur de score par point de chaleur. */
+  scorePerHeat: nonNegative,
+  pacts: z.array(PactDef).min(1),
+});
+export type PactsDef = z.infer<typeof PactsDef>;
 
 export const ReactionDef = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),

@@ -71,7 +71,9 @@ function drawReward(sim: RunSim): ChestReward {
  */
 export function openChest(sim: RunSim, size = 0): void {
   const st = sim.state;
-  const n = size > 0 ? size : chestSize(sim.rng.loot.next(), st.player.stats.luck);
+  const n =
+    (size > 0 ? size : chestSize(sim.rng.loot.next(), st.player.stats.luck)) +
+    st.pacts.mods.chestRewards;
   const rewards: ChestReward[] = [];
   for (let i = 0; i < n; i++) rewards.push(drawReward(sim));
   st.chest = { rewards };

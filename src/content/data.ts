@@ -3,11 +3,23 @@
  * Index numériques pour la simulation (tableaux SoA) : type d'ennemi, élément, réaction.
  */
 import { ELEMENTS, type ElementId } from '../../config/elements';
-import { BEHAVIORS, ENEMY_PARAMS, type BehaviorId, type EnemyParam } from '../../config/keys';
+import {
+  BEHAVIORS,
+  DASH_KINDS,
+  ENEMY_PARAMS,
+  RUN_MOD_ADD,
+  RUN_MOD_MULT,
+  type BehaviorId,
+  type DashKind,
+  type EnemyParam,
+  type RunModKey,
+} from '../../config/keys';
 import type {
   AffixDef,
   BossDef,
+  CharacterDef,
   EnemyDef,
+  PactsDef,
   PassiveDef,
   ReactionDef,
   RunEventsDef,
@@ -17,7 +29,9 @@ import type {
 } from '../../config/schema';
 import affixesJson from '../../config/affixes.json';
 import bossesJson from '../../config/bosses.json';
+import charactersJson from '../../config/characters.json';
 import enemiesJson from '../../config/enemies.json';
+import pactsJson from '../../config/pacts.json';
 import passivesJson from '../../config/passives.json';
 import playerJson from '../../config/player.json';
 import progressionJson from '../../config/progression.json';
@@ -31,6 +45,10 @@ import weaponsJson from '../../config/weapons.json';
 export type {
   AffixDef,
   BossDef,
+  CharacterDef,
+  CharacterStats,
+  DashDef,
+  PactDef,
   EnemyDef,
   PassiveDef,
   PlayerDef,
@@ -44,7 +62,19 @@ export type {
   WeaponParams,
   WeaponStats,
 } from '../../config/schema';
-export { BEHAVIORS, ELEMENTS, ENEMY_PARAMS, type BehaviorId, type ElementId, type EnemyParam };
+export {
+  BEHAVIORS,
+  DASH_KINDS,
+  ELEMENTS,
+  ENEMY_PARAMS,
+  RUN_MOD_ADD,
+  RUN_MOD_MULT,
+  type BehaviorId,
+  type DashKind,
+  type ElementId,
+  type EnemyParam,
+  type RunModKey,
+};
 
 export const PLAYER = playerJson;
 export const WEAPONS = weaponsJson as WeaponDef[];
@@ -57,6 +87,15 @@ export const BOSSES = bossesJson as BossDef[];
 export const PROGRESSION = progressionJson;
 export const STAGES: Partial<Record<string, StageDef>> = { proto: protoStageJson as StageDef };
 // Paramètres hétérogènes selon l'affixe : le JSON est validé par config.test.ts.
+export const CHARACTERS = charactersJson as CharacterDef[];
+export const PACTS = pactsJson as PactsDef;
+
+export function characterIndex(id: string): number {
+  const i = CHARACTERS.findIndex((c) => c.id === id);
+  if (i < 0) throw new Error(`Personnage inconnu : ${id}`);
+  return i;
+}
+
 export const AFFIXES = affixesJson as unknown as AffixDef[];
 export const RUN_EVENTS = runEventsJson as RunEventsDef;
 
@@ -66,9 +105,7 @@ export const ENEMY_PARAM = Object.fromEntries(
 ) as Record<EnemyParam, Float32Array>;
 
 /** Comportement de chaque type d'ennemi (index dans BEHAVIORS). */
-export const BEHAVIOR_OF = Uint8Array.from(
-  ENEMIES.map((e) => BEHAVIORS.indexOf(e.behavior)),
-);
+export const BEHAVIOR_OF = Uint8Array.from(ENEMIES.map((e) => BEHAVIORS.indexOf(e.behavior)));
 
 /** Élément de chaque type d'ennemi (index dans ELEMENTS, 255 si aucun). */
 export const ENEMY_ELEMENT = Uint8Array.from(

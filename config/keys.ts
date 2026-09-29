@@ -110,3 +110,81 @@ export type EnemyParam = (typeof ENEMY_PARAMS)[number];
 
 export const RUN_EVENTS = ['merchant', 'altar', 'horde', 'rift'] as const;
 export type RunEventId = (typeof RUN_EVENTS)[number];
+
+/** Dashs des personnages (effet au départ ou à l'arrivée, voir systems/player.ts). */
+export const DASH_KINDS = [
+  'standard',
+  'blink',
+  'lightning',
+  'cloud',
+  'phase',
+  'rift',
+  'charge',
+  'double',
+  'heal',
+  'mine',
+  'glide',
+  'stasis',
+] as const;
+export type DashKind = (typeof DASH_KINDS)[number];
+
+/** Statistiques propres aux personnages (en plus de celles des passifs). */
+export const CHARACTER_EXTRAS = [
+  /** Dégâts subis en plus par les ennemis gelés. */
+  'frozenBonus',
+  /** Dégâts de foudre subis en plus par les électrisés. */
+  'shockBonus',
+  /** Charges de toxines supplémentaires. */
+  'toxinMax',
+  /** Soins reçus en plus (fraction). */
+  'healMult',
+  'rerolls',
+  'banishes',
+  'locks',
+] as const;
+export type CharacterExtra = (typeof CHARACTER_EXTRAS)[number];
+
+/** Conditions de déblocage des personnages (statistiques de carrière). */
+export const UNLOCK_KINDS = [
+  'default',
+  'runs',
+  'kills',
+  'victories',
+  'bestTime',
+  'bestLevel',
+  'elites',
+  'rank',
+] as const;
+
+/**
+ * Modificateurs de run (pactes). Multiplicateurs (1 par défaut) : vitesse, PV et dégâts des
+ * ennemis, densité, intervalle des élites, vitesse des projectiles ennemis, et côté joueur XP,
+ * dégâts, or, vitesse, PV max, zone, rayon de ramassage.
+ */
+export const RUN_MOD_MULT = [
+  'enemySpeed',
+  'enemyHp',
+  'enemyDamage',
+  'density',
+  'eliteRate',
+  'bulletSpeed',
+  'xp',
+  'damage',
+  'gold',
+  'speed',
+  'maxHp',
+  'area',
+  'pickup',
+] as const;
+/** Additifs (0 par défaut) : affixes d'élite, chance, récompenses de coffre, quantité, critique ; drapeaux 0/1 : boss enragé, aucun soin, pas de dash. */
+export const RUN_MOD_ADD = [
+  'eliteAffixes',
+  'luck',
+  'chestRewards',
+  'amount',
+  'critChance',
+  'bossRage',
+  'noHeal',
+  'noDash',
+] as const;
+export type RunModKey = (typeof RUN_MOD_MULT)[number] | (typeof RUN_MOD_ADD)[number];

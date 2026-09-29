@@ -4,14 +4,17 @@
  * quelle dans Node (tests, simulateur d'équilibrage).
  */
 import {
+  CHARACTERS,
+  DASH_KINDS,
   ENEMIES,
   EVOLUTION_PASSIVE,
+  PACTS,
   PASSIVES,
   PROGRESSION,
   STAGES,
   WEAPONS,
 } from '../content/data';
-import { Foe, Pos } from '../engine/components';
+import { Foe, Life, Pos } from '../engine/components';
 import { DT } from '../engine/constants';
 import { EventQueue } from '../engine/events';
 import type { EntityPool } from '../engine/pool';
@@ -46,6 +49,7 @@ import {
   sacrifice,
   startRunEvent,
 } from './runevents';
+import { createPacts, imposePacts, offerPacts, sealPacts } from './pacts';
 import type { AltarOfferKind, RunEventKind, RunState, SimInput } from './state';
 import { addWeapon, levelUpWeapon, maxWeaponLevel, updateWeapons } from './weapons';
 import { updateZones } from './zones';
@@ -53,7 +57,13 @@ import { updateZones } from './zones';
 export interface RunOptions {
   seed: string;
   stage?: string;
+  /** Personnage (id de characters.json), Vex par défaut. */
+  character?: string;
+  /** Arme de départ imposée (sinon celle du personnage). */
   weapon?: string;
+  /** Pactes imposés (défis) ; `pactChoice` : offre de pactes au départ et aux paliers. */
+  pacts?: readonly string[];
+  pactChoice?: boolean;
   /** Demi-dimensions du champ visible (unités monde), fixées pour la run. Portrait par défaut. */
   view?: { halfW: number; halfH: number };
 }
@@ -78,7 +88,7 @@ export class RunSim {
   private readonly gridList = new Int32Array(this.world.enemies.capacity);
   /** Point de sortie de spawnPoint (réutilisé : aucune allocation). */
   readonly point = { x: 0, y: 0 };
-  readonly rng: { spawn: Rng; combat: Rng; ai: Rng; loot: Rng; levelup: Rng };
+  readonly rng: { spawn: Rng; combat: Rng; ai: Rng; loot: Rng; levelup: Rng; pact: Rng };
   readonly plan: StagePlan;
   readonly state: RunState;
   readonly input: SimInput = { moveX: 0, moveY: 0, dash: false, aim: 'auto' };
@@ -93,7 +103,10 @@ export class RunSim {
       ai: root.fork('ai'),
       loot: root.fork('loot'),
       levelup: root.fork('levelup'),
+      pact: root.fork('pact'),
     };
+    const character = CHARACTERS.find((c) => c.id === (opts.character ?? 'vex'));
+    if (!character) throw new Error(`Personnage inconnu : ${opts.character ?? ''}`);
     const stage = STAGES[opts.stage ?? 'proto'];
     if (!stage) throw new Error(`Stage inconnu : ${opts.stage ?? ''}`);
     this.plan = planStage(stage);
@@ -102,6 +115,7 @@ export class RunSim {
       time: 0,
       status: 'running',
       stage,
+      character,
       player: {
         eid: -1,
         hp: 0,
@@ -118,6 +132,11 @@ export class RunSim {
         faceY: -1,
         slowT: 0,
         slowAmt: 0,
+        dash: character.dash,
+        dashKind: DASH_KINDS.indexOf(character.dash.kind),
+        dashCharges: character.dash.charges,
+        dashFromX: 0,
+        dashFromY: 0,
         stats: baseStats(),
       },
       weapons: [],
@@ -134,9 +153,9 @@ export class RunSim {
       boss: createBossState(),
       levelUp: {
         choices: [],
-        rerolls: PROGRESSION.rerolls,
-        banishes: PROGRESSION.banishes,
-        locks: PROGRESSION.locks,
+        rerolls: PROGRESSION.rerolls + (character.passive.stats.rerolls ?? 0),
+        banishes: PROGRESSION.banishes + (character.passive.stats.banishes ?? 0),
+        locks: PROGRESSION.locks + (character.passive.stats.locks ?? 0),
         locked: null,
         banished: new Set(),
       },
@@ -148,7 +167,7 @@ export class RunSim {
       stats: {
         kills: 0,
         killsByType: new Int32Array(ENEMIES.length),
-        damageBySlot: new Float64Array(8),
+        damageBySlot: new Float64Array(9),
         damageTaken: 0,
         xpCollected: 0,
         peakEnemies: 0,
@@ -160,14 +179,27 @@ export class RunSim {
         spent: 0,
         runEvents: 0,
       },
+      pacts: createPacts(opts.pactChoice ?? false),
       debug: { invincible: false },
     };
     const p = this.state.player;
     p.eid = spawnPlayer(this);
     p.stats = computeStats(this);
     p.hp = p.stats.maxHp;
-    const weapon = WEAPONS.findIndex((w) => w.id === (opts.weapon ?? 'ember'));
+    const weapon = WEAPONS.findIndex((w) => w.id === (opts.weapon ?? character.weapon));
     addWeapon(this, weapon < 0 ? 0 : weapon);
+    if (opts.pacts && opts.pacts.length > 0) {
+      imposePacts(this, opts.pacts);
+      this.fullHealth();
+    }
+    if (opts.pactChoice) offerPacts(this, PACTS.offer, PACTS.maxStart);
+  }
+
+  private fullHealth(): void {
+    const p = this.state.player;
+    p.hp = p.stats.maxHp;
+    Life.hp[p.eid] = p.hp;
+    Life.max[p.eid] = p.hp;
   }
 
   /** Active une entité d'un pool, colonnes remises à zéro ; -1 si le pool est plein. */
@@ -296,8 +328,18 @@ export class RunSim {
       case 'altar':
         this.closeAltar();
         break;
+      case 'pact':
+        this.sealPacts([]);
+        break;
       default:
     }
+  }
+
+  /** Pactes : positions choisies dans l'offre en cours (au plus le nombre permis). */
+  sealPacts(choices: readonly number[]): void {
+    sealPacts(this, choices);
+    // PV max changés au départ (Chair de verre…) : la run commence pleine vie.
+    if (this.state.time === 0) this.fullHealth();
   }
 
   /** Marchand : achat d'une offre (false si vendue ou trop chère), départ. */

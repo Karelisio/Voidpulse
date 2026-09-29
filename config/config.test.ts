@@ -7,11 +7,13 @@ import {
   ARCHETYPES,
   BIOMES,
   BossDef,
+  CharacterDef,
   ELEMENTS,
   EnemyDef,
   type EnemyParam,
   PassiveDef,
   PlayerDef,
+  PactsDef,
   ProgressionDef,
   ReactionDef,
   ResonanceDef,
@@ -42,6 +44,8 @@ describe('données de /config', () => {
     check(BossDef.array(), 'bosses.json');
     check(AffixDef.array(), 'affixes.json');
     check(RunEventsDef, 'runevents.json');
+    check(CharacterDef.array(), 'characters.json');
+    check(PactsDef, 'pacts.json');
     for (const f of readdirSync(path.join(dir, 'stages'))) check(StageDef, `stages/${f}`);
   });
 
@@ -142,5 +146,27 @@ describe('données de /config', () => {
     const affixes = check(AffixDef.array(), 'affixes.json');
     expect(affixes.length).toBeGreaterThanOrEqual(10);
     expect(new Set(affixes.map((a) => a.id)).size).toBe(affixes.length);
+  });
+
+  it('offrent 12 personnages aux armes existantes et aux dashs distincts', () => {
+    const chars = check(CharacterDef.array(), 'characters.json');
+    const weapons = new Set(check(WeaponDef.array(), 'weapons.json').map((w) => w.id));
+    expect(chars).toHaveLength(12);
+    expect(new Set(chars.map((c) => c.id)).size).toBe(12);
+    expect(new Set(chars.map((c) => c.dash.kind)).size).toBe(12);
+    for (const c of chars) expect(weapons.has(c.weapon), c.id).toBe(true);
+    expect(chars[0].unlock.kind).toBe('default');
+    for (const c of chars)
+      if (c.unlock.kind !== 'default') expect(c.unlock.hint.length).toBeGreaterThan(0);
+  });
+
+  it('définissent des pactes et des rangs cohérents', () => {
+    const p = check(PactsDef, 'pacts.json');
+    expect(new Set(p.pacts.map((x) => x.id)).size).toBe(p.pacts.length);
+    expect(p.pacts.length).toBeGreaterThanOrEqual(p.offer);
+    expect(p.ranks[0][1]).toBe(0);
+    for (let i = 1; i < p.ranks.length; i++)
+      expect(p.ranks[i][1]).toBeGreaterThan(p.ranks[i - 1][1]);
+    expect(p.ranks.map((r) => r[0]).join(',')).toBe('C,B,A,S,SS,SSS');
   });
 });
