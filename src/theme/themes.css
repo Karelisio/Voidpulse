@@ -230,3 +230,27 @@
 :root[data-cvd]:not([data-cvd='off']) .card-element {
   outline: 1px solid currentColor;
 }
+
+:root[data-theme='material'] .title {
+  padding-bottom: calc(160px + env(safe-area-inset-bottom, 0px));
+}
+
+:root[data-theme='material'] .title .version {
+  right: auto;
+  left: 12px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+}
+
+.m3-nav .badge {
+  position: absolute;
+  margin: -14px 0 0 22px;
+}
+
+.m3-nav button i {
+  position: relative;
+}
+
+/* Surcouches (réglages, fin de partie…) au-dessus des éléments positionnés de l'écran. */
+.overlay {
+  z-index: 20;
+}

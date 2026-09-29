@@ -51,10 +51,14 @@ export function oklchToHex(L: number, C: number, h: number): string {
   return `#${rgb.map((v) => fromLin(v).toString(16).padStart(2, '0')).join('')}`;
 }
 
-/** Ton (0-100, luminance perceptuelle) d'une teinte : palette tonale à la manière de Material 3. */
+/**
+ * Ton (0-100, clarté L* de CIELAB comme les tons de Material 3) d'une teinte : palette tonale.
+ * L* → luminance Y → clarté OKLab (racine cubique de Y pour une couleur neutre).
+ */
 export function tone(seed: string, t: number, chroma?: number, hueShift = 0): string {
   const [, c, h] = hexToOklch(seed);
-  return oklchToHex(t / 100, chroma ?? Math.min(c, 0.16), (h + hueShift + 360) % 360);
+  const y = t > 8 ? Math.pow((t + 16) / 116, 3) : t / 903.3;
+  return oklchToHex(Math.cbrt(y), chroma ?? Math.min(c, 0.16), (h + hueShift + 360) % 360);
 }
 
 export const hexToNumber = (hex: string): number => parseInt(hex.slice(1), 16);
