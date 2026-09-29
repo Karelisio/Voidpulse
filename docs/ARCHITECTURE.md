@@ -183,7 +183,9 @@ Décoder des stems en `AudioBuffer` coûte ~23 Mo par minute et par stem (float3
 
 - un **Worker** démultiplexe les fichiers Ogg et décode l'Opus avec WebCodecs `AudioDecoder` ;
 - il envoie le PCM (buffers transférés, via un `MessageChannel` direct) à un **AudioWorklet mixeur** qui lit tous les stems en phase à l'échantillon près, gère intro et boucle, applique les gains par couche (rampes) et le varispeed (pitch de l'Éveil) ;
-- mémoire ≈ taille compressée ; repli si WebCodecs indisponible : `decodeAudioData` à 24 kHz.
+- mémoire ≈ taille compressée + ~1,5 s de PCM d'avance par flux ; repli si WebCodecs indisponible : `decodeAudioData` sur le thread principal, stocké en mono 24 kHz Int16 (lecture positionnelle, pas de streaming).
+- Décodage : le décodeur est configuré **sans** `description` (Chromium n'applique alors pas le pré-skip) et le worker rogne lui-même pré-skip et fin de flux (granule final) : longueurs identiques à ffmpeg, vérifié par test. Chaque tour de boucle repart d'un décodeur réinitialisé. Un point d'entrée en milieu de fichier (layout `single`) est décodé avec 80 ms de pré-roll.
+- Code : `src/audio/music/` — `ogg.ts` (démultiplexeur), `decoder.worker.ts`, `mixer-core.ts` (logique du worklet, testée sous Node), `mixer.worklet.ts`, `player.ts` (decks, démarrage sur la mesure, rampes programmées en position de piste), `director.ts` (scènes et paliers), `intensity.ts`, `manifest.ts` ; `src/audio/engine.ts` (graphe, bus, réglages, cycle de vie), `sfx.ts`, `bridge.ts` (événements de jeu → sons, état → intensité).
 
 Les versions calme et intense d'un stage partagent **BPM, durée et points de boucle** : elles tournent en parallèle dans le worklet, le crossfade n'est qu'un jeu de gains.
 

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ENEMIES } from '../content/data';
+import { initAudio } from '../audio';
+import { GameAudio } from '../audio/bridge';
 import { GameHost } from '../game/host';
 import { useUi, type LevelUpView } from '../state/ui';
 import type { RunStatus } from '../systems/state';
@@ -55,13 +57,14 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
     let disposed = false;
     const el = mount.current;
     if (!el) return;
-    void GameHost.create(el, `run-${Date.now()}`).then((host) => {
+    void Promise.all([GameHost.create(el, `run-${Date.now()}`), initAudio()]).then(([host, engine]) => {
       if (disposed) {
         host.destroy();
         return;
       }
       hostRef.current = host;
       window.__voidpulse = host;
+      if (engine) host.audio = new GameAudio(engine);
       host.onStatus = (status) => {
         onStatus(host, status);
       };

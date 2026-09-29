@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { initAudio } from '../audio';
 import { useUi } from '../state/ui';
 
 const VERSION = import.meta.env.VITE_APP_VERSION ?? 'prototype';
@@ -7,6 +8,15 @@ export function TitleScreen({ onPlay }: { onPlay: (bench: boolean) => void }) {
   const debugUnlocked = useUi((s) => s.debugUnlocked);
   const unlockDebug = useUi((s) => s.unlockDebug);
   const taps = useRef(0);
+
+  useEffect(() => {
+    void initAudio().then((engine) => {
+      if (!engine) return;
+      engine.setPaused(false);
+      engine.setEveil(false);
+      void engine.music?.play('menu');
+    });
+  }, []);
 
   return (
     <main className="title">
