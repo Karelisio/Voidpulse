@@ -12,18 +12,9 @@ import { EV } from '../systems/events';
 import type { RunSim } from '../systems/sim';
 import type { Haptics } from './haptics';
 
-/** Récepteur audio des événements (moteur audio du jeu). */
+/** Récepteur audio des événements : lit la file entière en une fois (aucun appel par événement). */
 export interface AudioSink {
-  onEvent(
-    type: number,
-    a: number,
-    b: number,
-    x: number,
-    y: number,
-    v: number,
-    w: number,
-    pan: number,
-  ): void;
+  consume(q: EventQueue, camX: number, halfW: number): void;
 }
 
 const ENEMY_COLORS = ENEMIES.map((e) => colorOf(e.color));
@@ -39,6 +30,7 @@ export function dispatchEvents(
   const q: EventQueue = sim.events;
   const cam = renderer.camera;
   const halfW = renderer.width / 2 / cam.zoom;
+  audio?.consume(q, cam.x, halfW);
   for (let i = 0; i < q.count; i++) {
     const type = q.type[i];
     const a = q.a[i];
@@ -47,8 +39,6 @@ export function dispatchEvents(
     const y = q.y[i];
     const v = q.v[i];
     const w = q.w[i];
-    const pan = Math.max(-1, Math.min(1, (x - cam.x) / Math.max(1, halfW)));
-    audio?.onEvent(type, a, b, x, y, v, w, pan);
     switch (type) {
       case EV.HIT: {
         const element = (b >> 8) & 0xff;

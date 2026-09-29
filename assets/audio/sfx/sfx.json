@@ -241,7 +241,7 @@
       "volVar": 0.08,
       "maxVoices": 4,
       "priority": 0,
-      "cooldownMs": 28
+      "cooldownMs": 40
     },
     "hit.crit": {
       "files": [
@@ -270,7 +270,7 @@
       "volVar": 0.08,
       "maxVoices": 4,
       "priority": 0,
-      "cooldownMs": 28
+      "cooldownMs": 40
     },
     "hit.frost": {
       "files": [
@@ -285,7 +285,7 @@
       "volVar": 0.08,
       "maxVoices": 4,
       "priority": 0,
-      "cooldownMs": 28
+      "cooldownMs": 40
     },
     "hit.lightning": {
       "files": [
@@ -300,7 +300,7 @@
       "volVar": 0.08,
       "maxVoices": 4,
       "priority": 0,
-      "cooldownMs": 28
+      "cooldownMs": 40
     },
     "kill": {
       "files": [

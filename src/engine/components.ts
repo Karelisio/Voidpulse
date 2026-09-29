@@ -71,6 +71,8 @@ export const Shot = {
   weapon: u8(),
   element: u8(),
   dmg: f32(),
+  /** Intensité du statut élémentaire appliqué à l'impact. */
+  power: f32(),
   pierce: i32(),
   ttl: f32(),
   r: f32(),

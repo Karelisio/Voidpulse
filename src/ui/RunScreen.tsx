@@ -8,6 +8,7 @@ import type { RunStatus } from '../systems/state';
 import { cardView } from './cards';
 import { EndOverlay } from './EndOverlay';
 import { LevelUpOverlay } from './LevelUpOverlay';
+import { MusicViz } from './MusicViz';
 import { buildSummary } from './summary';
 
 declare global {
@@ -197,6 +198,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           </button>
           {debugPanel && (
             <div className="debug-body">
+              <MusicViz />
               <label>
                 <input
                   type="checkbox"

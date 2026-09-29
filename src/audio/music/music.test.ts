@@ -67,10 +67,10 @@ describe('intensité musicale', () => {
   });
 
   it('mesure brute : densité, danger, boss', () => {
-    expect(rawIntensity({ nearby: 0, hpRatio: 1, elites: 0, boss: false })).toBe(0);
-    expect(rawIntensity({ nearby: 12, hpRatio: 1, elites: 0, boss: false })).toBeLessThan(0.2);
-    expect(rawIntensity({ nearby: 120, hpRatio: 1, elites: 0, boss: false })).toBeGreaterThan(0.72);
-    expect(rawIntensity({ nearby: 80, hpRatio: 0.1, elites: 1, boss: true })).toBe(1);
+    expect(rawIntensity(0, 1, 0, false)).toBe(0);
+    expect(rawIntensity(12, 1, 0, false)).toBeLessThan(0.2);
+    expect(rawIntensity(120, 1, 0, false)).toBeGreaterThan(0.72);
+    expect(rawIntensity(80, 0.1, 1, true)).toBe(1);
   });
 
   it('choisit les couches et bascule vers la version intense au palier 3', () => {

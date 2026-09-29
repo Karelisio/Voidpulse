@@ -36,7 +36,19 @@ export function maxWeaponLevel(def: WeaponDef): number {
 }
 
 export function weaponStats(def: WeaponDef, level: number): WeaponStats {
-  const s: WeaponStats = { ...def.base };
+  // Littéral à clés ordonnées : une seule forme d'objet pour toutes les armes (accès monomorphes).
+  const b = def.base;
+  const s: WeaponStats = {
+    damage: b.damage,
+    cooldown: b.cooldown,
+    count: b.count,
+    pierce: b.pierce,
+    speed: b.speed,
+    size: b.size,
+    range: b.range,
+    duration: b.duration,
+    status: b.status,
+  };
   for (let i = 0; i < level - 1 && i < def.levels.length; i++) {
     const d = def.levels[i];
     s.damage += d.damage ?? 0;
@@ -172,6 +184,7 @@ function fireProjectiles(sim: RunSim, w: WeaponInstance): void {
     Shot.weapon[s] = w.slot;
     Shot.element[s] = w.element;
     Shot.dmg[s] = w.stats.damage * stats.damageMult;
+    Shot.power[s] = w.stats.status;
     Shot.pierce[s] = w.stats.pierce;
     Shot.ttl[s] = w.stats.duration;
     Shot.r[s] = w.stats.size * stats.areaMult;

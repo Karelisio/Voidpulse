@@ -26,15 +26,6 @@ export interface SfxManifest {
   sounds: Record<string, SoundDef>;
 }
 
-export interface PlayOptions {
-  /** -1 (gauche) … 1 (droite). */
-  pan?: number;
-  /** Gain linéaire supplémentaire. */
-  gain?: number;
-  /** Facteur de vitesse supplémentaire (hauteur). */
-  rate?: number;
-}
-
 const FILES = import.meta.glob<string>('../../assets/audio/sfx/**/*.ogg', {
   query: '?url',
   import: 'default',
@@ -57,14 +48,26 @@ interface Sound {
   voices: number;
 }
 
-interface Voice {
-  sound: Sound;
-  src: AudioBufferSourceNode;
-  out: GainNode;
-  pan: StereoPannerNode;
-  start: number;
-  priority: number;
-  done: boolean;
+/** Voix réutilisable : gain → panoramique restent câblés ; seule la source est recréée. */
+class Voice {
+  src: AudioBufferSourceNode | null = null;
+  sound: Sound | null = null;
+  start = 0;
+  priority = 0;
+  /** Comptée dans les voix actives (faux pendant le fondu d'une voix volée). */
+  active = false;
+  readonly onEnded: (e: Event) => void;
+
+  constructor(
+    readonly out: GainNode,
+    readonly pan: StereoPannerNode,
+    recycle: (v: Voice) => void,
+  ) {
+    out.connect(pan);
+    this.onEnded = (e) => {
+      if (e.target === this.src) recycle(this);
+    };
+  }
 }
 
 /** Bus stéréo de côté : l'oreille opposée est retardée (effet Haas) en mode casque. */
@@ -96,6 +99,7 @@ class SideBus {
 export class SfxEngine {
   private readonly sounds = new Map<string, Sound>();
   private readonly voices: Voice[] = [];
+  private readonly free: Voice[] = [];
   private readonly sides = new Map<AudioNode, [SideBus, SideBus]>();
   private headphones = false;
   /** Générateur local (cosmétique) pour les variations. */
@@ -160,15 +164,22 @@ export class SfxEngine {
     return this.voices.length;
   }
 
-  private release(v: Voice): void {
-    if (v.done) return;
-    v.done = true;
-    v.sound.voices--;
+  private deactivate(v: Voice): void {
+    if (!v.active) return;
+    v.active = false;
+    if (v.sound) v.sound.voices--;
     const i = this.voices.indexOf(v);
     if (i >= 0) this.voices.splice(i, 1);
-    v.out.disconnect();
-    v.pan.disconnect();
   }
+
+  private readonly recycle = (v: Voice): void => {
+    this.deactivate(v);
+    v.src?.disconnect();
+    v.src = null;
+    v.sound = null;
+    v.pan.disconnect();
+    this.free.push(v);
+  };
 
   private steal(sound: Sound | null, priority: number): boolean {
     let victim: Voice | null = null;
@@ -183,19 +194,23 @@ export class SfxEngine {
         victim = v;
     }
     if (!victim) return false;
+    // Fondu court puis arrêt : la voix revient au pool à la fin de sa source.
     const t = this.ctx.currentTime;
     victim.out.gain.setTargetAtTime(0, t, 0.008);
     try {
-      victim.src.stop(t + 0.04);
+      victim.src?.stop(t + 0.04);
     } catch {
       /* déjà arrêtée */
     }
-    this.release(victim);
+    this.deactivate(victim);
     return true;
   }
 
-  /** Joue un son ; faux s'il est inconnu, en anti-rafale ou sans voix disponible. */
-  play(id: string, opts: PlayOptions = {}): boolean {
+  /**
+   * Joue un son ; faux s'il est inconnu, en anti-rafale ou sans voix disponible.
+   * pan : -1 (gauche) … 1 (droite) ; gain linéaire et facteur de vitesse supplémentaires.
+   */
+  play(id: string, pan = 0, gain = 1, rate = 1): boolean {
     const s = this.sounds.get(id);
     if (!s) return false;
     const def = s.def;
@@ -214,21 +229,24 @@ export class SfxEngine {
     const ctx = this.ctx;
     const src = ctx.createBufferSource();
     src.buffer = s.buffers[k];
-    src.playbackRate.value = (opts.rate ?? 1) * (1 + (this.rand() * 2 - 1) * def.pitchVar);
-    const out = ctx.createGain();
-    out.gain.value = s.gain * (opts.gain ?? 1) * (1 + (this.rand() * 2 - 1) * def.volVar);
-    const pan = ctx.createStereoPanner();
-    const p = Math.max(-1, Math.min(1, opts.pan ?? 0));
-    pan.pan.value = p * (this.headphones ? 1 : 0.6);
-    src.connect(out).connect(pan);
+    src.playbackRate.value = rate * (1 + (this.rand() * 2 - 1) * def.pitchVar);
+    const v =
+      this.free.pop() ?? new Voice(ctx.createGain(), ctx.createStereoPanner(), this.recycle);
+    const g = v.out.gain;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(s.gain * gain * (1 + (this.rand() * 2 - 1) * def.volVar), now);
+    const p = Math.max(-1, Math.min(1, pan));
+    v.pan.pan.value = p * (this.headphones ? 1 : 0.6);
     const bus = this.buses[def.bus];
     const sides = this.sides.get(bus);
-    if (sides && Math.abs(p) > 0.35) pan.connect(sides[p < 0 ? 0 : 1].input);
-    else pan.connect(bus);
-    const v: Voice = { sound: s, src, out, pan, start: now, priority: def.priority, done: false };
-    src.onended = () => {
-      this.release(v);
-    };
+    v.pan.connect(sides && Math.abs(p) > 0.35 ? sides[p < 0 ? 0 : 1].input : bus);
+    src.connect(v.out);
+    src.onended = v.onEnded;
+    v.src = src;
+    v.sound = s;
+    v.start = now;
+    v.priority = def.priority;
+    v.active = true;
     s.voices++;
     this.voices.push(v);
     src.start(now);
@@ -238,11 +256,11 @@ export class SfxEngine {
   stopAll(): void {
     for (const v of [...this.voices]) {
       try {
-        v.src.stop();
+        v.src?.stop();
       } catch {
         /* déjà arrêtée */
       }
-      this.release(v);
+      this.deactivate(v);
     }
   }
 }

@@ -494,3 +494,83 @@ button:focus-visible {
   font-family: monospace;
   font-size: 11px;
 }
+
+.viz {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.viz-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.viz-bad {
+  color: #ff6a6a;
+}
+
+.viz-meter {
+  position: relative;
+  height: 14px;
+  border: 1px solid #2a5;
+  background: #010;
+}
+
+.viz-meter b {
+  position: absolute;
+  left: 0;
+}
+
+.viz-raw {
+  top: 0;
+  height: 5px;
+  background: #3a7;
+}
+
+.viz-value {
+  bottom: 0;
+  height: 7px;
+  background: #c65bff;
+}
+
+.viz-meter i {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+}
+
+.viz-up {
+  background: #fff06a;
+}
+
+.viz-down {
+  background: #7fe8ff;
+  opacity: 0.6;
+}
+
+.viz-layers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 2px 6px;
+}
+
+.viz-layers div {
+  position: relative;
+  padding: 1px 3px;
+  opacity: 0.45;
+}
+
+.viz-layers div.on {
+  opacity: 1;
+}
+
+.viz-layers b {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: #9dffb0;
+}

@@ -25,7 +25,6 @@ import { dropGem } from './pickups';
 import { damagePlayer } from './player';
 import { applyMark } from './resonance';
 import type { RunSim } from './sim';
-import type { WeaponInstance } from './state';
 import { blind } from './zones';
 
 export const FIRE = elementIndex('fire');
@@ -202,7 +201,7 @@ export function updateShots(sim: RunSim): void {
         Shot.dmg[s],
         Shot.element[s],
         Shot.weapon[s],
-        shotPower(sim, s),
+        Shot.power[s],
         x - Vel.x[s] * 0.05,
         y - Vel.y[s] * 0.05,
         45,
@@ -218,18 +217,13 @@ export function updateShots(sim: RunSim): void {
       const dy = Pos.y[boss] - y;
       const rr = r + Body.r[boss];
       if (dx * dx + dy * dy <= rr * rr) {
-        hitFoe(sim, boss, Shot.dmg[s], Shot.element[s], Shot.weapon[s], shotPower(sim, s), x, y, 0);
+        hitFoe(sim, boss, Shot.dmg[s], Shot.element[s], Shot.weapon[s], Shot.power[s], x, y, 0);
         rememberHit(s, boss);
         if (--Shot.pierce[s] < 0) spent = true;
       }
     }
     if (spent) pool.despawn(s);
   }
-}
-
-function shotPower(sim: RunSim, s: number): number {
-  const w = sim.state.weapons[Shot.weapon[s]] as WeaponInstance | undefined;
-  return w ? w.stats.status : 0;
 }
 
 /** Projectiles ennemis : déplacement, collision avec le joueur, disparition au loin. */

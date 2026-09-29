@@ -51,6 +51,7 @@ function topUp(sim: RunSim, cfg: BenchConfig): void {
     Shot.weapon[s] = 0;
     Shot.element[s] = FIRE;
     Shot.dmg[s] = 1;
+    Shot.power[s] = 4;
     Shot.pierce[s] = 3;
     Shot.ttl[s] = 2.5;
     Shot.r[s] = 6;

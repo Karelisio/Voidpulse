@@ -88,7 +88,7 @@ export const SOUNDS: Record<string, SfxDesign> = {
     gainDb: -17,
     pitchVar: 0.08,
     maxVoices: 4,
-    cooldownMs: 28,
+    cooldownMs: 40,
     build(c) {
       const k = vary(c, 0.15);
       noise(c, { dur: 0.07, gain: 0.7, filter: 'bandpass', q0: 1100 * k, q1: 500, Q: 1.2 });
@@ -101,7 +101,7 @@ export const SOUNDS: Record<string, SfxDesign> = {
     gainDb: -17,
     pitchVar: 0.08,
     maxVoices: 4,
-    cooldownMs: 28,
+    cooldownMs: 40,
     build(c) {
       const k = vary(c, 0.12);
       noise(c, {
@@ -123,7 +123,7 @@ export const SOUNDS: Record<string, SfxDesign> = {
     gainDb: -18,
     pitchVar: 0.06,
     maxVoices: 4,
-    cooldownMs: 28,
+    cooldownMs: 40,
     build(c) {
       const k = vary(c, 0.1);
       osc(c, { f0: 3100 * k, f1: 2100 * k, dur: 0.06, gain: 0.35 });
@@ -137,7 +137,7 @@ export const SOUNDS: Record<string, SfxDesign> = {
     gainDb: -18,
     pitchVar: 0.08,
     maxVoices: 4,
-    cooldownMs: 28,
+    cooldownMs: 40,
     build(c) {
       const k = vary(c, 0.12);
       osc(c, { type: 'square', f0: 1900 * k, f1: 800, dur: 0.06, gain: 0.25 });
