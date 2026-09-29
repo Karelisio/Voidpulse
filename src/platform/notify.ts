@@ -1,21 +1,13 @@
 /**
- * Notifications locales : Capacitor LocalNotifications quand l'application tourne sur Android
- * (plugin détecté à l'exécution, rien n'est importé sur le web) ; sinon, aucune.
+ * Notifications locales : plugin Capacitor LocalNotifications sur Android ; sur le web, aucune.
+ * L'icône de notification (monochrome) est `ic_stat_voidpulse` (res/drawable).
  */
+import { LocalNotifications } from '@capacitor/local-notifications';
 import type { PlannedNotification } from '../meta/notify-plan';
+import { isNative } from './native';
 
-interface LocalNotificationsPlugin {
-  requestPermissions: () => Promise<{ display: string }>;
-  cancel: (o: { notifications: { id: number }[] }) => Promise<void>;
-  schedule: (o: {
-    notifications: { id: number; title: string; body: string; schedule: { at: Date } }[];
-  }) => Promise<unknown>;
-}
-
-function plugin(): LocalNotificationsPlugin | null {
-  const cap = (globalThis as { Capacitor?: { Plugins?: Record<string, unknown> } }).Capacitor;
-  const p = cap?.Plugins?.LocalNotifications;
-  return p ? (p as LocalNotificationsPlugin) : null;
+function plugin(): typeof LocalNotifications | null {
+  return isNative() ? LocalNotifications : null;
 }
 
 export const notificationsAvailable = (): boolean => plugin() !== null;
@@ -47,6 +39,7 @@ export async function scheduleNotifications(
         title: n.title,
         body: n.body,
         schedule: { at: new Date(n.at) },
+        smallIcon: 'ic_stat_voidpulse',
       })),
     });
   } catch (e) {

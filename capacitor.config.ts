@@ -19,6 +19,7 @@ const config: CapacitorConfig = {
       showSpinner: false,
     },
     LocalNotifications: {
+      smallIcon: 'ic_stat_voidpulse',
       iconColor: '#3ee6ff',
     },
   },

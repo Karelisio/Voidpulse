@@ -193,6 +193,18 @@ export interface RetentionData {
   notifications: { enabled: boolean; quests: boolean; chest: boolean; challenge: boolean };
 }
 
+/** Mises à jour in-app (version GitHub uniquement). */
+export interface UpdatePrefs {
+  /** Vérification automatique au lancement (au plus une fois par jour). */
+  auto: boolean;
+  /** Proposer aussi les préversions. */
+  prerelease: boolean;
+  /** Dernière vérification (ms). */
+  lastCheck: number;
+  /** Version que le joueur a choisi d'ignorer. */
+  ignored: string;
+}
+
 export interface SaveData {
   version: number;
   /** Horodatage (ms) de création et de dernière écriture. */
@@ -208,6 +220,7 @@ export interface SaveData {
   wallet: { fragments: number };
   meta: MetaData;
   retention: RetentionData;
+  update: UpdatePrefs;
 }
 
 export function defaultSave(now = Date.now()): SaveData {
@@ -298,6 +311,7 @@ export function defaultSave(now = Date.now()): SaveData {
       achievements: [],
       notifications: { enabled: false, quests: true, chest: true, challenge: true },
     },
+    update: { auto: true, prerelease: false, lastCheck: 0, ignored: '' },
   };
 }
 

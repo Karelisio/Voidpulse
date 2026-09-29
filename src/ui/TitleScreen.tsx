@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { SettingsPanel } from './SettingsPanel';
+import { UpdateSheet } from './UpdateSheet';
+import { useUpdate } from '../update/updater';
 import { audio, initAudio } from '../audio';
 import { t, useLang } from '../i18n';
 import { uiSound } from '../audio/bridge';
@@ -9,7 +11,6 @@ import { useSave } from '../state/save';
 import { useUi } from '../state/ui';
 import { TitleWelcome } from './TitleWelcome';
 
-const VERSION = import.meta.env.VITE_APP_VERSION ?? 'prototype';
 
 export function TitleScreen({
   onPlay,
@@ -25,6 +26,7 @@ export function TitleScreen({
   const unlockDebug = useUi((s) => s.unlockDebug);
   const taps = useRef(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const version = useUpdate((s) => s.installed);
   // Récompenses en attente : quêtes terminées et paliers de saison atteints.
   const ready = useSave((s) => {
     const d = s.data;
@@ -129,6 +131,7 @@ export function TitleScreen({
           }}
         />
       )}
+      <UpdateSheet />
       <p className="hint">{t('title.hint')}</p>
       <button
         className="version"
@@ -137,7 +140,7 @@ export function TitleScreen({
           if (taps.current >= 7) unlockDebug();
         }}
       >
-        {VERSION}
+        {version}
         {debugUnlocked ? ' · debug' : ''}
       </button>
     </main>

@@ -25,6 +25,11 @@ export default defineStrings(
     reactionsTriggered: 'Réactions déclenchées',
     again: 'Encore une partie',
     menu: 'Menu',
+    share: 'Partager',
+    shareText:
+      'Voidpulse — {result} · rang {rank} · {score} pts\n{mode} · {character}\n{time} · {kills} éliminations · niveau {level}',
+    shareCopied: 'Résultat copié dans le presse-papiers.',
+    shareFailed: 'Partage impossible.',
     chartAria: 'Dégâts par seconde et PV au fil de la partie',
     dpsTitle: 'Dégâts par seconde',
     hp: 'PV',
@@ -57,6 +62,11 @@ export default defineStrings(
     reactionsTriggered: 'Reactions triggered',
     again: 'Play again',
     menu: 'Menu',
+    share: 'Share',
+    shareText:
+      'Voidpulse — {result} · rank {rank} · {score} pts\n{mode} · {character}\n{time} · {kills} kills · level {level}',
+    shareCopied: 'Result copied to the clipboard.',
+    shareFailed: 'Sharing failed.',
     chartAria: 'Damage per second and HP over the run',
     dpsTitle: 'Damage per second',
     hp: 'HP',

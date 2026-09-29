@@ -95,7 +95,7 @@ public class VoidpulseNativePlugin extends Plugin {
         String url = call.getString("url");
         String name = call.getString("fileName", "update.apk");
         String expected = call.getString("sha256", "");
-        if (url == null || name.contains("/")) {
+        if (url == null || !url.startsWith("https://") || name.contains("/") || !expected.matches("[0-9a-fA-F]{64}")) {
             call.reject("Paramètres invalides", "INVALID");
             return;
         }
@@ -201,7 +201,6 @@ public class VoidpulseNativePlugin extends Plugin {
     }
 
     private static boolean matches(File file, String expected) throws Exception {
-        if (expected == null || expected.isEmpty()) return true;
         return sha256(file).equalsIgnoreCase(expected.trim());
     }
 

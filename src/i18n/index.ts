@@ -20,6 +20,7 @@ import settings from './strings/settings';
 import stats from './strings/stats';
 import title from './strings/title';
 import training from './strings/training';
+import update from './strings/update';
 
 export type Lang = 'fr' | 'en';
 export const LANGS: readonly Lang[] = ['fr', 'en'];
@@ -40,6 +41,7 @@ const DICT = {
   feel,
   lines,
   stats,
+  update,
 };
 type Dict = typeof DICT;
 export type TKey = {

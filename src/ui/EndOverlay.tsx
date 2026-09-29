@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { num, t, useLang } from '../i18n';
+import { shareText } from '../platform/files';
 import type { RunSummary } from '../state/ui';
 import { RunChart } from './RunChart';
 import { formatTime } from './summary';
@@ -9,7 +11,22 @@ interface Props {
   onMenu: () => void;
 }
 
+/** Résumé texte de la partie, pour la feuille de partage. */
+function shareSummary(s: RunSummary): string {
+  return t('end.shareText', {
+    result: s.victory ? t('end.victory') : t('end.defeat'),
+    rank: s.rank,
+    score: num(s.score),
+    mode: `${s.mode} · ${s.modeDetail}`,
+    character: s.character,
+    time: formatTime(s.time),
+    kills: num(s.kills),
+    level: String(s.level),
+  });
+}
+
 export function EndOverlay({ summary, onAgain, onMenu }: Props) {
+  const [shared, setShared] = useState<string | null>(null);
   useLang();
   const total =
     summary.weapons.reduce((s, w) => s + w.damage, 0) +
@@ -123,7 +140,28 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
         <button className="btn-ghost" onClick={onMenu}>
           {t('end.menu')}
         </button>
+        <button
+          className="btn-ghost"
+          id="share-run"
+          onClick={() => {
+            shareText('Voidpulse', shareSummary(summary)).then(
+              (how) => {
+                setShared(how === 'copied' ? t('end.shareCopied') : null);
+              },
+              () => {
+                setShared(t('end.shareFailed'));
+              },
+            );
+          }}
+        >
+          {t('end.share')}
+        </button>
       </div>
+      {shared && (
+        <p className="set-note" role="status">
+          {shared}
+        </p>
+      )}
     </div>
   );
 }

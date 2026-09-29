@@ -3,14 +3,18 @@
  * Chaque modification est appliquée immédiatement et sauvegardée (écriture différée).
  */
 import { useState, type ReactNode } from 'react';
-import { num, setLanguage, t, useLang, type TKey } from '../i18n';
+import appConfig from '../../config/app.json';
+import { locale, num, setLanguage, t, useLang, type TKey } from '../i18n';
 import { QUALITY_PRESETS, type SaveData } from '../save/schema';
 import { notificationsAvailable, requestNotifications } from '../platform/notify';
 import { useBackHandler } from '../platform/back';
+import { exportFile, pickTextFile } from '../platform/files';
+import { isNative } from '../platform/native';
+import { checkForUpdates, useUpdate } from '../update/updater';
 import { useSave } from '../state/save';
 import { syncNotifications } from '../state/session';
 
-type Tab = 'audio' | 'controls' | 'display' | 'alerts' | 'save';
+type Tab = 'audio' | 'controls' | 'display' | 'alerts' | 'save' | 'about';
 
 const TABS: { id: Tab; label: TKey }[] = [
   { id: 'audio', label: 'settings.tabAudio' },
@@ -18,6 +22,7 @@ const TABS: { id: Tab; label: TKey }[] = [
   { id: 'display', label: 'settings.tabDisplay' },
   { id: 'alerts', label: 'settings.tabAlerts' },
   { id: 'save', label: 'settings.tabSave' },
+  { id: 'about', label: 'update.tab' },
 ];
 
 /** Couleurs d'accent proposées pour Material You. */
@@ -450,6 +455,23 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           }}
         />
       </Row>
+      {isNative() && (
+        <Row label={t('settings.orientation')}>
+          <Choice
+            value={p.orientation}
+            options={[
+              { value: 'portrait', label: t('settings.orientationPortrait') },
+              { value: 'landscape', label: t('settings.orientationLandscape') },
+              { value: 'auto', label: t('settings.orientationAuto') },
+            ]}
+            onChange={(v) => {
+              set((s) => {
+                s.display.orientation = v;
+              });
+            }}
+          />
+        </Row>
+      )}
     </>
   );
 }
@@ -559,6 +581,41 @@ function SaveTab() {
           {t('settings.importText')}
         </button>
       </div>
+      <div className="set-actions">
+        <button
+          className="btn-ghost"
+          id="save-export-file"
+          onClick={() => {
+            const day = new Date().toISOString().slice(0, 10);
+            exportFile(`voidpulse-${day}.txt`, exportText(), t('settings.exportFile')).then(
+              () => {
+                setMessage(isNative() ? null : t('settings.fileSaved'));
+              },
+              (e: unknown) => {
+                setMessage(e instanceof Error ? e.message : String(e));
+              },
+            );
+          }}
+        >
+          {t('settings.exportFile')}
+        </button>
+        <button
+          className="btn-ghost"
+          onClick={() => {
+            pickTextFile()
+              .then(async (content) => {
+                if (content === null) return;
+                await importText(content);
+                setMessage(t('settings.imported'));
+              })
+              .catch((e: unknown) => {
+                setMessage(e instanceof Error ? e.message : String(e));
+              });
+          }}
+        >
+          {t('settings.importFile')}
+        </button>
+      </div>
       <textarea
         id="save-text"
         className="set-text"
@@ -613,6 +670,70 @@ function SaveTab() {
   );
 }
 
+/** Version, mises à jour in-app (Android, version GitHub), mention hors ligne. */
+function AboutTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) => void }) {
+  useLang();
+  const up = useUpdate();
+  const u = d.update;
+  const { owner, repo } = appConfig.github;
+  const last =
+    u.lastCheck > 0
+      ? new Date(u.lastCheck).toLocaleString(locale(), { dateStyle: 'medium', timeStyle: 'short' })
+      : t('update.never');
+  return (
+    <>
+      <Row label={t('update.version')}>
+        <span className="set-value" id="app-version">
+          {up.installed}
+        </span>
+      </Row>
+      {up.supported ? (
+        <>
+          <Row label={t('update.auto')} hint={t('update.autoHint')}>
+            <Toggle
+              id="update-auto"
+              value={u.auto}
+              onChange={(v) => {
+                set((s) => {
+                  s.update.auto = v;
+                });
+              }}
+            />
+          </Row>
+          <Row label={t('update.prereleases')} hint={t('update.prereleasesHint')}>
+            <Toggle
+              id="update-pre"
+              value={u.prerelease}
+              onChange={(v) => {
+                set((s) => {
+                  s.update.prerelease = v;
+                });
+              }}
+            />
+          </Row>
+          <div className="set-actions">
+            <button
+              className="btn-ghost"
+              id="update-check"
+              disabled={up.status === 'checking' || up.status === 'downloading'}
+              onClick={() => void checkForUpdates(true)}
+            >
+              {t('update.check')}
+            </button>
+            <span className="set-note">{t('update.lastCheck', { date: last })}</span>
+          </div>
+        </>
+      ) : (
+        <p className="set-note">{isNative() ? t('update.flavorPlay') : t('update.webNote')}</p>
+      )}
+      <p className="set-note">{t('update.offline')}</p>
+      <p className="set-note">
+        {t('update.source')} : github.com/{owner}/{repo}
+      </p>
+    </>
+  );
+}
+
 export function SettingsPanel({ onClose }: { onClose: () => void }) {
   useLang();
   useBackHandler(() => {
@@ -654,6 +775,7 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
           {tab === 'display' && <DisplayTab d={d} set={update} />}
           {tab === 'alerts' && <AlertsTab d={d} set={update} />}
           {tab === 'save' && <SaveTab />}
+          {tab === 'about' && <AboutTab d={d} set={update} />}
         </div>
       </div>
     </div>
