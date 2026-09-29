@@ -6,7 +6,13 @@ import { useUi } from '../state/ui';
 
 const VERSION = import.meta.env.VITE_APP_VERSION ?? 'prototype';
 
-export function TitleScreen({ onPlay }: { onPlay: (bench: boolean) => void }) {
+export function TitleScreen({
+  onPlay,
+  onProgression,
+}: {
+  onPlay: (bench: boolean) => void;
+  onProgression: () => void;
+}) {
   const debugUnlocked = useUi((s) => s.debugUnlocked);
   const unlockDebug = useUi((s) => s.unlockDebug);
   const taps = useRef(0);
@@ -39,6 +45,16 @@ export function TitleScreen({ onPlay }: { onPlay: (bench: boolean) => void }) {
           }}
         >
           Jouer
+        </button>
+        <button
+          className="btn-ghost"
+          id="progression"
+          onClick={() => {
+            uiSound(audio(), 'ui.click');
+            onProgression();
+          }}
+        >
+          Progression
         </button>
         {debugUnlocked && (
           <button
