@@ -9,7 +9,13 @@ import type { ModeId } from '../content/data';
 import type { MetaBonus } from '../meta/bonus';
 import type { ModeRun } from '../modes/modes';
 import type { KeyValueStore } from '../save/backend';
-import { decode, encode, SNAPSHOT_VERSION, type Encoded, type RunSnapshot } from '../systems/snapshot';
+import {
+  decode,
+  encode,
+  SNAPSHOT_VERSION,
+  type Encoded,
+  type RunSnapshot,
+} from '../systems/snapshot';
 import { kvStore } from './kv';
 
 export const RUN_SAVE_KEY = 'voidpulse.run.v1';

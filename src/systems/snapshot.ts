@@ -123,7 +123,8 @@ export function decode(v: Encoded): unknown {
   if ('$num' in v) return Number(v.$num);
   if ('$ta' in v) return TYPED[v.$ta as TypedName].from(v.d as number[]);
   if ('$set' in v) return new Set((v.$set as Encoded[]).map(decode));
-  if ('$map' in v) return new Map((v.$map as [Encoded, Encoded][]).map(([k, x]) => [decode(k), decode(x)]));
+  if ('$map' in v)
+    return new Map((v.$map as [Encoded, Encoded][]).map(([k, x]) => [decode(k), decode(x)]));
   const out: Record<string, unknown> = {};
   for (const [k, x] of Object.entries(v)) out[k] = decode(x);
   return out;
