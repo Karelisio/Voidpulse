@@ -5,7 +5,7 @@ import type { ChestView } from '../ui/ChestOverlay';
 import type { MerchantView, SacrificeView } from '../ui/events';
 import type { PactView } from '../ui/PactOverlay';
 
-export type Screen = 'title' | 'select' | 'run';
+export type Screen = 'title' | 'select' | 'stage' | 'run';
 export type Overlay = null | 'levelup' | 'chest' | 'merchant' | 'altar' | 'pact' | 'pause' | 'end';
 
 export interface AltarView {
@@ -27,12 +27,15 @@ export interface RunSummary {
   reactions: { name: string; count: number; color: string }[];
   dashDamage: number;
   /** Personnage, pactes scellés, rang, score, personnages débloqués par cette partie. */
+  stage: string;
   character: string;
   pacts: string[];
   rank: string;
   score: number;
   bestScore: boolean;
   unlocked: string[];
+  newStages: string[];
+  newBosses: string[];
 }
 
 export interface LevelUpView {

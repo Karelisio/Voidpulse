@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useUi } from './state/ui';
 import { CharacterSelect } from './ui/CharacterSelect';
 import { RunScreen } from './ui/RunScreen';
+import { StageSelect } from './ui/StageSelect';
 import { TitleScreen } from './ui/TitleScreen';
 import './ui/ui.css';
 
@@ -26,10 +27,23 @@ export function App() {
       <CharacterSelect
         forceUnlocked={debug}
         onStart={() => {
-          setScreen('run');
+          setScreen('stage');
         }}
         onBack={() => {
           setScreen('title');
+        }}
+      />
+    );
+  }
+  if (screen === 'stage') {
+    return (
+      <StageSelect
+        forceUnlocked={debug}
+        onStart={() => {
+          setScreen('run');
+        }}
+        onBack={() => {
+          setScreen('select');
         }}
       />
     );

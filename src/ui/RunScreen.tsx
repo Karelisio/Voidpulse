@@ -10,6 +10,7 @@ import type { RunStatus } from '../systems/state';
 import { cardView, rewardView, rouletteIcons } from './cards';
 import { ChestOverlay } from './ChestOverlay';
 import { PactOverlay, type PactView } from './PactOverlay';
+import { recordStage } from '../meta/stages';
 import { applyUnlocks } from '../meta/unlocks';
 import { heat, rankIndex, runScore } from '../systems/pacts';
 import { AltarOverlay, MerchantOverlay } from './EventOverlays';
@@ -17,7 +18,7 @@ import { altarResultText, altarView, merchantView } from './events';
 import { EndOverlay } from './EndOverlay';
 import { LevelUpOverlay } from './LevelUpOverlay';
 import { MusicViz } from './MusicViz';
-import { buildSummary } from './summary';
+import { buildSummary, type RunRecord } from './summary';
 
 declare global {
   interface Window {
@@ -63,11 +64,11 @@ function levelUpView(host: GameHost): LevelUpView {
  * Statistiques de toute la carrière, écrites tout de suite en fin de run : meilleurs rang et
  * score, personnages débloqués (renvoyés pour l'écran de fin).
  */
-function recordRun(host: GameHost): { bestScore: boolean; unlocked: string[] } {
+function recordRun(host: GameHost): RunRecord {
   const st = host.sim.state;
   const score = runScore(st);
   const rank = rankIndex(heat(st));
-  const out = { bestScore: false, unlocked: [] as string[] };
+  const out: RunRecord = { bestScore: false, unlocked: [], stages: [], bosses: [] };
   const before = useSave.getState().data;
   out.bestScore = score > before.profile.bestScore;
   void useSave.getState().commit((d) => {
@@ -82,6 +83,16 @@ function recordRun(host: GameHost): { bestScore: boolean; unlocked: string[] } {
     d.profile.bestScore = Math.max(d.profile.bestScore, score);
     // Le rang ne compte qu'en cas de victoire (sinon, des pactes suivis d'une défaite suffiraient).
     if (st.status === 'victory') d.profile.bestRank = Math.max(d.profile.bestRank, rank);
+    const progress = recordStage(d, {
+      stage: st.stage.id,
+      victory: st.status === 'victory',
+      score,
+      time: st.time,
+      rank,
+      bosses: st.stats.bossesDefeated,
+    });
+    out.stages = progress.stages.map((s) => s.name);
+    out.bosses = progress.bosses;
     out.unlocked = applyUnlocks(d).map((c) => c.name);
   });
   return out;
@@ -158,6 +169,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
     void Promise.all([
       GameHost.create(el, `run-${Date.now()}`, quality, inputSettings, {
         character: prefs.profile.character,
+        stage: bench ? 'proto' : prefs.profile.stage,
         pactChoice: !bench,
       }),
       initAudio(),

@@ -178,6 +178,7 @@ export class RunSim {
         peakEnemies: 0,
         bossKilled: false,
         minibosses: 0,
+        bossesDefeated: [],
         elitesKilled: 0,
         chests: 0,
         evolutions: 0,

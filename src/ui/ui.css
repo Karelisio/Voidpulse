@@ -1160,3 +1160,121 @@ button:focus-visible {
 .el-dash {
   background: var(--vp-accent-2);
 }
+
+/* --- Sélection du stage --------------------------------------------------------------------- */
+
+.stage-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  width: min(460px, 100%);
+}
+
+.stage-cell {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 64px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-line);
+  background: linear-gradient(160deg, var(--stage-bg), var(--vp-panel));
+  color: var(--vp-fg);
+  font: 600 12px var(--vp-font);
+  cursor: pointer;
+}
+
+.stage-cell b {
+  font-size: 20px;
+  color: var(--stage);
+  text-shadow: 0 0 10px var(--stage);
+}
+
+.stage-cell i {
+  position: absolute;
+  top: 4px;
+  right: 7px;
+  font-style: normal;
+  color: var(--stage);
+}
+
+.stage-cell.on {
+  border-color: var(--stage);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--stage) 45%, transparent);
+}
+
+.stage-cell.locked b,
+.stage-cell.locked span {
+  color: var(--vp-muted);
+  text-shadow: none;
+}
+
+.stage-sheet {
+  display: grid;
+  gap: 8px;
+  width: min(460px, 100%);
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--stage) 55%, var(--vp-line));
+  background: linear-gradient(
+    170deg,
+    color-mix(in srgb, var(--stage-bg) 70%, transparent),
+    var(--vp-panel)
+  );
+}
+
+.stage-sheet h3 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--stage);
+  text-wrap: balance;
+}
+
+.stage-sheet h3 small {
+  font-size: 13px;
+  color: var(--vp-muted);
+  font-weight: 600;
+}
+
+.stage-sheet p {
+  margin: 0;
+}
+
+.stage-mech {
+  font-size: 14px;
+  color: var(--stage-2);
+}
+
+.stage-bosses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.stage-bosses figure {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+
+.stage-bosses figcaption {
+  display: grid;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.stage-bosses small,
+.stage-best {
+  font-size: 12px;
+  color: var(--vp-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.end-boss {
+  margin: 0;
+  color: var(--vp-accent-2);
+  font-weight: 700;
+}

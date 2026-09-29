@@ -60,6 +60,22 @@ export interface ProfileData {
   /** Index du meilleur rang atteint (PACTS.ranks), -1 si aucun. */
   bestRank: number;
   bestScore: number;
+  /** Dernier stage choisi. */
+  stage: string;
+  /** Stages terminés (boss final vaincu) : chacun ouvre le suivant. */
+  cleared: string[];
+  /** Boss vaincus au moins une fois (identifiants). */
+  bosses: string[];
+  /** Records par stage. */
+  stageBest: Record<string, StageRecord>;
+}
+
+export interface StageRecord {
+  score: number;
+  /** Temps survécu (s). */
+  time: number;
+  /** Index du meilleur rang en victoire, -1 si aucun. */
+  rank: number;
 }
 
 export interface SaveData {
@@ -117,6 +133,10 @@ export function defaultSave(now = Date.now()): SaveData {
       unlocked: ['vex', 'nova', 'volt', 'toxa'],
       bestRank: -1,
       bestScore: 0,
+      stage: 'forest',
+      cleared: [],
+      bosses: [],
+      stageBest: {},
     },
   };
 }

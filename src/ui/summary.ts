@@ -5,10 +5,19 @@ import { SLOT_DASH, SLOT_EVEIL, SLOT_REACTION } from '../systems/events';
 import { heat, rankOf, runScore } from '../systems/pacts';
 import type { RunSim } from '../systems/sim';
 
+/** Ce que la run a changé dans la carrière (records, déblocages). */
+export interface RunRecord {
+  bestScore: boolean;
+  unlocked: string[];
+  /** Stages ouverts, boss vaincus pour la première fois (noms). */
+  stages: string[];
+  bosses: string[];
+}
+
 export function buildSummary(
   sim: RunSim,
   iconUrls: Readonly<Partial<Record<string, string>>>,
-  record: { bestScore: boolean; unlocked: string[] } = { bestScore: false, unlocked: [] },
+  record: RunRecord = { bestScore: false, unlocked: [], stages: [], bosses: [] },
 ): RunSummary {
   const st = sim.state;
   return {
@@ -33,12 +42,15 @@ export function buildSummary(
       color: r.color,
     })).filter((r) => r.count > 0),
     dashDamage: st.stats.damageBySlot[SLOT_DASH],
+    stage: st.stage.name,
     character: st.character.name,
     pacts: st.pacts.taken.map((p) => p.name),
     rank: rankOf(heat(st)),
     score: runScore(st),
     bestScore: record.bestScore,
     unlocked: record.unlocked,
+    newStages: record.stages,
+    newBosses: record.bosses,
   };
 }
 

@@ -8,10 +8,13 @@ import {
   AFFIXES,
   BEHAVIOR_OF,
   BOSSES,
+  CAMPAIGN,
   ENEMIES,
   ENEMY_PARAM,
+  STAGES,
   WEAPONS,
   colorOf,
+  type StageDef,
 } from '../content/data';
 import { FRAME } from '../content/frames';
 import { Body, Foe, Gem, Life, Look, Pos, Status, Zone } from '../engine/components';
@@ -20,13 +23,13 @@ import { BEHAVIOR } from '../systems/enemies';
 import type { EntityPool } from '../engine/pool';
 import type { RunSim } from '../systems/sim';
 import { ZONE } from '../systems/zones';
-import { buildAtlas, type Atlas } from './atlas';
+import { bossTextures, buildAtlas, type Atlas } from './atlas';
 import { Background } from './background';
 import { Camera } from './camera';
 import { DamageNumbers, FxLayer } from './fx';
 import { Hud, type HudState } from './hud';
 import { SpriteLayer } from './layer';
-import { ELEMENT_COLORS, particleColor, PALETTE } from './palette';
+import { ELEMENT_COLORS, mix, particleColor, PALETTE } from './palette';
 
 export interface QualitySettings {
   /** Échelle de résolution (1 = DPR plafonné à 2). */
@@ -70,7 +73,15 @@ export class GameRenderer {
   safeBottom = 0;
   leftHanded = false;
   private readonly world = new Container();
-  private readonly bg = new Background();
+  private readonly bg: Background;
+  /** Brume du stage : seul un disque autour du joueur reste dégagé. */
+  private readonly fog = new Sprite(fogTexture());
+  private fogAlpha = 0;
+  /** Bandes opaques autour du voile de brume (grands écrans). */
+  private readonly fogEdges = new Container();
+  /** Blizzard : voile glacé. */
+  private readonly weatherVeil = new Sprite(Texture.WHITE);
+  private weatherAlpha = 0;
   private readonly zones: SpriteLayer;
   private readonly gems: SpriteLayer;
   private readonly chests: SpriteLayer;
@@ -95,8 +106,18 @@ export class GameRenderer {
     readonly app: Application,
     readonly atlas: Atlas,
     readonly quality: QualitySettings,
+    stage: StageDef,
   ) {
     const fx = atlas.fx;
+    this.bg = new Background(stage);
+    this.fog.anchor.set(0.5);
+    // Brume laiteuse : fond du stage éclairci par sa teinte d'accent.
+    this.fog.tint = mix(colorOf(stage.palette.base), colorOf(stage.palette.accent), 0.22);
+    this.fog.visible = false;
+    for (let i = 0; i < 4; i++) this.fogEdges.addChild(new Sprite(Texture.WHITE));
+    this.fogEdges.visible = false;
+    this.weatherVeil.tint = 0xcff4ff;
+    this.weatherVeil.visible = false;
     this.zones = new SpriteLayer(600, atlas.frames[FRAME.ZONE_RING], 'add');
     this.chests = new SpriteLayer(8, atlas.frames[FRAME.CHEST], 'normal');
     this.gems = new SpriteLayer(900, atlas.frames[FRAME.GEM_S], 'add');
@@ -145,6 +166,9 @@ export class GameRenderer {
     app.stage.addChild(
       this.bg.container,
       this.world,
+      this.fog,
+      this.fogEdges,
+      this.weatherVeil,
       this.riftVeil,
       this.flash,
       this.arrows,
@@ -156,6 +180,7 @@ export class GameRenderer {
   static async create(
     parent: HTMLElement,
     quality: QualitySettings = DEFAULT_QUALITY,
+    stage: StageDef = STAGES.proto ?? CAMPAIGN[0],
   ): Promise<GameRenderer> {
     const app = new Application();
     await app.init({
@@ -170,7 +195,7 @@ export class GameRenderer {
     });
     app.ticker.stop();
     parent.appendChild(app.canvas);
-    const r = new GameRenderer(app, buildAtlas(), quality);
+    const r = new GameRenderer(app, buildAtlas(), quality, stage);
     r.readSafeArea(parent);
     r.resize();
     app.renderer.on('resize', () => {
@@ -369,7 +394,7 @@ export class GameRenderer {
     this.syncSimple(this.gems, w.gems, alpha, 0, true);
     this.syncSimple(this.chests, w.chests, alpha, 0, false);
     this.syncEnemies(w.enemies, alpha);
-    this.syncBoss(sim, alpha);
+    this.syncBoss(sim, alpha, dt);
     this.syncSimple(this.orbits, w.orbits, alpha, Math.PI / 2, false);
     this.syncSimple(this.bullets, w.bullets, alpha, 0, false);
     this.syncSimple(this.shots, w.shots, alpha, 0, false);
@@ -389,6 +414,7 @@ export class GameRenderer {
     this.riftAlpha += (rift - this.riftAlpha) * Math.min(1, dt * 3);
     this.riftVeil.alpha = this.riftAlpha * (0.13 + 0.03 * Math.sin(this.time * 2));
     this.riftVeil.visible = this.riftAlpha > 0.01;
+    this.syncWeather(sim, px, py, zoom, dt);
     this.syncArrows(sim);
 
     this.sparks.update(dt);
@@ -586,21 +612,68 @@ export class GameRenderer {
     for (let i = n; i < MAX_ARROWS; i++) this.arrows.children[i].visible = false;
   }
 
-  private syncBoss(sim: RunSim, alpha: number): void {
+  /** Brume (vision réduite) et blizzard, pendant les vagues de la mécanique du stage. */
+  private syncWeather(sim: RunSim, px: number, py: number, zoom: number, dt: number): void {
+    const kind = sim.state.stage.mechanic.kind;
+    const active = sim.state.mechanic.activeT > 0;
+    const k = Math.min(1, dt * 1.5);
+    this.fogAlpha += ((kind === 'fog' && active ? 1 : 0) - this.fogAlpha) * k;
+    this.fog.visible = this.fogAlpha > 0.01;
+    if (this.fog.visible) {
+      // Le trou de la texture fait FOG_HOLE px : il doit couvrir FOG_VISION unités monde.
+      const s = (FOG_VISION * zoom * (1 + 0.03 * Math.sin(this.time * 1.7))) / FOG_HOLE;
+      this.fog.scale.set(s);
+      this.fog.position.set(this.world.position.x + px * zoom, this.world.position.y + py * zoom);
+      this.fog.alpha = this.fogAlpha;
+      const h = (FOG_SIZE * s) / 2;
+      const x0 = this.fog.x - h;
+      const y0 = this.fog.y - h;
+      const x1 = this.fog.x + h;
+      const y1 = this.fog.y + h;
+      const W = this.width;
+      const H = this.height;
+      const rects = [
+        [0, 0, W, y0],
+        [0, y1, W, H - y1],
+        [0, y0, x0, y1 - y0],
+        [x1, y0, W - x1, y1 - y0],
+      ];
+      for (let i = 0; i < 4; i++) {
+        const e = this.fogEdges.children[i] as Sprite;
+        const [x, y, w, hh] = rects[i];
+        e.visible = w > 0 && hh > 0;
+        e.position.set(x, y);
+        e.width = Math.max(0, w);
+        e.height = Math.max(0, hh);
+        e.tint = this.fog.tint;
+        e.alpha = this.fogAlpha * 0.97;
+      }
+    }
+    this.fogEdges.visible = this.fog.visible;
+    this.weatherAlpha += ((kind === 'ice' && active ? 1 : 0) - this.weatherAlpha) * k;
+    this.weatherVeil.visible = this.weatherAlpha > 0.01;
+    this.weatherVeil.alpha = this.weatherAlpha * (0.1 + 0.03 * Math.sin(this.time * 5));
+  }
+
+  private syncBoss(sim: RunSim, alpha: number, dt: number): void {
     const b = sim.state.boss;
     const e = b.eid;
     if (e < 0 || !sim.world.boss.isActive(e)) {
       this.boss.visible = false;
       return;
     }
-    const frame = FRAME.BOSS_BASE + b.defIndex;
+    const tex = bossTextures(b.defIndex);
     this.boss.visible = true;
-    this.boss.texture = Look.flash[e] > 0 ? this.atlas.flash[frame] : this.atlas.frames[frame];
-    this.boss.position.set(
-      Pos.px[e] + (Pos.x[e] - Pos.px[e]) * alpha,
-      Pos.py[e] + (Pos.y[e] - Pos.py[e]) * alpha,
-    );
-    this.boss.rotation = this.time * (b.state === 'execute' ? 2.4 : 0.5);
+    this.boss.texture = Look.flash[e] > 0 ? tex.flash : tex.normal;
+    const x = Pos.px[e] + (Pos.x[e] - Pos.px[e]) * alpha;
+    const y = Pos.py[e] + (Pos.y[e] - Pos.py[e]) * alpha;
+    this.boss.position.set(x, y);
+    // L'avant du boss (+x) se tourne vers le joueur, sans à-coups.
+    const pe = sim.state.player.eid;
+    const want = Math.atan2(Pos.y[pe] - y, Pos.x[pe] - x);
+    let d = want - this.boss.rotation;
+    d -= Math.round(d / (Math.PI * 2)) * Math.PI * 2;
+    this.boss.rotation += d * Math.min(1, (b.state === 'execute' ? 2 : 5) * dt);
     this.boss.alpha = Look.alpha[e];
     const rage = b.def?.phases[b.phase]?.rage ?? false;
     this.boss.tint = rage
@@ -742,6 +815,16 @@ export class GameRenderer {
           s = 1.2 + 0.15 * Math.sin(this.time * 20 + z);
           p.color = particleColor(color, a);
           break;
+        case ZONE.TERRAIN:
+          s = (Zone.r[z] / 56) * (1 + 0.02 * Math.sin(this.time * 1.3 + z));
+          p.rotation = Look.rot[z];
+          p.color = particleColor(color, 0.55);
+          break;
+        case ZONE.PULL:
+          s = Zone.r[z] / 60;
+          p.rotation = -this.time * 2.2;
+          p.color = particleColor(color, a * 0.85);
+          break;
         case ZONE.WELL:
           s = Zone.r[z] / 60;
           p.rotation = Look.rot[z];
@@ -765,6 +848,28 @@ export class GameRenderer {
   destroy(): void {
     this.app.destroy(true, { children: true, texture: true });
   }
+}
+
+/** Rayon dégagé dans la brume (unités monde). */
+const FOG_VISION = 230;
+const FOG_SIZE = 512;
+const FOG_HOLE = 70;
+
+/** Voile de brume : transparent au centre (rayon FOG_HOLE), opaque au-delà, bords compris. */
+function fogTexture(): Texture {
+  const c = document.createElement('canvas');
+  c.width = FOG_SIZE;
+  c.height = FOG_SIZE;
+  const g = c.getContext('2d');
+  if (!g) throw new Error('Canvas 2D indisponible');
+  const m = FOG_SIZE / 2;
+  const rg = g.createRadialGradient(m, m, FOG_HOLE * 0.6, m, m, FOG_HOLE * 1.6);
+  rg.addColorStop(0, 'rgba(255,255,255,0)');
+  rg.addColorStop(0.4, 'rgba(255,255,255,0.8)');
+  rg.addColorStop(1, 'rgba(255,255,255,0.97)');
+  g.fillStyle = rg;
+  g.fillRect(0, 0, FOG_SIZE, FOG_SIZE);
+  return Texture.from(c);
 }
 
 const ELITE_COLOR = 0xffd23d;

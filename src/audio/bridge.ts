@@ -176,6 +176,8 @@ export class GameAudio implements AudioBridge {
         case EV.BOSS_DEATH:
           sfx.play('boss.death');
           e.duck(-8, 0.05, 1.5, 2);
+          // Mini-boss vaincu : retour à la musique du stage (le stage 1 sert à tous jusqu'en 4.13).
+          if (b === 1) void e.music?.play('stage', 1);
           break;
         case EV.STRIKE:
           if (b < FIRE_IDS.length) sfx.play(FIRE_IDS[b], pan, 0.8);

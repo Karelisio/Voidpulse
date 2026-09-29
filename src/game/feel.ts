@@ -192,7 +192,13 @@ export function dispatchEvents(
         break;
       }
       case EV.BEAM: {
-        const color = b < ELEMENT_COLORS.length ? ELEMENT_COLORS[b] : 0xffffff;
+        // b = 255 : laser de boss, à sa couleur.
+        const color =
+          b < ELEMENT_COLORS.length
+            ? ELEMENT_COLORS[b]
+            : b === 255 && sim.state.boss.def
+              ? colorOf(sim.state.boss.def.color)
+              : 0xffffff;
         renderer.beam(x, y, v, w, color);
         break;
       }
@@ -272,10 +278,13 @@ export function dispatchEvents(
         renderer.ring(v, w, 30, 0x8a7dff, 0.3, true);
         break;
       case EV.BOSS_SPAWN: {
-        const color = colorOf(BOSSES[a]?.color ?? '#6ff7ff');
-        renderer.screenFlash(color, 0.35);
-        renderer.ring(x, y, 220, color, 0.9);
-        cam.shake(0.7);
+        const def = BOSSES[a];
+        const color = colorOf(def.color);
+        renderer.screenFlash(color, b ? 0.2 : 0.35);
+        renderer.ring(x, y, b ? 160 : 220, color, 0.9);
+        cam.shake(b ? 0.45 : 0.7);
+        if (def.id !== 'sentinel')
+          renderer.hud.banner(b ? 'MINI-BOSS' : 'BOSS FINAL', def.name, color, 2.2);
         haptics.boss();
         break;
       }
@@ -287,6 +296,17 @@ export function dispatchEvents(
         haptics.boss();
         break;
       case EV.BOSS_DEATH:
+        if (b) {
+          // Mini-boss : explosion plus courte, la partie continue.
+          const color = colorOf(BOSSES[a]?.color ?? '#6ff7ff');
+          renderer.burst(x, y, color, 36, 300, 1, 1.4);
+          renderer.ring(x, y, 220, 0xffffff, 0.7);
+          renderer.screenFlash(0xffffff, 0.3);
+          cam.shake(0.6);
+          loop.hitStopFor(10);
+          haptics.boss();
+          break;
+        }
         renderer.burst(x, y, 0x6ff7ff, 60, 380, 1.2, 1.8);
         renderer.burst(x, y, PALETTE.magenta, 40, 300, 1, 1.4);
         renderer.ring(x, y, 320, 0xffffff, 1);

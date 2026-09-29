@@ -162,6 +162,7 @@ export function updateBoss(sim: RunSim): void {
     if (mini) sim.state.stats.minibosses++;
     else sim.state.stats.bossKilled = true;
     sim.state.stats.kills++;
+    sim.state.stats.bossesDefeated.push(b.defIndex);
     sim.events.push(EV.BOSS_DEATH, b.defIndex, mini ? 1 : 0, x, y, def.radius);
     const n = mini ? 12 : 24;
     for (let i = 0; i < n; i++) {

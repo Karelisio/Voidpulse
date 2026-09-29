@@ -6,8 +6,9 @@
  * Halos pré-calculés : aucun filtre en jeu.
  */
 import { CanvasSource, Rectangle, Texture } from 'pixi.js';
-import { BOSSES, CHARACTERS, ENEMIES, PASSIVES, WEAPONS, colorOf } from '../content/data';
+import { BOSSES, CHARACTERS, ENEMIES, PASSIVES, WEAPONS } from '../content/data';
 import { FRAME, FRAME_COUNT } from '../content/frames';
+import { drawBossArt } from './boss-art';
 import { drawEnemyArt } from './enemy-art';
 import { drawIcon, iconColor } from './icons';
 import { PALETTE } from './palette';
@@ -53,48 +54,6 @@ function drawPlayer(p: Pen): void {
 
 function drawEnemy(p: Pen, index: number): void {
   drawEnemyArt(p, ENEMIES[index]);
-}
-
-function drawBoss(p: Pen, index: number): void {
-  const def = BOSSES[index];
-  const color = colorOf(def.color);
-  const r = def.radius;
-  p.fill(color, 0.12, (c) => {
-    poly(c, 8, r, Math.PI / 8);
-  });
-  p.stroke(color, 3.2, 16, (c) => {
-    poly(c, 8, r, Math.PI / 8);
-  });
-  p.stroke(PALETTE.violet, 2, 10, (c) => {
-    for (let i = 0; i < 8; i++) {
-      const a0 = (i / 8) * Math.PI * 2 + 0.12;
-      c.moveTo(Math.cos(a0) * r * 0.68, Math.sin(a0) * r * 0.68);
-      c.arc(0, 0, r * 0.68, a0, a0 + Math.PI / 4 - 0.24);
-    }
-  });
-  p.stroke(color, 2.2, 10, (c) => {
-    for (let i = 0; i < 4; i++) {
-      const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
-      c.moveTo(Math.cos(a) * r * 0.8, Math.sin(a) * r * 0.8);
-      c.lineTo(Math.cos(a) * r * 1.22, Math.sin(a) * r * 1.22);
-    }
-  });
-  p.fill(
-    PALETTE.magenta,
-    0.8,
-    (c) => {
-      circle(c, r * 0.28);
-    },
-    14,
-  );
-  p.fill(
-    PALETTE.white,
-    1,
-    (c) => {
-      circle(c, r * 0.11, r * 0.08, 0);
-    },
-    10,
-  );
 }
 
 function drawShotFire(p: Pen): void {
@@ -520,6 +479,25 @@ function drawWell(p: Pen): void {
   });
 }
 
+/** Plaque de terrain (eau, glace, bourbier) : nappe irrégulière, bord lumineux, ondes. */
+function drawTerrain(p: Pen): void {
+  const blob =
+    (k: number) =>
+    (c: Ctx): void => {
+      for (let i = 0; i <= 48; i++) {
+        const a = (i / 48) * Math.PI * 2;
+        const r = k * (54 + 4 * Math.sin(a * 3 + 0.6) + 2.5 * Math.sin(a * 5 + 1.9));
+        if (i === 0) c.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+        else c.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      c.closePath();
+    };
+  p.fill(PALETTE.white, 0.16, blob(1));
+  p.stroke(PALETTE.white, 1.8, 8, blob(1));
+  p.stroke(PALETTE.white, 1, 4, blob(0.62));
+  p.stroke(PALETTE.white, 0.8, 3, blob(0.3));
+}
+
 function drawChest(p: Pen): void {
   const gold = 0xffd23d;
   const body = (c: Ctx): void => {
@@ -668,18 +646,6 @@ export function buildAtlas(): Atlas {
       true,
     );
   });
-  BOSSES.forEach((b, i) => {
-    const s = Math.ceil(b.radius * 3 + 20);
-    addSide(
-      `f${FRAME.BOSS_BASE + i}`,
-      s,
-      s,
-      (p) => {
-        drawBoss(p, i);
-      },
-      true,
-    );
-  });
   add(`f${FRAME.SHOT_FIRE}`, 36, 20, drawShotFire);
   add(`f${FRAME.SHOT_GENERIC}`, 20, 20, drawShotGeneric);
   add(`f${FRAME.BULLET}`, 26, 26, drawBullet);
@@ -712,6 +678,7 @@ export function buildAtlas(): Atlas {
   add(`f${FRAME.ZONE_BEAM}`, 64, 56, drawBeam);
   add(`f${FRAME.ZONE_SURGE}`, 40, 40, drawSurge);
   add(`f${FRAME.ZONE_WELL}`, 128, 128, drawWell);
+  add(`f${FRAME.TERRAIN}`, 128, 128, drawTerrain);
   add(`f${FRAME.CHEST}`, 64, 48, drawChest);
   add(`f${FRAME.COIN}`, 20, 20, drawCoin);
   add(`f${FRAME.MOUND}`, 48, 48, drawMound);
@@ -889,4 +856,35 @@ function pack(
     );
   }
   return { source: new CanvasSource({ resource: canvas, resolution: RES }), rects };
+}
+
+/**
+ * Textures de boss, dessinées à la demande (une seule planche par boss rencontré) : elles ne
+ * tiendraient pas toutes dans l'annexe. Mises en cache pour la durée de l'application.
+ */
+const bossCache = new Map<number, { normal: Texture; flash: Texture }>();
+
+export function bossTextures(index: number): { normal: Texture; flash: Texture } {
+  const hit = bossCache.get(index);
+  if (hit) return hit;
+  const def = BOSSES[index];
+  const s = Math.ceil(def.radius * 3 + 20);
+  const canvas = document.createElement('canvas');
+  canvas.width = s * 2 * RES;
+  canvas.height = s * RES;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas 2D indisponible');
+  for (const white of [false, true]) {
+    ctx.save();
+    ctx.setTransform(RES, 0, 0, RES, (s / 2 + (white ? s : 0)) * RES, (s / 2) * RES);
+    drawBossArt(new Pen(ctx, white), def);
+    ctx.restore();
+  }
+  const source = new CanvasSource({ resource: canvas, resolution: RES });
+  const out = {
+    normal: new Texture({ source, frame: new Rectangle(0, 0, s, s) }),
+    flash: new Texture({ source, frame: new Rectangle(s, 0, s, s) }),
+  };
+  bossCache.set(index, out);
+  return out;
 }

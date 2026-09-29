@@ -308,6 +308,8 @@ export interface RunStats {
   peakEnemies: number;
   bossKilled: boolean;
   minibosses: number;
+  /** Index des boss vaincus pendant la run (récompenses de carrière). */
+  bossesDefeated: number[];
   elitesKilled: number;
   chests: number;
   evolutions: number;

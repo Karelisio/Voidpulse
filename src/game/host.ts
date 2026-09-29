@@ -2,7 +2,7 @@
  * Hôte d'une partie : relie la simulation, la boucle, le rendu, les contrôles, le game feel et
  * l'audio, et informe l'interface React des changements d'état (level-up, fin de run).
  */
-import { RESONANCE } from '../content/data';
+import { RESONANCE, STAGES } from '../content/data';
 import { Life } from '../engine/components';
 import { FixedLoop } from '../engine/loop';
 import type { HudState } from '../render/hud';
@@ -123,7 +123,7 @@ export class GameHost {
     inputSettings: InputSettings = DEFAULT_INPUT,
     options: Omit<RunOptions, 'seed'> = {},
   ): Promise<GameHost> {
-    const renderer = await GameRenderer.create(parent, quality);
+    const renderer = await GameRenderer.create(parent, quality, STAGES[options.stage ?? 'proto']);
     renderer.leftHanded = inputSettings.leftHanded;
     const input = new GameInput(renderer.app.canvas, inputSettings, () => renderer.hud.dashButton);
     input.attach();

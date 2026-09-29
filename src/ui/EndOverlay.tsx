@@ -35,13 +35,19 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
           <b>{summary.score.toLocaleString('fr-FR')}</b> points
           {summary.bestScore && <em> · record !</em>}
           <small>
-            {summary.character}
+            {summary.stage} · {summary.character}
             {summary.pacts.length > 0 ? ` · ${summary.pacts.join(', ')}` : ' · sans pacte'}
           </small>
         </span>
       </div>
       {summary.unlocked.length > 0 && (
         <p className="end-unlock">Nouveau pilote : {summary.unlocked.join(', ')} !</p>
+      )}
+      {summary.newStages.length > 0 && (
+        <p className="end-unlock">Nouveau secteur : {summary.newStages.join(', ')} !</p>
+      )}
+      {summary.newBosses.length > 0 && (
+        <p className="end-boss">Premier triomphe : {summary.newBosses.join(', ')}</p>
       )}
       <dl className="end-stats">
         <div>
