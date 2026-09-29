@@ -128,6 +128,20 @@ button {
   cursor: pointer;
 }
 
+.btn-primary.resume {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.btn-primary.resume small {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.8;
+}
+
 .btn-ghost {
   padding: 10px 16px;
   border-radius: 10px;

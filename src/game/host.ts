@@ -12,6 +12,7 @@ import { DEFAULT_QUALITY, GameRenderer, type QualitySettings } from '../render/r
 import { benchTick, setupBench, type BenchConfig } from '../systems/bench';
 import type { ControlPrefs, DisplayPrefs } from '../save/schema';
 import { RunSim, type RunOptions } from '../systems/sim';
+import { restoreSim, snapshotSim, type RunSnapshot } from '../systems/snapshot';
 import type { RunStatus } from '../systems/state';
 import { dispatchEvents, type AudioSink } from './feel';
 import { nativeHaptics } from '../platform/android';
@@ -84,6 +85,7 @@ export class GameHost {
   }
 
   private lastStatus: RunStatus = 'running';
+  private seed: string;
   private hud: HudState;
   private weaponsKey = '';
   private debugTimer = 0;
@@ -96,6 +98,7 @@ export class GameHost {
     /** Options de run (personnage, pactes) reprises à chaque nouvelle partie. */
     readonly options: Omit<RunOptions, 'seed'>,
   ) {
+    this.seed = seed;
     this.sim = new RunSim({ ...options, seed });
     this.loop = new FixedLoop({
       step: () => {
@@ -161,6 +164,7 @@ export class GameHost {
   }
 
   newRun(seed: string): void {
+    this.seed = seed;
     this.sim = new RunSim({ ...this.options, seed });
     this.applyElementTints();
     this.lastStatus = 'running';
@@ -168,6 +172,23 @@ export class GameHost {
     if (this.bench) setupBench(this.sim, this.bench);
     this.audio?.startRun(this.sim);
     this.loop.paused = false;
+  }
+
+  /** Instantané de la partie en cours (reprise après une fermeture de l'application). */
+  snapshot(): RunSnapshot {
+    return snapshotSim(this.sim, { ...this.options, seed: this.seed });
+  }
+
+  /**
+   * Reprend une partie sauvegardée (avant `start`). La vue suit l'orientation actuelle ;
+   * l'état du jeu est signalé à nouveau (menu de niveau ouvert, etc.).
+   */
+  restore(snap: RunSnapshot): void {
+    this.sim = restoreSim({ ...snap, options: { ...snap.options, view: this.options.view } });
+    this.seed = snap.options.seed;
+    this.applyElementTints();
+    this.weaponsKey = '';
+    this.lastStatus = 'running';
   }
 
   startBench(cfg: BenchConfig): void {

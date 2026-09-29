@@ -8,15 +8,24 @@ import { uiSound } from '../audio/bridge';
 import { questsReady } from '../meta/quests';
 import { seasonTier } from '../meta/season';
 import { useSave } from '../state/save';
+import { useRunSave } from '../state/runsave';
 import { useUi } from '../state/ui';
 import { TitleWelcome } from './TitleWelcome';
 
+function clock(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  return `${String(m)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+}
+
 export function TitleScreen({
   onPlay,
+  onResume,
   onProgression,
   onGoals,
 }: {
   onPlay: (bench: boolean) => void;
+  /** Reprend la partie sauvegardée (fermeture de l'application en cours de partie). */
+  onResume: () => void;
   onProgression: () => void;
   onGoals: () => void;
 }) {
@@ -26,6 +35,7 @@ export function TitleScreen({
   const taps = useRef(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const version = useUpdate((s) => s.installed);
+  const saved = useRunSave((s) => s.saved);
   // Récompenses en attente : quêtes terminées et paliers de saison atteints.
   const ready = useSave((s) => {
     const d = s.data;
@@ -71,6 +81,24 @@ export function TitleScreen({
       <p className="tagline">{t('title.tagline')}</p>
       <TitleWelcome />
       <div className="title-actions">
+        {saved && (
+          <button
+            className="btn-primary resume"
+            id="resume"
+            onClick={() => {
+              uiSound(audio(), 'ui.confirm');
+              onResume();
+            }}
+          >
+            {t('title.resume')}
+            <small>
+              {t('title.resumeDetail', {
+                run: saved.active.run.detail,
+                time: clock((saved.snapshot.state as { time?: number }).time ?? 0),
+              })}
+            </small>
+          </button>
+        )}
         {!material && (
           <>
             <button className="btn-primary" id="play" onClick={play}>

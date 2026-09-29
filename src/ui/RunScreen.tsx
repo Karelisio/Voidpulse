@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ascensionOpen } from '../meta/account';
 import { ascensionSelected } from '../meta/ascension';
-import { metaBonus, type MetaBonus } from '../meta/bonus';
+import { metaBonus } from '../meta/bonus';
 import { applyRunEnd } from '../meta/runend';
 import { audio, initAudio } from '../audio';
 import { GameAudio, uiSound } from '../audio/bridge';
@@ -11,14 +11,15 @@ import { t, useLang } from '../i18n';
 import { keepAwake } from '../platform/android';
 import { useBackHandler } from '../platform/back';
 import { useSave } from '../state/save';
+import { clearRun, saveRun, useRunSave, type ActiveRun } from '../state/runsave';
 import { useUi, type LevelUpView } from '../state/ui';
 import { SettingsPanel } from './SettingsPanel';
 import type { RunStatus } from '../systems/state';
 import { cardView, rewardView, rouletteIcons } from './cards';
 import { ChestOverlay } from './ChestOverlay';
 import { PactOverlay, type PactView } from './PactOverlay';
-import { buildRun, MODE_INFO, type ModeRun } from '../modes/modes';
-import { colorOf, ENEMIES, WEAPONS, type ModeId } from '../content/data';
+import { buildRun, MODE_INFO } from '../modes/modes';
+import { colorOf, ENEMIES, WEAPONS } from '../content/data';
 import { heat } from '../systems/pacts';
 import { AltarOverlay, MerchantOverlay } from './EventOverlays';
 import { altarResultText, altarView, merchantView } from './events';
@@ -68,13 +69,17 @@ function levelUpView(host: GameHost): LevelUpView {
   };
 }
 
-/** Partie en cours : ce que le mode a construit, et si l'essai du jour est compté. */
-interface ActiveRun {
-  mode: ModeId;
-  run: ModeRun;
-  counted: boolean;
-  /** Bonus de méta figés au lancement (fragments et XP de compte en fin de partie). */
-  meta: MetaBonus;
+/** Parties reprises après une fermeture de l'application (ni bench ni entraînement). */
+function persistable(active: ActiveRun, bench: boolean): boolean {
+  return !bench && active.mode !== 'training';
+}
+
+/** Sauvegarde la partie en cours à une pause naturelle (reprise après fermeture). */
+function persist(host: GameHost, active: ActiveRun | null, bench: boolean): void {
+  if (!active || !persistable(active, bench)) return;
+  const status = host.sim.state.status;
+  if (status === 'dead' || status === 'victory') return;
+  void saveRun(active, host.snapshot());
 }
 
 /** Construit la partie du mode choisi ; le défi du jour marque son essai dès le départ. */
@@ -181,6 +186,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
 
   const onStatus = useCallback(
     (host: GameHost, status: RunStatus) => {
+      if (status !== 'running') persist(host, activeRef.current, bench);
       if (status === 'levelup') showLevelUp(levelUpView(host));
       else if (status === 'chest') {
         const urls = host.renderer.atlas.iconUrls;
@@ -195,13 +201,14 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       else if (status === 'dead' || status === 'victory') {
         const active = activeRef.current;
         if (!active) return;
+        void clearRun();
         const record = recordRun(host, active);
         window.setTimeout(() => {
           showEnd(buildSummary(host.sim, host.renderer.atlas.iconUrls, record));
         }, 900);
       } else if (useUi.getState().overlay === 'levelup') setOverlay(null);
     },
-    [showLevelUp, showChest, showEnd, setOverlay],
+    [bench, showLevelUp, showChest, showEnd, setOverlay],
   );
 
   useEffect(() => {
@@ -209,7 +216,14 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
     const el = mount.current;
     if (!el) return;
     const prefs = useSave.getState().data;
-    const active = setupRun(bench);
+    // Reprise depuis l'accueil : partie sauvegardée ; sinon nouvelle partie (l'ancienne est
+    // abandonnée).
+    // (Le drapeau est levé en quittant l'écran : l'effet peut être rejoué en développement.)
+    const saves = useRunSave.getState();
+    const resumed = !bench && saves.resuming ? saves.saved : null;
+    if (resumed) useUi.getState().setMode(resumed.active.mode, resumed.active.counted);
+    else if (!bench) void clearRun();
+    const active = resumed?.active ?? setupRun(bench);
     activeRef.current = active;
     const quality = {
       resolution: prefs.display.resolution,
@@ -244,11 +258,30 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           setOverlay('pause');
         }
       };
+      if (resumed) {
+        try {
+          host.restore(resumed.snapshot);
+        } catch (e) {
+          // Instantané inutilisable : partie neuve du même mode.
+          console.warn('Reprise impossible :', e);
+          void clearRun();
+          host.newRun(active.run.seed);
+        }
+      }
       if (bench) host.startBench({ enemies: 650, shots: 1100 });
       host.start();
-      announce(host, active);
+      if (resumed && host.sim.state.status === 'running') {
+        // Reprise en pause : le joueur relance quand il est prêt.
+        host.pause();
+        setOverlay('pause');
+      } else announce(host, active);
       // Première partie : tutoriel contextuel, marqué comme vu dès le lancement.
-      if (!bench && !useSave.getState().data.profile.tutorialSeen && active.mode !== 'training') {
+      if (
+        !bench &&
+        !resumed &&
+        !useSave.getState().data.profile.tutorialSeen &&
+        active.mode !== 'training'
+      ) {
         host.tutorial = new Tutorial();
         useSave.getState().update((d) => {
           d.profile.tutorialSeen = true;
@@ -259,10 +292,12 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
     keepAwake(true);
     const onHide = (): void => {
       const host = hostRef.current;
-      if (document.hidden && host && useUi.getState().overlay === null) {
+      if (!document.hidden || !host) return;
+      if (useUi.getState().overlay === null) {
         host.pause();
         setOverlay('pause');
       }
+      persist(host, activeRef.current, bench);
     };
     document.addEventListener('visibilitychange', onHide);
     return () => {
@@ -274,6 +309,11 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       if (window.__voidpulse) delete window.__voidpulse;
     };
   }, [bench, onStatus, setOverlay]);
+
+  // Mise en pause (bouton, retour) : sauvegarde de la partie en cours.
+  useEffect(() => {
+    if (overlay === 'pause' && host) persist(host, activeRef.current, bench);
+  }, [overlay, host, bench]);
 
   // Réglages modifiés en cours de partie (panneau de pause).
   const controls = useSave((s) => s.data.controls);
@@ -410,6 +450,8 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
               className="btn-ghost"
               onClick={() => {
                 uiSound(audio(), 'ui.back');
+                // Abandon : la partie ne sera pas proposée à la reprise.
+                void clearRun();
                 onQuit();
               }}
             >

@@ -67,6 +67,9 @@ export const HIT = { forceCrit: false, critBonus: 0, noArc: false, dot: false };
 const burnSlot = new Uint8Array(MAX_ENTITIES);
 const toxSlot = new Uint8Array(MAX_ENTITIES);
 
+/** Colonnes par entité hors composants (instantané de partie). */
+export const COMBAT_COLUMNS = { burnSlot, toxSlot } as const;
+
 /** Réserve un tampon de requête (imbrication : coup → réaction → zone → coup…). */
 export function takeBuffer(sim: RunSim): Int32Array | null {
   if (sim.aoeDepth >= sim.aoeBuffers.length) return null;

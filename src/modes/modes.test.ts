@@ -12,7 +12,7 @@ import {
   weeklyChallenge,
   type RunSetup,
 } from './modes';
-import { beginDaily, recordMode, type ModeResult } from './records';
+import { bankedFragments, beginDaily, recordMode, type ModeResult } from './records';
 import { ascensionMods } from '../meta/ascension';
 
 const setup = (over: Partial<RunSetup> = {}): RunSetup => ({
@@ -140,6 +140,22 @@ describe('construction des parties', () => {
       if (els.length === 0) continue;
       const weapon = WEAPONS.find((x) => x.id === run.options.weapon);
       expect(els).toContain(weapon?.element);
+    }
+  });
+});
+
+describe('fragments ramenés', () => {
+  it('linéaires jusqu’au seuil, puis en racine carrée, toujours croissants', () => {
+    expect(bankedFragments(0)).toBe(0);
+    expect(bankedFragments(100)).toBe(100);
+    expect(bankedFragments(150)).toBe(150);
+    expect(bankedFragments(250)).toBeCloseTo(150 + 8 * 10);
+    // Une longue victoire (~4 000 pièces ramassées) ne rapporte plus des milliers de fragments.
+    expect(bankedFragments(4000)).toBeLessThan(700);
+    let prev = -1;
+    for (let raw = 0; raw < 6000; raw += 37) {
+      expect(bankedFragments(raw)).toBeGreaterThanOrEqual(prev);
+      prev = bankedFragments(raw);
     }
   });
 });

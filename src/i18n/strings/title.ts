@@ -5,6 +5,8 @@ export default defineStrings(
   {
     tagline: 'Survis. Combine les éléments. Éveille la Résonance.',
     play: 'Jouer',
+    resume: 'Reprendre la partie',
+    resumeDetail: '{run} · {time}',
     progression: 'Progression',
     goals: 'Objectifs',
     bench: 'Scénario de charge (650 ennemis, 1 100 projectiles)',
@@ -21,6 +23,8 @@ export default defineStrings(
   {
     tagline: 'Survive. Combine the elements. Awaken the Resonance.',
     play: 'Play',
+    resume: 'Resume run',
+    resumeDetail: '{run} · {time}',
     progression: 'Progression',
     goals: 'Goals',
     bench: 'Stress test (650 enemies, 1,100 projectiles)',

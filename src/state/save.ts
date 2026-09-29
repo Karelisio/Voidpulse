@@ -5,16 +5,14 @@
  */
 import { create } from 'zustand';
 import { audio, initAudio } from '../audio';
-import { LocalStore } from '../save/backend';
 import { exportSave, importSave } from '../save/codec';
 import { defaultSave, type SaveData } from '../save/schema';
 import { SaveStore, SLOTS } from '../save/store';
-import { isNative } from '../platform/native';
-import { migrateFromLocalStorage, PreferencesStore } from '../platform/prefs-store';
+import { clearRun, loadRun } from './runsave';
+import { migrateFromLocalStorage } from '../platform/prefs-store';
+import { kvStore, native } from './kv';
 
-// Android : Preferences (SharedPreferences, sauvegardée par Android) ; web : localStorage.
-const native = isNative();
-const kv = native ? new PreferencesStore() : new LocalStore();
+const kv = kvStore;
 const store = new SaveStore(kv);
 
 interface SaveState {
@@ -61,6 +59,7 @@ export const useSave = create<SaveState>((set, get) => ({
   },
   reset: async () => {
     await store.reset();
+    await clearRun();
     const data = defaultSave();
     set({ data });
     applyAudio(data);
@@ -75,6 +74,7 @@ export async function initSave(): Promise<void> {
     const res = await store.load();
     useSave.setState({ data: res.data, status: 'ready', error: null });
     if (res.recovered) console.warn('Sauvegarde : un emplacement corrompu a été ignoré.');
+    await loadRun();
   } catch (e) {
     // Sauvegarde illisible (version plus récente) : on joue sans écrire pour ne pas l'écraser.
     useSave.setState({ status: 'error', error: e instanceof Error ? e.message : String(e) });

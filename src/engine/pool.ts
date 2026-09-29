@@ -61,6 +61,30 @@ export class EntityPool {
     return this.freeCount === 0;
   }
 
+  /** Pile des entités libres, du fond vers le sommet (instantané de partie). */
+  freeStack(): Int32Array {
+    return this.free.slice(0, this.freeCount);
+  }
+
+  /**
+   * Restauration d'un instantané : liste active et pile des libres exactes (l'ordre des
+   * libres décide des identifiants des prochaines entités, donc de la suite de la partie).
+   */
+  restore(active: ArrayLike<number>, free: ArrayLike<number>): void {
+    if (active.length + free.length !== this.capacity) {
+      throw new Error(`Pool ${this.name} : instantané incohérent`);
+    }
+    this.slot.fill(-1);
+    this.count = 0;
+    for (let k = 0; k < active.length; k++) {
+      const eid = active[k];
+      this.slot[eid] = this.count;
+      this.active[this.count++] = eid;
+    }
+    this.freeCount = 0;
+    for (let k = 0; k < free.length; k++) this.free[this.freeCount++] = free[k];
+  }
+
   /** Désactive tout (fin de run), en conservant l'ordre déterministe des libres. */
   clear(): void {
     for (let i = this.count - 1; i >= 0; i--) this.despawn(this.active[i]);

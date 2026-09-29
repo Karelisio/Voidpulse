@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { dayKey, modeNeeds } from './modes/modes';
 import { useBackHandler } from './platform/back';
 import { beginDaily } from './modes/records';
+import { useRunSave } from './state/runsave';
 import { useSave } from './state/save';
 import { useUi } from './state/ui';
 import { BuildSelect } from './ui/BuildSelect';
@@ -46,6 +47,7 @@ export function App() {
       <RunScreen
         bench={bench}
         onQuit={() => {
+          useRunSave.getState().setResuming(false);
           setScreen('title');
         }}
       />
@@ -130,8 +132,14 @@ export function App() {
   return (
     <TitleScreen
       onPlay={(b) => {
+        useRunSave.getState().setResuming(false);
         setBench(b);
         setScreen(b ? 'run' : 'modes');
+      }}
+      onResume={() => {
+        setBench(false);
+        useRunSave.getState().setResuming(true);
+        setScreen('run');
       }}
       onProgression={() => {
         setScreen('progression');
