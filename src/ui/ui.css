@@ -184,7 +184,8 @@ button:focus-visible {
   position: fixed;
   inset: 0;
   display: grid;
-  align-content: center;
+  /* « safe » : un contenu plus haut que l'écran reste lisible depuis son début. */
+  align-content: safe center;
   justify-items: center;
   gap: 14px;
   padding: calc(16px + env(safe-area-inset-top, 0px)) 16px
@@ -963,8 +964,12 @@ button:focus-visible {
 .select {
   display: grid;
   justify-items: center;
+  align-content: start;
   gap: 14px;
-  min-height: 100%;
+  /* Défile lui-même : la racine bloque les gestes tactiles (touch-action: none). */
+  height: 100%;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
   padding: calc(18px + env(safe-area-inset-top, 0px)) 16px
     calc(18px + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
@@ -1406,10 +1411,24 @@ button:focus-visible {
   color: var(--vp-accent);
 }
 
-.end-mode {
+.end-lines {
+  display: grid;
+  gap: 2px;
+  width: min(460px, 100%);
   margin: 0;
+  padding: 8px 12px 8px 26px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel);
+  color: var(--vp-fg);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+.end-lines li::marker {
   color: var(--vp-accent);
-  font-weight: 700;
 }
 
 .debug.training {

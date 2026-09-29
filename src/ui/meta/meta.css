@@ -19,13 +19,13 @@
 
 .meta-head {
   position: sticky;
-  top: env(safe-area-inset-top, 0px);
+  top: calc(-18px - env(safe-area-inset-top, 0px));
   z-index: 3;
   display: grid;
   gap: 8px;
-  margin: -4px -8px 0;
-  padding: 4px 8px 8px;
-  background: linear-gradient(180deg, var(--vp-bg) 78%, transparent);
+  margin-top: calc(-18px - env(safe-area-inset-top, 0px));
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 0 8px;
+  background: linear-gradient(180deg, var(--vp-bg) 85%, transparent);
 }
 
 .meta-title {
@@ -366,11 +366,10 @@
 .meta-node-name {
   grid-area: name;
   min-width: 0;
-  overflow: hidden;
   font-size: 13px;
   font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .meta-node-rank {

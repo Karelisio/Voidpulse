@@ -43,11 +43,13 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
       {summary.unlocked.length > 0 && (
         <p className="end-unlock">Nouveau pilote : {summary.unlocked.join(', ')} !</p>
       )}
-      {summary.modeLines.map((l) => (
-        <p key={l} className="end-mode">
-          {l}
-        </p>
-      ))}
+      {summary.modeLines.length > 0 && (
+        <ul className="end-lines">
+          {summary.modeLines.map((l) => (
+            <li key={l}>{l}</li>
+          ))}
+        </ul>
+      )}
       {summary.newStages.length > 0 && (
         <p className="end-unlock">Nouveau secteur : {summary.newStages.join(', ')} !</p>
       )}

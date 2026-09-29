@@ -43,6 +43,7 @@ export function RelicsTab() {
 
   useEffect(() => {
     if (fresh === 0) return;
+    document.getElementById(`relic-${String(fresh)}`)?.scrollIntoView({ block: 'center' });
     const t = window.setTimeout(() => {
       setFresh(0);
     }, 2600);
