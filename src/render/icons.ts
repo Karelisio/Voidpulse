@@ -84,6 +84,13 @@ const hexPath =
     poly(c, 6, r, Math.PI / 6);
   };
 
+const ellipseAt =
+  (rx: number, ry: number, x = 0, y = 0, rot = 0): Path =>
+  (c) => {
+    c.moveTo(x + Math.cos(rot) * rx, y + Math.sin(rot) * rx);
+    c.ellipse(x, y, rx, ry, rot, 0, TAU);
+  };
+
 /** Arc de cercle centré en (0, 0). */
 const arcPath =
   (r: number, a0: number, a1: number): Path =>
@@ -147,20 +154,16 @@ const FLAME: Path = (c) => {
 };
 
 const FLAKE: Path = (c) => {
-  for (let i = 0; i < 3; i++) {
-    const a = (i / 3) * Math.PI - Math.PI / 2;
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * TAU - Math.PI / 2;
     const ca = Math.cos(a);
     const sa = Math.sin(a);
-    c.moveTo(ca, sa);
-    c.lineTo(-ca, -sa);
-    for (const d of [1, -1]) {
-      const bx = ca * 0.55 * d;
-      const by = sa * 0.55 * d;
-      for (const k of [-1, 1]) {
-        const b = a + (Math.PI / 3) * k * d;
-        c.moveTo(bx, by);
-        c.lineTo(bx + Math.cos(b) * 0.32 * d * d, by + Math.sin(b) * 0.32 * d * d);
-      }
+    c.moveTo(0, 0);
+    c.lineTo(ca, sa);
+    for (const k of [-1, 1]) {
+      const b = a + (k * Math.PI) / 3;
+      c.moveTo(ca * 0.58, sa * 0.58);
+      c.lineTo(ca * 0.58 + Math.cos(b) * 0.3, sa * 0.58 + Math.sin(b) * 0.3);
     }
   }
 };
@@ -338,26 +341,27 @@ function brazier(p: Pen, color: number, evo: boolean): void {
 }
 
 function firemine(p: Pen, color: number, evo: boolean): void {
+  // Mine marine : corps sombre, cornes trapues, flamme au cœur.
   const mine = (x: number, y: number, r: number): void => {
-    p.fill(deep(color, 0.55), 0.95, circleAt(r, x, y));
-    p.stroke(color, r > 7 ? 3 : 2.6, 8, (c) => {
+    p.fill(deep(color, 0.6), 0.97, circleAt(r, x, y));
+    p.stroke(color, r > 7 ? 3.4 : 2.8, 8, (c) => {
       circle(c, r, x, y);
       for (let i = 0; i < 8; i++) {
         const a = (i / 8) * TAU + Math.PI / 8;
-        c.moveTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
-        c.lineTo(x + Math.cos(a) * (r + r * 0.6), y + Math.sin(a) * (r + r * 0.6));
+        c.moveTo(x + Math.cos(a) * (r + 0.5), y + Math.sin(a) * (r + 0.5));
+        c.lineTo(x + Math.cos(a) * (r + r * 0.42), y + Math.sin(a) * (r + r * 0.42));
       }
     });
-    p.fill(FLAME_HOT, 1, at(FLAME, x, y, r * 0.5), 6);
+    p.fill(FLAME_HOT, 1, at(FLAME, x, y, r * 0.55), 6);
   };
   if (!evo) {
     trace(p, color, 0.5, 2, circleAt(19.5), [3.5, 3.5]);
-    mine(0, 0, 8.5);
+    mine(0, 0, 9.5);
     return;
   }
-  mine(0, -8, 6);
-  mine(-11, 3, 6);
-  mine(11, 3, 6);
+  mine(0, -8, 6.2);
+  mine(-11, 3, 6.2);
+  mine(11, 3, 6.2);
   for (let i = 0; i < 5; i++) {
     p.fill(color, 0.9, at(FLAME, -14 + i * 7, 16, i % 2 === 0 ? 4.4 : 3.4), 6);
   }
@@ -402,7 +406,7 @@ const SHARD: Path = lines([1, 0, 0.35, -0.5, -0.45, -0.42, -1, 0, -0.45, 0.42, 0
 function frost(p: Pen, color: number, evo: boolean): void {
   const r = evo ? 17 : 15.5;
   const n = evo ? 8 : 3;
-  if (evo) p.stroke(color, 1.8, 8, circleAt(r));
+  if (evo) p.stroke(color, 2, 8, circleAt(r));
   else trace(p, color, 0.45, 2, circleAt(r), [3, 3]);
   const s = evo ? 5.8 : 8;
   for (let i = 0; i < n; i++) {
@@ -423,7 +427,7 @@ function icelance(p: Pen, color: number, evo: boolean): void {
     p.stroke(color, 4, 8, at(LANCE_SHAFT, x, y, s, rot));
     p.fill(color, 0.55, at(LANCE_HEAD, x, y, s, rot), 8);
     p.stroke(color, 2.6, 8, at(LANCE_HEAD, x, y, s, rot));
-    trace(p, hot(color, 0.8), 0.9, 1.6, at(LANCE_RIDGE, x, y, s, rot));
+    trace(p, hot(color, 0.8), 0.9, 2, at(LANCE_RIDGE, x, y, s, rot));
   };
   const a = -Math.PI / 4;
   if (!evo) {
@@ -453,7 +457,7 @@ function glacialwave(p: Pen, color: number, evo: boolean): void {
   for (let i = 0; i < gaps; i++) {
     const a = (i / gaps) * TAU - Math.PI / 2;
     const half = (TAU / gaps) * 0.32;
-    p.stroke(color, 2.6, 8, arcPath(19.5, a - half, a + half));
+    p.stroke(color, 2.6, 8, arcPath(evo ? 18.5 : 19.5, a - half, a + half));
   }
   if (evo) p.stroke(color, 2.6, 8, circleAt(15));
   p.stroke(color, 2.8, 8, circleAt(evo ? 10 : 12));
@@ -479,11 +483,11 @@ function blizzard(p: Pen, color: number, evo: boolean): void {
   }
   const dots: [number, number][] = evo
     ? [
-        [-19, 6],
-        [18, -4],
-        [-13, 18],
-        [15, 14],
-        [20, 6],
+        [-18, 6],
+        [17, -3],
+        [-13, 17],
+        [14, 14],
+        [19, 6],
       ]
     : [
         [-18, 6],
@@ -553,12 +557,12 @@ function railgun(p: Pen, color: number, evo: boolean): void {
   const beams = evo ? [-5.5, 5.5] : [0];
   const railY = evo ? 13 : 8;
   // Culasse, deux rails, puis le trait d'énergie qui traverse tout.
-  const breech = lines([-20, -railY - 2, -15, -railY - 2, -15, railY + 2, -20, railY + 2], true);
+  const breech = lines([-19, -railY - 2, -14, -railY - 2, -14, railY + 2, -19, railY + 2], true);
   p.fill(color, 0.6, breech, 8);
   p.stroke(color, 2.6, 7, breech);
   p.stroke(color, 3.4, 7, (c) => {
     for (const y of [-railY, railY]) {
-      c.moveTo(-15, y);
+      c.moveTo(-14, y);
       c.lineTo(-3, y);
     }
   });
@@ -652,13 +656,6 @@ function storm(p: Pen, color: number, evo: boolean): void {
 
 // --- Armes : poison ----------------------------------------------------------------------
 
-const ellipseAt =
-  (rx: number, ry: number, x = 0, y = 0, rot = 0): Path =>
-  (c) => {
-    c.moveTo(x + Math.cos(rot) * rx, y + Math.sin(rot) * rx);
-    c.ellipse(x, y, rx, ry, rot, 0, TAU);
-  };
-
 function acidpool(p: Pen, color: number, evo: boolean): void {
   const pools: [number, number, number, number][] = evo
     ? [
@@ -711,7 +708,7 @@ function wasp(p: Pen, color: number, x: number, y: number, s: number, rot: numbe
     ellipseAt(8.5, 3.6, -1, 8.2, 0.5)(c);
   };
   p.fill(hot(color, 0.3), 0.3, at(wings, x, y, s, rot));
-  p.stroke(color, 1.8, 5, at(wings, x, y, s, rot));
+  p.stroke(color, 2, 5, at(wings, x, y, s, rot));
   p.fill(color, 0.85, at(ABDOMEN, x, y, s, rot), 8);
   trace(
     p,
@@ -837,8 +834,8 @@ function runes(p: Pen, color: number, evo: boolean): void {
     const rr = evo && i % 2 === 1 ? R - 3.5 : R;
     pos.push([Math.cos(a) * rr, Math.sin(a) * rr]);
   }
-  if (!evo) trace(p, color, 0.4, 1.8, circleAt(R), [3, 3]);
-  trace(p, color, evo ? 0.55 : 0.4, 1.8, (c) => {
+  if (!evo) trace(p, color, 0.4, 2, circleAt(R), [3, 3]);
+  trace(p, color, evo ? 0.55 : 0.4, 2, (c) => {
     pos.forEach(([x, y], i) => {
       if (i === 0) c.moveTo(x, y);
       else c.lineTo(x, y);
@@ -923,7 +920,7 @@ function sigil(p: Pen, color: number, evo: boolean): void {
     p.stroke(color, 2.4, 6, circleAt(14.5));
     p.stroke(color, 2.2, 6, circleAt(10));
   } else {
-    trace(p, color, 0.5, 1.8, circleAt(15.5));
+    trace(p, color, 0.5, 2, circleAt(15.5));
     p.stroke(color, 2.4, 6, (c) => {
       poly(c, 3, 12.5, -Math.PI / 2);
       poly(c, 3, 12.5, Math.PI / 2);
@@ -946,10 +943,10 @@ function glyphs(p: Pen, color: number, evo: boolean): void {
     p.fill(hot(color, 0.7), 1, starAt(0, -9, 7, 4, 0.32), 10);
     return;
   }
-  tile(0, -6, 0.62);
-  tile(-11, 9, 0.62);
-  tile(11, 9, 0.62);
-  p.fill(hot(color, 0.7), 1, starAt(0, 4, 5, 4, 0.32), 10);
+  tile(0, -6.5, 0.56);
+  tile(-9.5, 8, 0.56);
+  tile(9.5, 8, 0.56);
+  p.fill(hot(color, 0.7), 1, starAt(0, 3.5, 5, 4, 0.32), 10);
 }
 
 // --- Armes : vide ------------------------------------------------------------------------
@@ -963,7 +960,7 @@ function voidshard(p: Pen, color: number, evo: boolean): void {
   const shard = (path: Path, facets: Path, x: number, y: number, s: number, rot: number): void => {
     p.fill(deep(color, 0.7), 0.95, at(path, x, y, s, rot), 8);
     p.stroke(color, 2.8, 9, at(path, x, y, s, rot));
-    trace(p, hot(color, 0.5), 0.8, 1.6, at(facets, x, y, s, rot));
+    trace(p, hot(color, 0.5), 0.8, 2, at(facets, x, y, s, rot));
   };
   const a = -Math.PI / 4;
   if (!evo) {
@@ -973,7 +970,7 @@ function voidshard(p: Pen, color: number, evo: boolean): void {
   }
   // Sillage en spirale : la lance aspire tout vers elle.
   trace(p, color, 0.6, 2.6, at(SWIRL, -7, 7, 12));
-  shard(VOID_SPEAR, VOID_SPEAR_AXIS, 2, -2, 1, a);
+  shard(VOID_SPEAR, VOID_SPEAR_AXIS, 0, 0, 1, a);
 }
 
 function singularity(p: Pen, color: number, evo: boolean): void {
@@ -1006,11 +1003,11 @@ function horizon(p: Pen, color: number, evo: boolean): void {
   const rot = -0.35;
   const rings: [number, number][] = evo
     ? [
-        [19, 6.5],
-        [14, 4.6],
+        [18, 6.2],
+        [13, 4.4],
       ]
     : [[19, 6.5]];
-  if (evo) p.stroke(color, 2.2, 8, circleAt(20.5));
+  if (evo) p.stroke(color, 2.2, 8, circleAt(19));
   else trace(p, color, 0.5, 2.2, circleAt(20.5), [4, 4]);
   for (const [rx, ry] of rings) trace(p, color, 0.55, 3, ellipseAt(rx, ry, 0, 0, rot));
   p.fill(deep(color, 0.85), 1, circleAt(evo ? 8.5 : 7.5), 8);
@@ -1028,7 +1025,7 @@ function entropyray(p: Pen, color: number, evo: boolean): void {
     (y0: number, ph: number): Path =>
     (c) => {
       for (let i = 0; i <= 26; i++) {
-        const x = -20 + i;
+        const x = -18 + i;
         const t = i / 26;
         const y = y0 + 5.5 * (1 - 0.45 * t) * Math.sin(t * TAU * 2.2 + ph);
         if (i === 0) c.moveTo(x, y);
@@ -1037,17 +1034,17 @@ function entropyray(p: Pen, color: number, evo: boolean): void {
     };
   p.stroke(color, 3, 9, wave(evo ? -2.5 : 0, 0));
   if (evo) p.stroke(color, 3, 9, wave(2.5, Math.PI));
-  p.fill(hot(color, 0.7), 1, circleAt(2.6, -20, 0), 6);
+  p.fill(hot(color, 0.7), 1, circleAt(2.6, -18, 0), 6);
   const rr = evo ? 8.5 : 7.5;
   p.stroke(color, 2.6, 8, (c) => {
-    circle(c, rr, 11, 0);
+    circle(c, rr, 10.5, 0);
     for (let i = 0; i < 4; i++) {
       const a = (i / 4) * TAU;
-      c.moveTo(11 + Math.cos(a) * rr, Math.sin(a) * rr);
-      c.lineTo(11 + Math.cos(a) * (rr + 3.2), Math.sin(a) * (rr + 3.2));
+      c.moveTo(10.5 + Math.cos(a) * rr, Math.sin(a) * rr);
+      c.lineTo(10.5 + Math.cos(a) * (rr + 3.2), Math.sin(a) * (rr + 3.2));
     }
   });
-  p.fill(hot(color, 0.7), 1, circleAt(2.4, 11, 0), 6);
+  p.fill(hot(color, 0.7), 1, circleAt(2.4, 10.5, 0), 6);
 }
 
 function voidlink(p: Pen, color: number, evo: boolean): void {
@@ -1112,12 +1109,12 @@ const BOOT: Path = (c) => {
 
 function swiftness(p: Pen, color: number): void {
   p.stroke(color, 2.8, 7, (c) => {
-    c.moveTo(-14, -8);
-    c.lineTo(-23, -8);
-    c.moveTo(-14, 0);
-    c.lineTo(-21, 0);
-    c.moveTo(-14, 8);
-    c.lineTo(-23, 8);
+    c.moveTo(-13.5, -8);
+    c.lineTo(-20.5, -8);
+    c.moveTo(-13.5, 0);
+    c.lineTo(-19, 0);
+    c.moveTo(-13.5, 8);
+    c.lineTo(-20.5, 8);
   });
   p.fill(color, 0.4, at(BOOT, -3, 0, 0.95), 8);
   p.stroke(color, 3, 8, at(BOOT, -3, 0, 0.95));
@@ -1270,7 +1267,7 @@ function persistence(p: Pen, color: number): void {
   });
   p.fill(hot(color, 0.5), 0.9, lines([-7, 13, 7, 13, 0, 5], true));
   p.fill(hot(color, 0.5), 0.7, lines([-5, -12, 5, -12, 0, -6], true));
-  trace(p, hot(color, 0.7), 0.9, 1.6, lines([0, -3, 0, 5]));
+  trace(p, hot(color, 0.7), 0.9, 2, lines([0, -3, 0, 5]));
 }
 
 function multiplier(p: Pen, color: number): void {
@@ -1335,16 +1332,16 @@ function growth(p: Pen, color: number): void {
 function greed(p: Pen, color: number): void {
   p.fill(color, 0.3, circleAt(15.5), 8);
   p.stroke(color, 3.4, 9, circleAt(15.5));
-  trace(p, color, 0.65, 1.8, circleAt(10.5));
+  trace(p, color, 0.65, 2, circleAt(10.5));
   const gem = lines([0, -7.5, 5.5, 0, 0, 7.5, -5.5, 0], true);
   p.fill(hot(color, 0.6), 1, gem, 8);
 }
 
 function phase(p: Pen, color: number): void {
   const chevron = (x: number): Path => lines([x - 7, -12, x + 5, 0, x - 7, 12]);
-  trace(p, color, 0.3, 4, chevron(-17));
-  trace(p, color, 0.6, 4, chevron(-6));
-  p.stroke(color, 4.4, 9, chevron(9));
+  trace(p, color, 0.3, 4, chevron(-12));
+  trace(p, color, 0.6, 4, chevron(-2));
+  p.stroke(color, 4.4, 9, chevron(8));
 }
 
 function focus(p: Pen, color: number): void {
@@ -1414,13 +1411,19 @@ function gold(p: Pen, color: number): void {
   const gem = lines([-8, -12, 8, -12, 16, -3, 0, 17, -16, -3], true);
   p.fill(color, 0.35, gem, 10);
   p.stroke(color, 3.2, 9, gem);
-  trace(
-    p,
-    hot(color, 0.7),
-    0.85,
-    1.8,
-    lines([-16, -3, 16, -3, -4, -3, 0, 17, 4, -3, 0, 17, -8, -12, -4, -3, 8, -12, 4, -3]),
-  );
+  // Facettes : ceinture, couronne et pavillon.
+  trace(p, hot(color, 0.7), 0.85, 2, (c) => {
+    c.moveTo(-16, -3);
+    c.lineTo(16, -3);
+    c.moveTo(-8, -12);
+    c.lineTo(-4.5, -3);
+    c.moveTo(8, -12);
+    c.lineTo(4.5, -3);
+    c.moveTo(-4.5, -3);
+    c.lineTo(0, 17);
+    c.moveTo(4.5, -3);
+    c.lineTo(0, 17);
+  });
   p.fill(hot(color, 0.8), 1, starAt(16, -16, 4, 4, 0.32), 8);
 }
 
@@ -1497,48 +1500,57 @@ const PASSIVE_GLYPHS: Partial<Record<string, PassiveGlyph>> = {
   entropo: (p, color) => {
     core(p, color, 'void');
   },
-  heal,
-  gold,
 };
 
-/** id d'évolution → id de l'arme de base. */
-const EVOLUTION_BASE = new Map(WEAPONS.map((w) => [w.evolution.id, w.id]));
+const REWARD_GLYPHS: Partial<Record<string, PassiveGlyph>> = { heal, gold };
+
+/** Arme (de base ou évolution) désignée par un identifiant d'icône. */
+const WEAPON_OF = new Map(
+  WEAPONS.flatMap((w) => [[w.id, w] as const, [w.evolution.id, w] as const]),
+);
 
 /** Cadre hexagonal ; les évolutions ajoutent un second cadre doré et une étoile dorée. */
 function frame(p: Pen, color: number, evo: boolean): void {
   p.fill(color, 0.12, hexPath(27));
   p.stroke(color, 1.6, 6, hexPath(27));
   if (!evo) return;
-  p.stroke(GOLD, 1.8, 8, hexPath(23));
+  p.stroke(GOLD, 2, 8, hexPath(23));
   p.fill(PALETTE.void, 0.92, circleAt(6.4, 12, -20));
   p.fill(GOLD, 1, starAt(12, -20, 5.6), 10);
 }
 
-/** Pictogramme de repli : croix. */
+/** Pictogramme de repli (identifiant inconnu) : croix. */
 function fallback(p: Pen, color: number): void {
   p.stroke(color, 3.4, 8, lines([0, -12, 0, 12, 0, 0, -12, 0, 12, 0]));
 }
 
 export function drawIcon(p: Pen, id: string, color: number): void {
-  const baseId = EVOLUTION_BASE.get(id);
-  const evo = baseId !== undefined;
-  frame(p, color, evo);
-  const weapon = WEAPON_GLYPHS[baseId ?? id];
-  if (weapon) {
-    if (!evo) {
-      weapon(p, color, false);
-      return;
-    }
-    const q = new GlowPen(p, 1.5);
-    q.radial(color, 25, 0.32, 0);
-    p.ctx.save();
-    p.ctx.scale(0.9, 0.9);
-    weapon(q, color, true);
-    p.ctx.restore();
+  const def = WEAPON_OF.get(id);
+  if (!def) {
+    frame(p, color, false);
+    (PASSIVE_GLYPHS[id] ?? REWARD_GLYPHS[id] ?? fallback)(p, color);
     return;
   }
-  const passive = PASSIVE_GLYPHS[id];
-  (passive ?? fallback)(p, color);
+  const evo = def.evolution.id === id;
+  frame(p, color, evo);
+  // Arme absente du registre (ajoutée plus tard aux données) : emblème de son élément.
+  const glyph: Glyph =
+    WEAPON_GLYPHS[def.id] ??
+    ((q, c) => {
+      emblem(q, def.element, c, 0, 0, 14);
+    });
+  if (!evo) {
+    glyph(p, color, false);
+    return;
+  }
+  // Évolution : même pictogramme, plus dense (paramètre `evo`), halos renforcés, réduit pour
+  // tenir dans le cadre intérieur doré.
+  const q = new GlowPen(p, 1.5);
+  q.radial(color, 25, 0.32, 0);
+  p.ctx.save();
+  p.ctx.scale(0.9, 0.9);
+  glyph(q, color, true);
+  p.ctx.restore();
 }
 
 /** Couleur d'une icône : élément de l'arme (et de son évolution) ou couleur du passif. */
