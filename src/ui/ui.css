@@ -205,6 +205,8 @@ button:focus-visible {
   margin: 0;
   font-size: 28px;
   letter-spacing: 0.12em;
+  text-align: center;
+  text-wrap: balance;
   text-transform: uppercase;
   text-shadow: 0 0 14px var(--vp-accent);
 }
