@@ -101,11 +101,7 @@ describe('stages de la campagne', () => {
     run(sim, 0.2);
     expect(sim.state.boss.def?.kind).toBe('final');
     Life.hp[sim.state.boss.eid] = 0;
-    for (
-      let t = 0;
-      t < 300 && sim.state.status !== 'victory' && sim.state.status !== 'dead';
-      t++
-    )
+    for (let t = 0; t < 300 && sim.state.status !== 'victory' && sim.state.status !== 'dead'; t++)
       run(sim, 1 / 60);
     expect(sim.state.status).toBe('victory');
   });
