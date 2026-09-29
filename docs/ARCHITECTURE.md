@@ -182,7 +182,20 @@ Effets implémentés (`src/systems/resonance.ts`, un test par réaction) : vapeu
 
 ## 10. Méta et rétention
 
-Modules purs (entrée : profil + événements de run ; sortie : nouveau profil), testés unitairement : talents (60+ nœuds), niveau de compte + Paragon illimité, Ascension (20 paliers par stage), reliques (3 emplacements, rareté, amélioration, reroll), maîtrise d'arme, codex, quêtes (3 quotidiennes, 5 hebdomadaires), série de connexion, passe de saison (50 paliers, cycle de 6 semaines calculé depuis une époque fixe), 200 succès, coffre hors ligne plafonné. Horloge : temps local de l'appareil, protégé contre les retours en arrière.
+Modules purs (entrée : profil + événements de run ; sortie : nouveau profil), testés unitairement.
+
+**Méta** (`src/meta/`, `config/talents.json`, `config/meta.json`) :
+
+- **Fragments** : l'or net de chaque partie est versé au portefeuille (×2 en Hardcore, moitié perdue à la mort ; × bonus de talents et d'Ascension). Il paie talents, reliques et forge.
+- **Talents** (`talents.ts`) : 64 nœuds en 4 branches (Assaut, Rempart, Résonance, Fortune) de 8 paliers × 2 ; un nœud s'ouvre dès qu'un nœud du palier précédent a un rang ; rangs à coût croissant ; réinitialisation remboursée. Effets : statistiques de pilote, résurrections, bonus de fragments et d'XP de compte.
+- **Compte** (`account.ts`) : XP = score × 0,25 (× talents × Ascension), courbe 80 × niveau^1,3 jusqu'au niveau 50 (fragments à chaque niveau ; forge au 3, 2ᵉ emplacement de relique au 4, Ascension au 5, 3ᵉ emplacement au 10), puis niveaux **Paragon** illimités (12 000 XP) : un point par niveau à placer dans 10 statistiques plafonnées (150 à 250 points), redistribuable.
+- **Ascension** (`ascension.ts`) : 20 paliers par stage ; le palier N applique les modificateurs des paliers 1 à N (mêmes clés que les pactes, sans chaleur) et multiplie les récompenses (+12 % par palier) ; une victoire au palier le plus haut ouvert ouvre le suivant.
+- **Reliques** (`relics.ts`) : base (statistique signature), rareté (commune → légendaire : 1 à 4 secondaires tirées, ×1 à ×2), niveau 1-10 (+10 %/niveau) ; amélioration, relance des secondaires, recyclage, caches de la forge. Chaque mini-boss lâche sa relique (rare au moins) à sa première défaite ; tout boss a 15 % de chance d'en lâcher une.
+- **Maîtrise** (`mastery.ts`) : XP = dégâts infligés × 0,01 ; 10 rangs, +2 % de dégâts par rang pour l'arme ; apparences aux rangs 3, 6 et 10 (teinte des tirs ; les images colorées d'origine passent en version blanche teintée).
+- **Codex** (`codex.ts`) : ennemis tués, armes et évolutions utilisées, réactions déclenchées, boss vaincus ; fragments à 25, 50, 75 et 100 % de chaque catégorie.
+- **En partie** (`bonus.ts` → `RunOptions.meta`) : statistiques cumulées (talents + Paragon + reliques) appliquées comme un passif de personnage, résurrections (mi-PV, 2,5 s d'invulnérabilité), dégâts et teintes par arme. **Fin de partie** (`progress.ts`) : codex, maîtrise, reliques, Ascension, XP de compte, lignes de l'écran de fin. L'entraînement ne rapporte rien.
+
+À venir (4.9) : quêtes (3 quotidiennes, 5 hebdomadaires), série de connexion, passe de saison (50 paliers, cycle de 6 semaines calculé depuis une époque fixe), 200 succès, coffre hors ligne plafonné. Horloge : temps local de l'appareil, protégé contre les retours en arrière.
 
 ## 11. Audio
 
