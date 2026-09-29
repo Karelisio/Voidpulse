@@ -1,0 +1,8 @@
+dist
+coverage
+android
+assets/audio
+node_modules
+sim/out
+.cache
+package-lock.json
