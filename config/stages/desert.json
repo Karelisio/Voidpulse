@@ -15,7 +15,7 @@
     "length": 14,
     "count": 3,
     "radius": 60,
-    "power": 18,
+    "power": 12,
     "description": "Tempêtes de verre : éclats annoncés au sol."
   },
   "palette": {
@@ -44,8 +44,8 @@
     [
       50,
       {
-        "shardling": 0.8,
-        "prismsniper": 0.2
+        "shardling": 0.92,
+        "prismsniper": 0.08
       }
     ],
     [
@@ -88,8 +88,8 @@
     ]
   ],
   "hpScale": [
-    [0, 1.3],
-    [300, 2.34],
+    [0, 1.0],
+    [300, 2.07],
     [600, 4.16],
     [900, 6.5],
     [1200, 9.1]

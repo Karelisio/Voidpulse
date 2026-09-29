@@ -100,7 +100,12 @@ export function applyRunMeta(d: SaveData, r: RunMetaInput): RunMetaResult {
   }
 
   // XP de compte.
-  out.xp = Math.floor(r.score * META.account.scoreXp * r.xpMult * ascensionReward(r.ascension));
+  out.xp = Math.floor(
+    Math.sqrt(Math.max(0, r.score)) *
+      META.account.xpPerRootScore *
+      r.xpMult *
+      ascensionReward(r.ascension),
+  );
   const gain = addAccountXp(d, out.xp);
   out.lines.push(t('lines.accountXp', { n: out.xp }));
   if (gain.levels.length > 0) {

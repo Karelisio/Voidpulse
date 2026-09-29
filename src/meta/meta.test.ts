@@ -219,7 +219,7 @@ describe('bilan de méta', () => {
     expect(d.meta.relics.items[0].base).toBe('thorn-seed');
     expect(d.meta.relics.items[0].rarity).toBeGreaterThanOrEqual(1);
     expect(d.meta.ascension.forest.unlocked).toBe(1);
-    expect(r.xp).toBe(Math.floor(8000 * META.account.scoreXp));
+    expect(r.xp).toBe(Math.floor(Math.sqrt(8000) * META.account.xpPerRootScore));
     expect(d.meta.codex.bosses).toEqual(['thornwalker', 'sentinel']);
     expect(d.meta.mastery[WEAPONS[0].id]).toBeGreaterThan(0);
     expect(r.lines.some((l) => l.startsWith('Relique'))).toBe(true);
@@ -232,7 +232,9 @@ describe('bilan de méta', () => {
     const d = defaultSave(0);
     const r = applyRunMeta(d, input({ ascension: 5, bosses: [] }));
     expect(r.xp).toBe(
-      Math.floor(8000 * META.account.scoreXp * (1 + 5 * META.ascension.rewardPerTier)),
+      Math.floor(
+        Math.sqrt(8000) * META.account.xpPerRootScore * (1 + 5 * META.ascension.rewardPerTier),
+      ),
     );
   });
 

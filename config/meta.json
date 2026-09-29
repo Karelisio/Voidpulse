@@ -1,6 +1,7 @@
 {
+  "bank": { "linear": 150, "root": 8 },
   "account": {
-    "scoreXp": 0.25,
+    "xpPerRootScore": 1.6,
     "curve": {
       "base": 80,
       "exponent": 1.3

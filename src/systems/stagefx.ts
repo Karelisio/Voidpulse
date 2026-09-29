@@ -76,7 +76,7 @@ export function updateStageMechanic(sim: RunSim): void {
       if (m.activeT > 0) {
         m.subT -= DT;
         if (m.subT <= 0) {
-          m.subT = 0.7;
+          m.subT = 1;
           strikesNearPlayer(sim, mech.count, mech.radius, mech.power);
         }
       }
@@ -139,7 +139,8 @@ function strikesNearPlayer(sim: RunSim, count: number, r: number, dmg: number): 
   const rng = sim.rng.spawn;
   for (let i = 0; i < count; i++) {
     const a = rng.range(0, Math.PI * 2);
-    const d = i === 0 ? rng.range(0, 60) : rng.range(60, 280);
+    // Un éclat vise les abords du joueur (jamais pile dessus), les autres tombent plus loin.
+    const d = i === 0 ? rng.range(40, 150) : rng.range(90, 300);
     const z = spawnZone(
       sim,
       ZONE.VOLATILE,

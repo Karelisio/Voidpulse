@@ -135,7 +135,8 @@ export class Hud {
     this.coin = new Sprite(atlas.frames[FRAME.COIN]);
     this.coin.anchor.set(0.5);
     this.bannerTitle.anchor.set(0.5);
-    this.bannerSub.anchor.set(0.5);
+    // Sous-titre ancré par le haut : sur plusieurs lignes, il s'étend vers le bas.
+    this.bannerSub.anchor.set(0.5, 0);
     this.bannerTitle.alpha = 0;
     this.bannerSub.alpha = 0;
     this.bossText.anchor.set(0.5, 1);
@@ -169,8 +170,12 @@ export class Hud {
     );
   }
 
+  /** Taille du HUD (réglage d'accessibilité), appliquée à la prochaine mise en page. */
+  scaleFactor = 1;
+
   get dashButton(): { x: number; y: number; r: number } {
-    return { x: this.dashX, y: this.dashY, r: 46 };
+    const k = this.scaleFactor;
+    return { x: this.dashX * k, y: this.dashY * k, r: 46 * k };
   }
 
   layout(
@@ -180,6 +185,13 @@ export class Hud {
     safeBottom: number,
     leftHanded: boolean,
   ): void {
+    // Mise en page dans l'espace du HUD mis à l'échelle : tout grossit, rien ne déborde.
+    const k = this.scaleFactor;
+    this.container.scale.set(k);
+    width /= k;
+    height /= k;
+    safeTop /= k;
+    safeBottom /= k;
     const top = safeTop + 6;
     this.xp.place(0, safeTop, width, 5);
     this.level.position.set(12, top + 6);
@@ -193,9 +205,13 @@ export class Hud {
     this.coin.position.set(width - 12 - 9, top + 37);
     this.debugText.position.set(width - 12, top + 50);
     this.bannerTitle.position.set(width / 2, top + 196);
-    this.bannerSub.position.set(width / 2, top + 222);
-    this.bannerTitle.style.wordWrapWidth = width - 32;
-    this.bannerSub.style.wordWrapWidth = width - 32;
+    this.bannerSub.position.set(width / 2, top + 214);
+    // Retour à la ligne des bandeaux (tutoriel, annonces de mode) : jamais hors de l'écran.
+    for (const b of [this.bannerTitle, this.bannerSub]) {
+      b.style.wordWrap = true;
+      b.style.align = 'center';
+      b.style.wordWrapWidth = width - 40;
+    }
     // Sous les rangées d'icônes (armes : hp.y + 42, passifs : + 76 … + 124).
     const bw = Math.min(420, width * 0.7);
     this.boss.place((width - bw) / 2, top + 152, bw, 8);

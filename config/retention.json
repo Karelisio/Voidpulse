@@ -187,7 +187,7 @@
     "days": 42,
     "tiers": 50,
     "xpPerTier": 1000,
-    "scoreXp": 0.05,
+    "xpPerRootScore": 2.5,
     "themes": [
       {
         "id": "neon-tide",

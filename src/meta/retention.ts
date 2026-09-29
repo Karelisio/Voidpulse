@@ -49,7 +49,7 @@ export function applyRunRetention(
   if (tally.mode !== 'training') {
     for (const q of applyTally(d, tally)) lines.push(t('lines.questDone', { name: q }));
     const before = seasonTier(d);
-    addSeasonXp(d, score * RETENTION.season.scoreXp);
+    addSeasonXp(d, Math.sqrt(Math.max(0, score)) * RETENTION.season.xpPerRootScore);
     const after = seasonTier(d);
     if (after > before) lines.push(t('lines.seasonTier', { n: after }));
   }

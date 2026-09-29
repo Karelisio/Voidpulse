@@ -3,7 +3,7 @@
  * jour, meilleur score de la semaine, records du Boss Rush et du Hardcore, fragments ramenés.
  */
 import { num, t } from '../i18n';
-import { MODES, type ModeId } from '../content/data';
+import { META, MODES, type ModeId } from '../content/data';
 import type { SaveData } from '../save/schema';
 
 /** Défi du jour : le premier essai de la journée compte ; les suivants sont hors classement. */
@@ -35,6 +35,17 @@ export interface ModeRecord {
   fragments: number;
   /** Lignes d'information pour l'écran de fin. */
   lines: string[];
+}
+
+/**
+ * Fragments ramenés d'une partie : linéaires jusqu'au seuil, puis en racine carrée de
+ * l'excédent. Les longues victoires, où les ennemis tués se comptent par dizaines de milliers,
+ * ne court-circuitent pas la progression ; la boutique en cours de partie reste inchangée.
+ */
+export function bankedFragments(raw: number): number {
+  const { linear, root } = META.bank;
+  if (raw <= linear) return Math.max(0, raw);
+  return linear + root * Math.sqrt(raw - linear);
 }
 
 /** `fragMult` : bonus de fragments de la méta (talents, Ascension). */
@@ -113,7 +124,7 @@ export function recordMode(d: SaveData, r: ModeResult, fragMult = 1): ModeRecord
     const h = MODES.hardcore;
     mult *= h.rewardMult * (r.victory ? 1 : h.deathKeep);
   }
-  out.fragments = Math.max(0, Math.floor(r.fragments * mult));
+  out.fragments = Math.max(0, Math.floor(bankedFragments(r.fragments) * mult));
   d.wallet.fragments += out.fragments;
   if (out.fragments > 0) {
     out.lines.push(

@@ -27,7 +27,7 @@
       "stats": {
         "damage": 0.03
       },
-      "cost": [15, 24, 33, 42, 51],
+      "cost": [20, 40, 60, 80, 100],
       "requires": []
     },
     {
@@ -39,7 +39,7 @@
       "stats": {
         "cooldown": 0.02
       },
-      "cost": [15, 24, 33, 42, 51],
+      "cost": [20, 40, 60, 80, 100],
       "requires": []
     },
     {
@@ -51,7 +51,7 @@
       "stats": {
         "critChance": 0.01
       },
-      "cost": [30, 48, 66, 84, 102],
+      "cost": [55, 90, 140, 190, 250],
       "requires": ["assault-impact", "assault-gachette"]
     },
     {
@@ -63,7 +63,7 @@
       "stats": {
         "projectileSpeed": 0.04
       },
-      "cost": [30, 48, 66, 84, 102],
+      "cost": [55, 90, 140, 190, 250],
       "requires": ["assault-impact", "assault-gachette"]
     },
     {
@@ -75,7 +75,7 @@
       "stats": {
         "critMult": 0.06
       },
-      "cost": [50, 80, 110, 140, 170],
+      "cost": [100, 180, 275, 385, 515],
       "requires": ["assault-il-de-lynx", "assault-velocite"]
     },
     {
@@ -87,7 +87,7 @@
       "stats": {
         "area": 0.03
       },
-      "cost": [50, 80, 110, 140, 170],
+      "cost": [100, 180, 275, 385, 515],
       "requires": ["assault-il-de-lynx", "assault-velocite"]
     },
     {
@@ -99,7 +99,7 @@
       "stats": {
         "damage": 0.04
       },
-      "cost": [80, 128, 176, 224, 272],
+      "cost": [180, 335, 545, 785, 1080],
       "requires": ["assault-frappe-lourde", "assault-onde-large"]
     },
     {
@@ -111,7 +111,7 @@
       "stats": {
         "cooldown": 0.025
       },
-      "cost": [80, 128, 176, 224, 272],
+      "cost": [180, 335, 545, 785, 1080],
       "requires": ["assault-frappe-lourde", "assault-onde-large"]
     },
     {
@@ -123,7 +123,7 @@
       "stats": {
         "critChance": 0.015
       },
-      "cost": [130, 208, 286],
+      "cost": [345, 695, 1170],
       "requires": ["assault-surtension", "assault-cadence"]
     },
     {
@@ -135,7 +135,7 @@
       "stats": {
         "area": 0.04
       },
-      "cost": [130, 208, 286],
+      "cost": [345, 695, 1170],
       "requires": ["assault-surtension", "assault-cadence"]
     },
     {
@@ -147,7 +147,7 @@
       "stats": {
         "amount": 1
       },
-      "cost": [400],
+      "cost": [2040],
       "requires": ["assault-precision", "assault-portee"]
     },
     {
@@ -159,7 +159,7 @@
       "stats": {
         "critMult": 0.1
       },
-      "cost": [200, 320, 440],
+      "cost": [660, 1400, 2400],
       "requires": ["assault-precision", "assault-portee"]
     },
     {
@@ -171,7 +171,7 @@
       "stats": {
         "damage": 0.05
       },
-      "cost": [320, 512, 704],
+      "cost": [1400, 3140, 5505],
       "requires": ["assault-salve", "assault-ravage"]
     },
     {
@@ -183,7 +183,7 @@
       "stats": {
         "cooldown": 0.03
       },
-      "cost": [320, 512, 704],
+      "cost": [1400, 3140, 5505],
       "requires": ["assault-salve", "assault-ravage"]
     },
     {
@@ -196,7 +196,7 @@
         "damage": 0.08,
         "critChance": 0.03
       },
-      "cost": [1000],
+      "cost": [10500],
       "requires": ["assault-arsenal", "assault-fureur"]
     },
     {
@@ -208,7 +208,7 @@
       "stats": {
         "amount": 1
       },
-      "cost": [1000],
+      "cost": [10500],
       "requires": ["assault-arsenal", "assault-fureur"]
     },
     {
@@ -220,7 +220,7 @@
       "stats": {
         "maxHp": 5
       },
-      "cost": [15, 24, 33, 42, 51],
+      "cost": [20, 40, 60, 80, 100],
       "requires": []
     },
     {
@@ -232,7 +232,7 @@
       "stats": {
         "speed": 0.02
       },
-      "cost": [15, 24, 33, 42, 51],
+      "cost": [20, 40, 60, 80, 100],
       "requires": []
     },
     {
@@ -244,7 +244,7 @@
       "stats": {
         "armor": 0.5
       },
-      "cost": [30, 48, 66, 84, 102],
+      "cost": [55, 90, 140, 190, 250],
       "requires": ["bulwark-carcasse", "bulwark-reflexes"]
     },
     {
@@ -256,7 +256,7 @@
       "stats": {
         "regen": 0.1
       },
-      "cost": [30, 48, 66, 84, 102],
+      "cost": [55, 90, 140, 190, 250],
       "requires": ["bulwark-carcasse", "bulwark-reflexes"]
     },
     {
@@ -268,7 +268,7 @@
       "stats": {
         "pickupRadius": 0.06
       },
-      "cost": [50, 80, 110, 140, 170],
+      "cost": [100, 180, 275, 385, 515],
       "requires": ["bulwark-plaques", "bulwark-nanoreparation"]
     },
     {
@@ -280,7 +280,7 @@
       "stats": {
         "dashCooldown": 0.04
       },
-      "cost": [50, 80, 110, 140, 170],
+      "cost": [100, 180, 275, 385, 515],
       "requires": ["bulwark-plaques", "bulwark-nanoreparation"]
     },
     {
@@ -292,7 +292,7 @@
       "stats": {
         "maxHp": 8
       },
-      "cost": [80, 128, 176, 224, 272],
+      "cost": [180, 335, 545, 785, 1080],
       "requires": ["bulwark-aimantation", "bulwark-esquive"]
     },
     {
@@ -304,7 +304,7 @@
       "stats": {
         "healMult": 0.06
       },
-      "cost": [80, 128, 176, 224, 272],
+      "cost": [180, 335, 545, 785, 1080],
       "requires": ["bulwark-aimantation", "bulwark-esquive"]
     },
     {
@@ -316,7 +316,7 @@
       "stats": {
         "armor": 0.8
       },
-      "cost": [130, 208, 286],
+      "cost": [345, 695, 1170],
       "requires": ["bulwark-bastion", "bulwark-soins-renforces"]
     },
     {
@@ -328,7 +328,7 @@
       "stats": {
         "speed": 0.03
       },
-      "cost": [130, 208, 286],
+      "cost": [345, 695, 1170],
       "requires": ["bulwark-bastion", "bulwark-soins-renforces"]
     },
     {
@@ -340,7 +340,7 @@
       "stats": {
         "revives": 1
       },
-      "cost": [400],
+      "cost": [2040],
       "requires": ["bulwark-blindage", "bulwark-sprint"]
     },
     {
@@ -352,7 +352,7 @@
       "stats": {
         "regen": 0.2
       },
-      "cost": [200, 320, 440],
+      "cost": [660, 1400, 2400],
       "requires": ["bulwark-blindage", "bulwark-sprint"]
     },
     {
@@ -364,7 +364,7 @@
       "stats": {
         "maxHp": 12
       },
-      "cost": [320, 512, 704],
+      "cost": [1400, 3140, 5505],
       "requires": ["bulwark-seconde-chance", "bulwark-regeneration"]
     },
     {
@@ -376,7 +376,7 @@
       "stats": {
         "dashCooldown": 0.06
       },
-      "cost": [320, 512, 704],
+      "cost": [1400, 3140, 5505],
       "requires": ["bulwark-seconde-chance", "bulwark-regeneration"]
     },
     {
@@ -388,7 +388,7 @@
       "stats": {
         "revives": 1
       },
-      "cost": [1000],
+      "cost": [10500],
       "requires": ["bulwark-colosse", "bulwark-dephasage"]
     },
     {
@@ -401,7 +401,7 @@
         "armor": 1.5,
         "maxHp": 10
       },
-      "cost": [500, 800],
+      "cost": [3000, 6960],
       "requires": ["bulwark-colosse", "bulwark-dephasage"]
     },
     {
@@ -413,7 +413,7 @@
       "stats": {
         "status": 0.04
       },
-      "cost": [15, 24, 33, 42, 51],
+      "cost": [20, 40, 60, 80, 100],
       "requires": []
     },
     {
@@ -425,7 +425,7 @@
       "stats": {
         "gauge": 0.04
       },
-      "cost": [15, 24, 33, 42, 51],
+      "cost": [20, 40, 60, 80, 100],
       "requires": []
     },
     {
@@ -437,7 +437,7 @@
       "stats": {
         "fire": 0.04
       },
-      "cost": [30, 48, 66, 84, 102],
+      "cost": [55, 90, 140, 190, 250],
       "requires": ["resonance-catalyse", "resonance-harmonique"]
     },
     {
@@ -449,7 +449,7 @@
       "stats": {
         "frost": 0.04
       },
-      "cost": [30, 48, 66, 84, 102],
+      "cost": [55, 90, 140, 190, 250],
       "requires": ["resonance-catalyse", "resonance-harmonique"]
     },
     {
@@ -461,7 +461,7 @@
       "stats": {
         "lightning": 0.04
       },
-      "cost": [50, 80, 110, 140, 170],
+      "cost": [100, 180, 275, 385, 515],
       "requires": ["resonance-brasier", "resonance-givre-profond"]
     },
     {
@@ -473,7 +473,7 @@
       "stats": {
         "poison": 0.04
       },
-      "cost": [50, 80, 110, 140, 170],
+      "cost": [100, 180, 275, 385, 515],
       "requires": ["resonance-brasier", "resonance-givre-profond"]
     },
     {
@@ -485,7 +485,7 @@
       "stats": {
         "arcane": 0.04
       },
-      "cost": [80, 128, 176, 224, 272],
+      "cost": [180, 335, 545, 785, 1080],
       "requires": ["resonance-tonnerre", "resonance-venin"]
     },
     {
@@ -497,7 +497,7 @@
       "stats": {
         "void": 0.04
       },
-      "cost": [80, 128, 176, 224, 272],
+      "cost": [180, 335, 545, 785, 1080],
       "requires": ["resonance-tonnerre", "resonance-venin"]
     },
     {
@@ -509,7 +509,7 @@
       "stats": {
         "frozenBonus": 0.04
       },
-      "cost": [130, 208, 286],
+      "cost": [345, 695, 1170],
       "requires": ["resonance-arcanes", "resonance-neant"]
     },
     {
@@ -521,7 +521,7 @@
       "stats": {
         "shockBonus": 0.04
       },
-      "cost": [130, 208, 286],
+      "cost": [345, 695, 1170],
       "requires": ["resonance-arcanes", "resonance-neant"]
     },
     {
@@ -533,7 +533,7 @@
       "stats": {
         "toxinMax": 1
       },
-      "cost": [200, 320],
+      "cost": [660, 1400],
       "requires": ["resonance-hiver-mordant", "resonance-conduction"]
     },
     {
@@ -545,7 +545,7 @@
       "stats": {
         "gauge": 0.06
       },
-      "cost": [200, 320, 440],
+      "cost": [660, 1400, 2400],
       "requires": ["resonance-hiver-mordant", "resonance-conduction"]
     },
     {
@@ -557,7 +557,7 @@
       "stats": {
         "status": 0.06
       },
-      "cost": [320, 512, 704],
+      "cost": [1400, 3140, 5505],
       "requires": ["resonance-toxicite", "resonance-echo"]
     },
     {
@@ -574,7 +574,7 @@
         "arcane": 0.03,
         "void": 0.03
       },
-      "cost": [320, 512, 704],
+      "cost": [1400, 3140, 5505],
       "requires": ["resonance-toxicite", "resonance-echo"]
     },
     {
@@ -587,7 +587,7 @@
         "gauge": 0.1,
         "status": 0.05
       },
-      "cost": [1000],
+      "cost": [10500],
       "requires": ["resonance-maitre-des-statuts", "resonance-prisme"]
     },
     {
@@ -604,7 +604,7 @@
         "arcane": 0.05,
         "void": 0.05
       },
-      "cost": [1000],
+      "cost": [10500],
       "requires": ["resonance-maitre-des-statuts", "resonance-prisme"]
     },
     {
@@ -616,7 +616,7 @@
       "stats": {
         "luck": 0.03
       },
-      "cost": [15, 24, 33, 42, 51],
+      "cost": [20, 40, 60, 80, 100],
       "requires": []
     },
     {
@@ -628,7 +628,7 @@
       "stats": {
         "growth": 0.03
       },
-      "cost": [15, 24, 33, 42, 51],
+      "cost": [20, 40, 60, 80, 100],
       "requires": []
     },
     {
@@ -640,7 +640,7 @@
       "stats": {
         "greed": 0.04
       },
-      "cost": [30, 48, 66, 84, 102],
+      "cost": [55, 90, 140, 190, 250],
       "requires": ["fortune-veine", "fortune-savoir"]
     },
     {
@@ -652,7 +652,7 @@
       "stats": {
         "rerolls": 1
       },
-      "cost": [30, 48],
+      "cost": [55, 90],
       "requires": ["fortune-veine", "fortune-savoir"]
     },
     {
@@ -664,7 +664,7 @@
       "stats": {
         "banishes": 1
       },
-      "cost": [50, 80],
+      "cost": [100, 180],
       "requires": ["fortune-butin", "fortune-reflexion"]
     },
     {
@@ -676,7 +676,7 @@
       "stats": {
         "locks": 1
       },
-      "cost": [50, 80],
+      "cost": [100, 180],
       "requires": ["fortune-butin", "fortune-reflexion"]
     },
     {
@@ -688,7 +688,7 @@
       "stats": {
         "fragments": 0.04
       },
-      "cost": [80, 128, 176, 224, 272],
+      "cost": [180, 335, 545, 785, 1080],
       "requires": ["fortune-tri", "fortune-ancrage"]
     },
     {
@@ -700,7 +700,7 @@
       "stats": {
         "accountXp": 0.05
       },
-      "cost": [80, 128, 176, 224, 272],
+      "cost": [180, 335, 545, 785, 1080],
       "requires": ["fortune-tri", "fortune-ancrage"]
     },
     {
@@ -712,7 +712,7 @@
       "stats": {
         "luck": 0.05
       },
-      "cost": [130, 208, 286],
+      "cost": [345, 695, 1170],
       "requires": ["fortune-prospection", "fortune-erudition"]
     },
     {
@@ -724,7 +724,7 @@
       "stats": {
         "growth": 0.05
       },
-      "cost": [130, 208, 286],
+      "cost": [345, 695, 1170],
       "requires": ["fortune-prospection", "fortune-erudition"]
     },
     {
@@ -736,7 +736,7 @@
       "stats": {
         "greed": 0.06
       },
-      "cost": [200, 320, 440],
+      "cost": [660, 1400, 2400],
       "requires": ["fortune-trefle", "fortune-sagesse"]
     },
     {
@@ -748,7 +748,7 @@
       "stats": {
         "rerolls": 1
       },
-      "cost": [200, 320],
+      "cost": [660, 1400],
       "requires": ["fortune-trefle", "fortune-sagesse"]
     },
     {
@@ -760,7 +760,7 @@
       "stats": {
         "fragments": 0.08
       },
-      "cost": [320, 512, 704],
+      "cost": [1400, 3140, 5505],
       "requires": ["fortune-avarice", "fortune-relances"]
     },
     {
@@ -772,7 +772,7 @@
       "stats": {
         "accountXp": 0.08
       },
-      "cost": [320, 512, 704],
+      "cost": [1400, 3140, 5505],
       "requires": ["fortune-avarice", "fortune-relances"]
     },
     {
@@ -785,7 +785,7 @@
         "luck": 0.1,
         "greed": 0.1
       },
-      "cost": [1000],
+      "cost": [10500],
       "requires": ["fortune-mecene", "fortune-mentor"]
     },
     {
@@ -798,7 +798,7 @@
         "growth": 0.1,
         "accountXp": 0.1
       },
-      "cost": [1000],
+      "cost": [10500],
       "requires": ["fortune-mecene", "fortune-mentor"]
     }
   ]

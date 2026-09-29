@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BOSSES, ENEMIES, REACTIONS, WEAPONS } from '../content/data';
 import { ascensionOpen } from '../meta/account';
-import { ascensionReward, ascensionSelected } from '../meta/ascension';
+import { ascensionSelected } from '../meta/ascension';
 import { metaBonus, type MetaBonus } from '../meta/bonus';
-import { applyRunMeta } from '../meta/progress';
-import { achievementLines, applyRunRetention } from '../meta/retention';
-import { tallyOf } from '../meta/tally';
+import { applyRunEnd } from '../meta/runend';
 import { audio, initAudio } from '../audio';
 import { GameAudio, uiSound } from '../audio/bridge';
 import { GameHost } from '../game/host';
+import { Tutorial } from '../game/tutorial';
 import { t, useLang } from '../i18n';
 import { keepAwake } from '../platform/android';
 import { useBackHandler } from '../platform/back';
@@ -19,12 +17,9 @@ import type { RunStatus } from '../systems/state';
 import { cardView, rewardView, rouletteIcons } from './cards';
 import { ChestOverlay } from './ChestOverlay';
 import { PactOverlay, type PactView } from './PactOverlay';
-import { recordStage } from '../meta/stages';
-import { applyUnlocks } from '../meta/unlocks';
 import { buildRun, MODE_INFO, type ModeRun } from '../modes/modes';
-import { recordMode } from '../modes/records';
-import { colorOf, type ModeId } from '../content/data';
-import { heat, rankIndex, runScore } from '../systems/pacts';
+import { colorOf, ENEMIES, WEAPONS, type ModeId } from '../content/data';
+import { heat } from '../systems/pacts';
 import { AltarOverlay, MerchantOverlay } from './EventOverlays';
 import { altarResultText, altarView, merchantView } from './events';
 import { EndOverlay } from './EndOverlay';
@@ -105,82 +100,25 @@ function setupRun(bench: boolean, again = false): ActiveRun {
   return { mode, run, counted, meta };
 }
 
-/**
- * Fin de partie, écrite tout de suite : statistiques de carrière (hors entraînement), meilleurs
- * rang et score, progression de campagne, records du mode, fragments, déblocages.
- */
+/** Fin de partie, écrite tout de suite (bilan appliqué par `applyRunEnd`). */
 function recordRun(host: GameHost, active: ActiveRun): RunRecord {
   const st = host.sim.state;
-  const score = runScore(st);
-  const rank = rankIndex(heat(st));
-  const { mode, run } = active;
   const out: RunRecord = {
     bestScore: false,
     unlocked: [],
     stages: [],
     bosses: [],
-    mode: MODE_INFO[mode].name,
-    modeDetail: run.detail,
+    mode: MODE_INFO[active.mode].name,
+    modeDetail: active.run.detail,
     modeLines: [],
   };
-  const before = useSave.getState().data;
-  const counts = mode !== 'training';
-  out.bestScore = counts && score > before.profile.bestScore;
   void useSave.getState().commit((d) => {
-    const result = recordMode(
-      d,
-      {
-        mode,
-        stage: st.stage.name,
-        character: st.character.name,
-        victory: st.status === 'victory',
-        score,
-        time: st.time,
-        bosses: st.stats.bossesDefeated.length,
-        fragments: st.stats.fragments,
-        period: run.period,
-        counted: active.counted,
-        at: Date.now(),
-      },
-      active.meta.fragMult * ascensionReward(run.ascension),
-    );
-    out.modeLines = result.lines;
-    if (!counts) return;
-    const progress = applyRunMeta(d, {
-      mode,
-      stage: st.stage.id,
-      stageName: st.stage.name,
-      victory: st.status === 'victory',
-      score,
-      ascension: run.ascension,
-      seed: run.seed,
-      weapons: st.weapons.map((w) => ({ id: w.def.id, damage: st.stats.damageBySlot[w.slot] })),
-      enemies: ENEMIES.filter((_, i) => st.stats.killsByType[i] > 0).map((e) => e.id),
-      evolutions: st.weapons.filter((w) => w.evolved).map((w) => w.def.evolution.id),
-      reactions: REACTIONS.filter((_, i) => st.resonance.countById[i] > 0).map((r) => r.id),
-      bosses: st.stats.bossesDefeated.map((i) => BOSSES[i].id),
-      xpMult: active.meta.xpMult,
-    });
-    out.modeLines.push(...progress.lines);
-    // Carrière, quêtes et passe de saison, avant les déblocages qui lisent la carrière.
-    out.modeLines.push(...applyRunRetention(d, tallyOf(st, mode), score));
-    d.profile.bestScore = Math.max(d.profile.bestScore, score);
-    // Le rang ne compte qu'en cas de victoire (sinon, des pactes suivis d'une défaite suffiraient).
-    if (st.status === 'victory') d.profile.bestRank = Math.max(d.profile.bestRank, rank);
-    // La campagne n'avance qu'en Campagne et en Hardcore ; les boss vaincus comptent partout.
-    const campaign = mode === 'campaign' || mode === 'hardcore';
-    const stageProgress = recordStage(d, {
-      stage: campaign ? st.stage.id : '',
-      victory: st.status === 'victory',
-      score,
-      time: st.time,
-      rank,
-      bosses: st.stats.bossesDefeated,
-    });
-    out.stages = stageProgress.stages.map((x) => x.name);
-    out.bosses = stageProgress.bosses;
-    out.unlocked = applyUnlocks(d).map((c) => c.name);
-    out.modeLines.push(...achievementLines(d));
+    const r = applyRunEnd(d, st, { ...active, at: Date.now() });
+    out.bestScore = r.bestScore;
+    out.unlocked = r.unlocked;
+    out.stages = r.stages;
+    out.bosses = r.bosses;
+    out.modeLines = r.lines;
   });
   return out;
 }
@@ -309,6 +247,13 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       if (bench) host.startBench({ enemies: 650, shots: 1100 });
       host.start();
       announce(host, active);
+      // Première partie : tutoriel contextuel, marqué comme vu dès le lancement.
+      if (!bench && !useSave.getState().data.profile.tutorialSeen && active.mode !== 'training') {
+        host.tutorial = new Tutorial();
+        useSave.getState().update((d) => {
+          d.profile.tutorialSeen = true;
+        });
+      }
       setHost(host);
     });
     keepAwake(true);

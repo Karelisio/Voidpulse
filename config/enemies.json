@@ -151,9 +151,9 @@
     "color": "#ff9cf7",
     "params": {
       "range": 430,
-      "fireCooldown": 4.4,
+      "fireCooldown": 5.2,
       "bulletSpeed": 560,
-      "bulletDamage": 15,
+      "bulletDamage": 11,
       "telegraph": 0.95,
       "sniper": 1,
       "bulletRadius": 5
@@ -533,22 +533,22 @@
     "biome": "tundra",
     "behavior": "charger",
     "description": "Chasse en meute et bondit sur sa proie.",
-    "hp": 30,
+    "hp": 12,
     "speed": 92,
-    "damage": 11,
+    "damage": 6,
     "radius": 13,
-    "xp": 3,
+    "xp": 1,
     "mass": 1.4,
     "knockbackRes": 0.25,
     "color": "#bfefff",
     "element": "frost",
     "params": {
       "chargeRange": 220,
-      "windup": 0.45,
-      "dashSpeed": 520,
+      "windup": 0.6,
+      "dashSpeed": 430,
       "dashTime": 0.35,
       "recover": 0.5,
-      "chargeCooldown": 2.6
+      "chargeCooldown": 4.5
     }
   },
   {
@@ -571,8 +571,8 @@
       "fireCooldown": 2.8,
       "bulletSpeed": 160,
       "bulletDamage": 7,
-      "slow": 0.35,
-      "slowTime": 1.6
+      "slow": 0.25,
+      "slowTime": 1.2
     }
   },
   {
@@ -616,8 +616,8 @@
       "flight": 1,
       "blastRadius": 70,
       "blastDamage": 14,
-      "slow": 0.4,
-      "slowTime": 2
+      "slow": 0.3,
+      "slowTime": 1.4
     }
   },
   {
@@ -640,8 +640,8 @@
       "fuse": 0.8,
       "blastRadius": 90,
       "blastDamage": 14,
-      "slow": 0.5,
-      "slowTime": 2.5
+      "slow": 0.3,
+      "slowTime": 1.5
     }
   },
   {
@@ -762,7 +762,7 @@
     "biome": "cathedral",
     "behavior": "swarm",
     "description": "Flamme errante du vide.",
-    "hp": 14,
+    "hp": 12,
     "speed": 105,
     "damage": 8,
     "radius": 9,

@@ -2,6 +2,7 @@
  * Hôte d'une partie : relie la simulation, la boucle, le rendu, les contrôles, le game feel et
  * l'audio, et informe l'interface React des changements d'état (level-up, fin de run).
  */
+import type { Tutorial } from './tutorial';
 import { RESONANCE, STAGES, WEAPONS, elementIndex } from '../content/data';
 import { elementPalette, hudAccent } from '../theme';
 import { Life } from '../engine/components';
@@ -39,8 +40,10 @@ export class GameHost {
   applyPrefs(c: ControlPrefs, d: DisplayPrefs): void {
     this.input.settings = { sensitivity: c.sensitivity, leftHanded: c.leftHanded, aim: c.aim };
     this.haptics.enabled = c.haptics;
-    if (this.renderer.leftHanded !== c.leftHanded) {
+    const hudScale = Math.max(0.8, Math.min(1.4, d.hudScale));
+    if (this.renderer.leftHanded !== c.leftHanded || this.renderer.hud.scaleFactor !== hudScale) {
       this.renderer.leftHanded = c.leftHanded;
+      this.renderer.hud.scaleFactor = hudScale;
       this.renderer.resize();
     }
     const q = this.renderer.quality;
@@ -185,12 +188,16 @@ export class GameHost {
     sim.events.clear();
     this.audio?.update(sim, dt, this.loop.paused);
     this.fillHud(dt);
+    this.tutorial?.update(sim, this.renderer.hud, dt);
     this.renderer.render(sim, alpha, dt, this.hud);
     if (sim.state.status !== this.lastStatus) {
       this.lastStatus = sim.state.status;
       this.onStatus(sim.state.status);
     }
   }
+
+  /** Tutoriel de la première partie (null ensuite). */
+  tutorial: Tutorial | null = null;
 
   private fillHud(dt: number): void {
     const st = this.sim.state;

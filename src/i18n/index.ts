@@ -20,6 +20,7 @@ import settings from './strings/settings';
 import stats from './strings/stats';
 import title from './strings/title';
 import training from './strings/training';
+import tutorial from './strings/tutorial';
 import update from './strings/update';
 
 export type Lang = 'fr' | 'en';
@@ -42,6 +43,7 @@ const DICT = {
   lines,
   stats,
   update,
+  tutorial,
 };
 type Dict = typeof DICT;
 export type TKey = {

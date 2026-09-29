@@ -92,6 +92,8 @@ export interface ProfileData {
   /** Dernier mode joué, dernier build du Boss Rush. */
   mode: string;
   loadout: { weapons: string[]; passives: string[] };
+  /** Tutoriel de la première partie déjà montré. */
+  tutorialSeen: boolean;
 }
 
 export interface StageRecord {
@@ -284,6 +286,7 @@ export function defaultSave(now = Date.now()): SaveData {
       stageBest: {},
       mode: 'campaign',
       loadout: { weapons: [], passives: [] },
+      tutorialSeen: false,
     },
     modes: {
       endless: { board: [] },

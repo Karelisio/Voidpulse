@@ -23,7 +23,8 @@
     "sfx:render": "tsx scripts/render-sfx/index.ts",
     "assets:render": "tsx scripts/render-assets/index.ts",
     "android:sync": "vite build --mode android && cap sync android",
-    "track:prepare": "tsx scripts/prepare-track/index.ts"
+    "track:prepare": "tsx scripts/prepare-track/index.ts",
+    "balance": "tsx sim/balance/index.ts"
   },
   "dependencies": {
     "@capacitor-community/keep-awake": "^8.0.1",

@@ -439,6 +439,20 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           </Row>
         </>
       )}
+      <Row label={t('settings.hudScale')}>
+        <Slider
+          id="hud-scale"
+          value={p.hudScale}
+          min={0.8}
+          max={1.4}
+          step={0.1}
+          onChange={(v) => {
+            set((s) => {
+              s.display.hudScale = v;
+            });
+          }}
+        />
+      </Row>
       <Row label={t('settings.colorblind')}>
         <Choice
           value={p.colorblind}

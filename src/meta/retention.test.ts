@@ -212,7 +212,9 @@ describe('notifications et entrées', () => {
     const lines = achievementLines(d);
     expect(d.stats.runs).toBe(1);
     expect(d.stats.charWins.vex).toBe(1);
-    expect(d.retention.season.xp).toBe(Math.floor(20000 * RETENTION.season.scoreXp));
+    expect(d.retention.season.xp).toBe(
+      Math.floor(Math.sqrt(20000) * RETENTION.season.xpPerRootScore),
+    );
     expect(lines.some((l) => l.startsWith('Succès : '))).toBe(true);
     const training = applyRunRetention(d, tally({ mode: 'training' }), 20000, T0 + 3 * H);
     expect(training.filter((l) => l.startsWith('Quête'))).toEqual([]);

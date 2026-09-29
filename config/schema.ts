@@ -697,9 +697,11 @@ const StatKey = z.enum([
 ]);
 
 export const MetaDef = z.object({
+  /** Fragments ramenés d'une partie : linéaires jusqu'à `linear`, puis root × √(excédent). */
+  bank: z.object({ linear: nonNegative, root: nonNegative }),
   account: z.object({
-    /** XP de compte par point de score. */
-    scoreXp: positive,
+    /** XP de compte : xpPerRootScore × √score (les longues victoires ne raflent pas tout). */
+    xpPerRootScore: positive,
     /** XP du niveau L → L + 1 : base × L^exponent. */
     curve: z.object({ base: positive, exponent: positive }),
     maxLevel: z.number().int().positive(),
@@ -817,7 +819,8 @@ export const RetentionDef = z.object({
     days: z.number().int().positive(),
     tiers: z.number().int().positive(),
     xpPerTier: positive,
-    scoreXp: nonNegative,
+    /** XP de saison : xpPerRootScore × √score. */
+    xpPerRootScore: nonNegative,
     themes: z
       .array(z.object({ id: z.string(), name: z.string(), color: hex, description: z.string() }))
       .min(1),
