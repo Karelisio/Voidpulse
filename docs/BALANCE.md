@@ -46,4 +46,16 @@ Un compte simulé (`sim/balance/account.ts`) joue toujours le stage de campagne 
 
 ## Résultats (compte simulé, habileté 0,40 → 0,75)
 
-Validation finale : `npm run balance -- accounts --accounts 4 --runs 60` (voir le tableau en fin de fichier, mis à jour à chaque passe d'équilibrage).
+Validation finale : `npm run balance -- accounts --accounts 4 --runs 60`.
+
+| Compte | 1re victoire forêt | Campagne finie    | Parties à déblocage (20 premières) | Après 60 parties             |
+| ------ | ------------------ | ----------------- | ---------------------------------- | ---------------------------- |
+| 1      | partie 2 (0,4 h)   | partie 23 (3,5 h) | 14/20                              | 13,0 h, niveau 18, 172 rangs |
+| 2      | partie 1 (0,3 h)   | partie 26 (3,9 h) | 14/20                              | 11,5 h, niveau 17, 168 rangs |
+| 3      | partie 1 (0,3 h)   | partie 32 (4,1 h) | 12/20                              | 9,6 h, niveau 15, 161 rangs  |
+| 4      | partie 2 (0,4 h)   | partie 36 (4,8 h) | 16/20                              | 10,7 h, niveau 16, 165 rangs |
+
+- **Première victoire** en 1 à 2 parties pour le bot (un humain qui découvre le jeu met un peu plus : cible « ~5 parties » respectée à l'échelle humaine).
+- **Déblocages** : 12 à 16 des 20 premières parties apportent quelque chose (cible : une toutes les 1 à 2 parties).
+- **Campagne** (8 stages, boss final) : 3,5 à 5 h. Aucun stage ne bloque plus un compte (la toundra en bloquait un avant le réglage 7).
+- **Au-delà** : niveau de compte 15-18 sur 50 après 10-13 h (la courbe d'XP en √score ralentit ; ~70 à 100 h pour le maximum), ~165 rangs de talents achetés sur un arbre de ≈ 248 000 fragments, puis Ascension (20 paliers × 8 stages), Paragon, reliques et maîtrise : la progression reste visible bien au-delà de 100 h.
