@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ENEMIES } from '../content/data';
-import { initAudio } from '../audio';
-import { GameAudio } from '../audio/bridge';
+import { audio, initAudio } from '../audio';
+import { GameAudio, uiSound } from '../audio/bridge';
 import { GameHost } from '../game/host';
 import { useUi, type LevelUpView } from '../state/ui';
 import type { RunStatus } from '../systems/state';
@@ -57,27 +57,29 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
     let disposed = false;
     const el = mount.current;
     if (!el) return;
-    void Promise.all([GameHost.create(el, `run-${Date.now()}`), initAudio()]).then(([host, engine]) => {
-      if (disposed) {
-        host.destroy();
-        return;
-      }
-      hostRef.current = host;
-      window.__voidpulse = host;
-      if (engine) host.audio = new GameAudio(engine);
-      host.onStatus = (status) => {
-        onStatus(host, status);
-      };
-      host.onPauseRequest = () => {
-        if (useUi.getState().overlay === null) {
-          host.pause();
-          setOverlay('pause');
+    void Promise.all([GameHost.create(el, `run-${Date.now()}`), initAudio()]).then(
+      ([host, engine]) => {
+        if (disposed) {
+          host.destroy();
+          return;
         }
-      };
-      if (bench) host.startBench({ enemies: 650, shots: 1100 });
-      host.start();
-      setHost(host);
-    });
+        hostRef.current = host;
+        window.__voidpulse = host;
+        if (engine) host.audio = new GameAudio(engine);
+        host.onStatus = (status) => {
+          onStatus(host, status);
+        };
+        host.onPauseRequest = () => {
+          if (useUi.getState().overlay === null) {
+            host.pause();
+            setOverlay('pause');
+          }
+        };
+        if (bench) host.startBench({ enemies: 650, shots: 1100 });
+        host.start();
+        setHost(host);
+      },
+    );
     const onHide = (): void => {
       const host = hostRef.current;
       if (document.hidden && host && useUi.getState().overlay === null) {
@@ -112,6 +114,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           className="pause-btn"
           aria-label="Pause"
           onClick={() => {
+            uiSound(audio(), 'ui.click');
             host.pause();
             setOverlay('pause');
           }}
@@ -125,18 +128,22 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
         <LevelUpOverlay
           view={levelUp}
           onChoose={(i) => {
+            uiSound(audio(), 'ui.confirm');
             host.sim.choose(i);
             refreshLevelUp();
           }}
           onReroll={() => {
+            uiSound(audio(), 'ui.card');
             host.sim.reroll();
             refreshLevelUp();
           }}
           onBanish={(i) => {
+            uiSound(audio(), 'ui.back');
             host.sim.banish(i);
             refreshLevelUp();
           }}
           onLock={(i) => {
+            uiSound(audio(), 'ui.click');
             host.sim.lock(i);
             refreshLevelUp();
           }}
@@ -150,13 +157,20 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
               className="btn-primary"
               id="resume"
               onClick={() => {
+                uiSound(audio(), 'ui.confirm');
                 setOverlay(null);
                 host.resume();
               }}
             >
               Reprendre
             </button>
-            <button className="btn-ghost" onClick={onQuit}>
+            <button
+              className="btn-ghost"
+              onClick={() => {
+                uiSound(audio(), 'ui.back');
+                onQuit();
+              }}
+            >
               Quitter la partie
             </button>
           </div>
@@ -166,10 +180,14 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
         <EndOverlay
           summary={summary}
           onAgain={() => {
+            uiSound(audio(), 'ui.confirm');
             setOverlay(null);
             host.newRun(`run-${Date.now()}`);
           }}
-          onMenu={onQuit}
+          onMenu={() => {
+            uiSound(audio(), 'ui.back');
+            onQuit();
+          }}
         />
       )}
       {debugUnlocked && host && (

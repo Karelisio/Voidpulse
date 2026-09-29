@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { initAudio } from '../audio';
+import { audio, initAudio } from '../audio';
+import { uiSound } from '../audio/bridge';
 import { useUi } from '../state/ui';
 
 const VERSION = import.meta.env.VITE_APP_VERSION ?? 'prototype';
@@ -31,6 +32,7 @@ export function TitleScreen({ onPlay }: { onPlay: (bench: boolean) => void }) {
           className="btn-primary"
           id="play"
           onClick={() => {
+            uiSound(audio(), 'ui.confirm');
             onPlay(false);
           }}
         >

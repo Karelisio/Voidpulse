@@ -1,0 +1,570 @@
+{
+  "version": 1,
+  "sounds": {
+    "blink": {
+      "files": [
+        "blink/0.ogg",
+        "blink/1.ogg",
+        "blink/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -14,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 0,
+      "cooldownMs": 80
+    },
+    "boss.death": {
+      "files": [
+        "boss.death/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -3,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
+      "cooldownMs": 0
+    },
+    "boss.phase": {
+      "files": [
+        "boss.phase/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -6,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 4,
+      "cooldownMs": 0
+    },
+    "boss.rage": {
+      "files": [
+        "boss.rage/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -5,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
+      "cooldownMs": 0
+    },
+    "boss.shot": {
+      "files": [
+        "boss.shot/0.ogg",
+        "boss.shot/1.ogg",
+        "boss.shot/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -12,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 90
+    },
+    "boss.slam": {
+      "files": [
+        "boss.slam/0.ogg",
+        "boss.slam/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -6,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 4,
+      "cooldownMs": 200
+    },
+    "boss.spawn": {
+      "files": [
+        "boss.spawn/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -4,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
+      "cooldownMs": 0
+    },
+    "dash": {
+      "files": [
+        "dash/0.ogg",
+        "dash/1.ogg",
+        "dash/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -13,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 80
+    },
+    "enemy.shot": {
+      "files": [
+        "enemy.shot/0.ogg",
+        "enemy.shot/1.ogg",
+        "enemy.shot/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -16,
+      "pitchVar": 0.06,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 0,
+      "cooldownMs": 60
+    },
+    "eveil.end": {
+      "files": [
+        "eveil.end/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -9,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 3,
+      "cooldownMs": 0
+    },
+    "eveil.nova": {
+      "files": [
+        "eveil.nova/0.ogg",
+        "eveil.nova/1.ogg",
+        "eveil.nova/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -11,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 150
+    },
+    "eveil.start": {
+      "files": [
+        "eveil.start/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -5,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
+      "cooldownMs": 0
+    },
+    "explosion": {
+      "files": [
+        "explosion/0.ogg",
+        "explosion/1.ogg",
+        "explosion/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -8,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 3,
+      "cooldownMs": 70
+    },
+    "fire.arc": {
+      "files": [
+        "fire.arc/0.ogg",
+        "fire.arc/1.ogg",
+        "fire.arc/2.ogg",
+        "fire.arc/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -12,
+      "pitchVar": 0.06,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 1,
+      "cooldownMs": 60
+    },
+    "fire.ember": {
+      "files": [
+        "fire.ember/0.ogg",
+        "fire.ember/1.ogg",
+        "fire.ember/2.ogg",
+        "fire.ember/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -13,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 1,
+      "cooldownMs": 45
+    },
+    "fire.frost": {
+      "files": [
+        "fire.frost/0.ogg",
+        "fire.frost/1.ogg",
+        "fire.frost/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -15,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 1,
+      "cooldownMs": 90
+    },
+    "freeze": {
+      "files": [
+        "freeze/0.ogg",
+        "freeze/1.ogg",
+        "freeze/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -14,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 1,
+      "cooldownMs": 80
+    },
+    "hit": {
+      "files": [
+        "hit/0.ogg",
+        "hit/1.ogg",
+        "hit/2.ogg",
+        "hit/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -17,
+      "pitchVar": 0.08,
+      "volVar": 0.08,
+      "maxVoices": 4,
+      "priority": 0,
+      "cooldownMs": 28
+    },
+    "hit.crit": {
+      "files": [
+        "hit.crit/0.ogg",
+        "hit.crit/1.ogg",
+        "hit.crit/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -13,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 1,
+      "cooldownMs": 50
+    },
+    "hit.fire": {
+      "files": [
+        "hit.fire/0.ogg",
+        "hit.fire/1.ogg",
+        "hit.fire/2.ogg",
+        "hit.fire/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -17,
+      "pitchVar": 0.08,
+      "volVar": 0.08,
+      "maxVoices": 4,
+      "priority": 0,
+      "cooldownMs": 28
+    },
+    "hit.frost": {
+      "files": [
+        "hit.frost/0.ogg",
+        "hit.frost/1.ogg",
+        "hit.frost/2.ogg",
+        "hit.frost/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -18,
+      "pitchVar": 0.06,
+      "volVar": 0.08,
+      "maxVoices": 4,
+      "priority": 0,
+      "cooldownMs": 28
+    },
+    "hit.lightning": {
+      "files": [
+        "hit.lightning/0.ogg",
+        "hit.lightning/1.ogg",
+        "hit.lightning/2.ogg",
+        "hit.lightning/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -18,
+      "pitchVar": 0.08,
+      "volVar": 0.08,
+      "maxVoices": 4,
+      "priority": 0,
+      "cooldownMs": 28
+    },
+    "kill": {
+      "files": [
+        "kill/0.ogg",
+        "kill/1.ogg",
+        "kill/2.ogg",
+        "kill/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -15,
+      "pitchVar": 0.07,
+      "volVar": 0.08,
+      "maxVoices": 4,
+      "priority": 0,
+      "cooldownMs": 35
+    },
+    "kill.big": {
+      "files": [
+        "kill.big/0.ogg",
+        "kill.big/1.ogg",
+        "kill.big/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 1,
+      "cooldownMs": 60
+    },
+    "levelup": {
+      "files": [
+        "levelup/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -7,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 4,
+      "cooldownMs": 0
+    },
+    "mine": {
+      "files": [
+        "mine/0.ogg",
+        "mine/1.ogg",
+        "mine/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -9,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 3,
+      "cooldownMs": 60
+    },
+    "player.death": {
+      "files": [
+        "player.death/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -5,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
+      "cooldownMs": 0
+    },
+    "player.hurt": {
+      "files": [
+        "player.hurt/0.ogg",
+        "player.hurt/1.ogg",
+        "player.hurt/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -8,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 3,
+      "cooldownMs": 120
+    },
+    "reaction": {
+      "files": [
+        "reaction/0.ogg",
+        "reaction/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -11,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 70
+    },
+    "reaction.overload": {
+      "files": [
+        "reaction.overload/0.ogg",
+        "reaction.overload/1.ogg",
+        "reaction.overload/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -8,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 3,
+      "cooldownMs": 90
+    },
+    "reaction.superconduct": {
+      "files": [
+        "reaction.superconduct/0.ogg",
+        "reaction.superconduct/1.ogg",
+        "reaction.superconduct/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 3,
+      "cooldownMs": 90
+    },
+    "reaction.vapor": {
+      "files": [
+        "reaction.vapor/0.ogg",
+        "reaction.vapor/1.ogg",
+        "reaction.vapor/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 90
+    },
+    "run.defeat": {
+      "files": [
+        "run.defeat/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -7,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
+      "cooldownMs": 0
+    },
+    "run.victory": {
+      "files": [
+        "run.victory/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -6,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
+      "cooldownMs": 0
+    },
+    "telegraph.boss": {
+      "files": [
+        "telegraph.boss/0.ogg",
+        "telegraph.boss/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 4,
+      "cooldownMs": 250
+    },
+    "telegraph.charge": {
+      "files": [
+        "telegraph.charge/0.ogg",
+        "telegraph.charge/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -20,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 0,
+      "cooldownMs": 150
+    },
+    "telegraph.fuse": {
+      "files": [
+        "telegraph.fuse/0.ogg",
+        "telegraph.fuse/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -15,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 120
+    },
+    "ui.back": {
+      "files": [
+        "ui.back/0.ogg"
+      ],
+      "bus": "ui",
+      "gainDb": -11,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 0,
+      "cooldownMs": 60
+    },
+    "ui.card": {
+      "files": [
+        "ui.card/0.ogg",
+        "ui.card/1.ogg",
+        "ui.card/2.ogg"
+      ],
+      "bus": "ui",
+      "gainDb": -12,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 0,
+      "cooldownMs": 40
+    },
+    "ui.click": {
+      "files": [
+        "ui.click/0.ogg",
+        "ui.click/1.ogg"
+      ],
+      "bus": "ui",
+      "gainDb": -12,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 0,
+      "cooldownMs": 30
+    },
+    "ui.confirm": {
+      "files": [
+        "ui.confirm/0.ogg"
+      ],
+      "bus": "ui",
+      "gainDb": -10,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 0,
+      "cooldownMs": 60
+    },
+    "xp": {
+      "files": [
+        "xp/0.ogg",
+        "xp/1.ogg",
+        "xp/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -20,
+      "pitchVar": 0.02,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 0,
+      "cooldownMs": 22
+    }
+  }
+}

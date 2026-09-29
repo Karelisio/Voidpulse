@@ -51,6 +51,11 @@ export function encodeOpus(input: string, output: string, bitrateKbps = 128): vo
     input,
     '-map_metadata',
     '-1',
+    // Numéro de série Ogg et en-têtes fixes : ré-encoder un même rendu donne le même fichier.
+    '-fflags',
+    '+bitexact',
+    '-flags:a',
+    '+bitexact',
     '-c:a',
     'libopus',
     '-b:a',
