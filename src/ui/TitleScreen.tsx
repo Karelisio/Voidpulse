@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { SettingsPanel } from './SettingsPanel';
 import { audio, initAudio } from '../audio';
 import { uiSound } from '../audio/bridge';
 import { useUi } from '../state/ui';
@@ -9,6 +10,7 @@ export function TitleScreen({ onPlay }: { onPlay: (bench: boolean) => void }) {
   const debugUnlocked = useUi((s) => s.debugUnlocked);
   const unlockDebug = useUi((s) => s.unlockDebug);
   const taps = useRef(0);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     void initAudio().then((engine) => {
@@ -50,6 +52,24 @@ export function TitleScreen({ onPlay }: { onPlay: (bench: boolean) => void }) {
           </button>
         )}
       </div>
+      <button
+        className="btn-ghost"
+        id="settings"
+        onClick={() => {
+          uiSound(audio(), 'ui.click');
+          setSettingsOpen(true);
+        }}
+      >
+        Réglages
+      </button>
+      {settingsOpen && (
+        <SettingsPanel
+          onClose={() => {
+            uiSound(audio(), 'ui.back');
+            setSettingsOpen(false);
+          }}
+        />
+      )}
       <p className="hint">
         Joystick : pose le pouce n'importe où. Dash : un second doigt. Clavier : ZQSD / flèches,
         Espace.

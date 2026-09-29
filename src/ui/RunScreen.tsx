@@ -3,7 +3,9 @@ import { ENEMIES } from '../content/data';
 import { audio, initAudio } from '../audio';
 import { GameAudio, uiSound } from '../audio/bridge';
 import { GameHost } from '../game/host';
+import { useSave } from '../state/save';
 import { useUi, type LevelUpView } from '../state/ui';
+import { SettingsPanel } from './SettingsPanel';
 import type { RunStatus } from '../systems/state';
 import { cardView } from './cards';
 import { EndOverlay } from './EndOverlay';
@@ -31,6 +33,20 @@ function levelUpView(host: GameHost): LevelUpView {
   };
 }
 
+/** Statistiques de toute la carrière, écrites tout de suite en fin de run. */
+function recordRun(host: GameHost): void {
+  const st = host.sim.state;
+  void useSave.getState().commit((d) => {
+    const s = d.stats;
+    s.runs++;
+    if (st.status === 'victory') s.victories++;
+    s.kills += st.stats.kills;
+    s.bestTime = Math.max(s.bestTime, st.time);
+    s.bestLevel = Math.max(s.bestLevel, st.player.level);
+    s.playSeconds += st.time;
+  });
+}
+
 export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => void }) {
   const mount = useRef<HTMLDivElement>(null);
   const hostRef = useRef<GameHost | null>(null);
@@ -41,11 +57,13 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
   const debugPanel = useUi((s) => s.debugPanel);
   const { showLevelUp, showEnd, setOverlay, toggleDebugPanel } = useUi.getState();
   const [host, setHost] = useState<GameHost | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const onStatus = useCallback(
     (host: GameHost, status: RunStatus) => {
       if (status === 'levelup') showLevelUp(levelUpView(host));
       else if (status === 'dead' || status === 'victory') {
+        recordRun(host);
         window.setTimeout(() => {
           showEnd(buildSummary(host.sim, host.renderer.atlas.iconUrls));
         }, 900);
@@ -58,29 +76,44 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
     let disposed = false;
     const el = mount.current;
     if (!el) return;
-    void Promise.all([GameHost.create(el, `run-${Date.now()}`), initAudio()]).then(
-      ([host, engine]) => {
-        if (disposed) {
-          host.destroy();
-          return;
+    const prefs = useSave.getState().data;
+    const quality = {
+      resolution: prefs.display.resolution,
+      particles: prefs.display.particles,
+      damageNumbers: prefs.display.damageNumbers,
+      shake: prefs.display.shake,
+      reduceFlashes: prefs.display.reduceFlashes,
+    };
+    const inputSettings = {
+      sensitivity: prefs.controls.sensitivity,
+      leftHanded: prefs.controls.leftHanded,
+      aim: prefs.controls.aim,
+    };
+    void Promise.all([
+      GameHost.create(el, `run-${Date.now()}`, quality, inputSettings),
+      initAudio(),
+    ]).then(([host, engine]) => {
+      if (disposed) {
+        host.destroy();
+        return;
+      }
+      hostRef.current = host;
+      window.__voidpulse = host;
+      host.applyPrefs(prefs.controls, prefs.display);
+      if (engine) host.audio = new GameAudio(engine);
+      host.onStatus = (status) => {
+        onStatus(host, status);
+      };
+      host.onPauseRequest = () => {
+        if (useUi.getState().overlay === null) {
+          host.pause();
+          setOverlay('pause');
         }
-        hostRef.current = host;
-        window.__voidpulse = host;
-        if (engine) host.audio = new GameAudio(engine);
-        host.onStatus = (status) => {
-          onStatus(host, status);
-        };
-        host.onPauseRequest = () => {
-          if (useUi.getState().overlay === null) {
-            host.pause();
-            setOverlay('pause');
-          }
-        };
-        if (bench) host.startBench({ enemies: 650, shots: 1100 });
-        host.start();
-        setHost(host);
-      },
-    );
+      };
+      if (bench) host.startBench({ enemies: 650, shots: 1100 });
+      host.start();
+      setHost(host);
+    });
     const onHide = (): void => {
       const host = hostRef.current;
       if (document.hidden && host && useUi.getState().overlay === null) {
@@ -97,6 +130,13 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       if (window.__voidpulse) delete window.__voidpulse;
     };
   }, [bench, onStatus, setOverlay]);
+
+  // Réglages modifiés en cours de partie (panneau de pause).
+  const controls = useSave((s) => s.data.controls);
+  const display = useSave((s) => s.data.display);
+  useEffect(() => {
+    host?.applyPrefs(controls, display);
+  }, [host, controls, display]);
 
   useEffect(() => {
     host?.setDebugOverlay(debugPanel);
@@ -168,6 +208,15 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
             <button
               className="btn-ghost"
               onClick={() => {
+                uiSound(audio(), 'ui.click');
+                setSettingsOpen(true);
+              }}
+            >
+              Réglages
+            </button>
+            <button
+              className="btn-ghost"
+              onClick={() => {
                 uiSound(audio(), 'ui.back');
                 onQuit();
               }}
@@ -188,6 +237,14 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           onMenu={() => {
             uiSound(audio(), 'ui.back');
             onQuit();
+          }}
+        />
+      )}
+      {settingsOpen && (
+        <SettingsPanel
+          onClose={() => {
+            uiSound(audio(), 'ui.back');
+            setSettingsOpen(false);
           }}
         />
       )}

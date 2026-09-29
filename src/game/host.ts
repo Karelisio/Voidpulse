@@ -8,6 +8,7 @@ import { FixedLoop } from '../engine/loop';
 import type { HudState } from '../render/hud';
 import { DEFAULT_QUALITY, GameRenderer, type QualitySettings } from '../render/renderer';
 import { benchTick, setupBench, type BenchConfig } from '../systems/bench';
+import type { ControlPrefs, DisplayPrefs } from '../save/schema';
 import { RunSim } from '../systems/sim';
 import type { RunStatus } from '../systems/state';
 import { dispatchEvents, type AudioSink } from './feel';
@@ -31,6 +32,23 @@ export class GameHost {
   onStatus: (status: RunStatus) => void = () => undefined;
   onPauseRequest: () => void = () => undefined;
   fps = 60;
+
+  /** Applique les préférences du joueur (contrôles, affichage) en cours de partie. */
+  applyPrefs(c: ControlPrefs, d: DisplayPrefs): void {
+    this.input.settings = { sensitivity: c.sensitivity, leftHanded: c.leftHanded, aim: c.aim };
+    this.haptics.enabled = c.haptics;
+    if (this.renderer.leftHanded !== c.leftHanded) {
+      this.renderer.leftHanded = c.leftHanded;
+      this.renderer.resize();
+    }
+    const q = this.renderer.quality;
+    q.particles = d.particles;
+    q.damageNumbers = d.damageNumbers;
+    q.shake = d.shake;
+    q.reduceFlashes = d.reduceFlashes;
+    this.renderer.applyQuality();
+    this.loop.fpsCap = d.fpsCap;
+  }
 
   /** Réglages du menu debug (méthodes : l'UI React ne mute pas l'hôte directement). */
   setDebugOverlay(visible: boolean): void {
