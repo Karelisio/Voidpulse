@@ -1439,3 +1439,55 @@ button:focus-visible {
 .dps th:last-child {
   text-align: right;
 }
+
+/* --- Ascension ------------------------------------------------------------------------------ */
+
+.ascension {
+  display: grid;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--vp-gold) 45%, var(--vp-line));
+}
+
+.ascension-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ascension-row b {
+  color: var(--vp-gold);
+}
+
+.ascension-row button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel-2);
+  color: var(--vp-fg);
+  font: 700 16px var(--vp-font);
+}
+
+.ascension-row button:disabled {
+  opacity: 0.35;
+}
+
+.ascension-row small {
+  margin-left: auto;
+  color: var(--vp-muted);
+}
+
+.ascension-list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding-left: 22px;
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 12px;
+  color: var(--vp-muted);
+}

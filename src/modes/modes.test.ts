@@ -13,6 +13,7 @@ import {
   type RunSetup,
 } from './modes';
 import { beginDaily, recordMode, type ModeResult } from './records';
+import { ascensionMods } from '../meta/ascension';
 
 const setup = (over: Partial<RunSetup> = {}): RunSetup => ({
   mode: 'campaign',
@@ -97,6 +98,17 @@ describe('construction des parties', () => {
     expect(daily.seed).toBe(c.seed);
     expect(daily.options).toMatchObject({ character: c.character.id, stage: c.stage.id });
     expect(daily.options.pacts).toEqual(c.pacts.map((p) => p.id));
+  });
+
+  it('Ascension : modificateurs cumulés appliqués en Campagne et Hardcore seulement', () => {
+    const run = buildRun(setup({ ascension: 3 }));
+    expect(run.ascension).toBe(3);
+    expect(run.options.rules?.mods).toEqual(ascensionMods(3));
+    expect(run.detail).toContain('Ascension 3');
+    expect(buildRun(setup({ mode: 'endless', ascension: 3 })).ascension).toBe(0);
+    const sim = new RunSim({ seed: run.seed, ...run.options });
+    expect(sim.state.pacts.mods.enemyHp).toBeCloseTo(1.1);
+    expect(sim.state.pacts.taken).toEqual([]);
   });
 
   it('Boss Rush : les 16 boss et le build choisi', () => {

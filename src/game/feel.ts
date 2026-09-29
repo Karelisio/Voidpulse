@@ -118,6 +118,21 @@ export function dispatchEvents(
         cam.shake(0.35);
         haptics.hurt();
         break;
+      case EV.PLAYER_REVIVE:
+        // Résurrection (méta) : onde claire qui repousse l'écran de la mort.
+        renderer.screenFlash(0xffffff, 0.6);
+        renderer.ring(x, y, 260, PALETTE.yellow, 0.9);
+        renderer.burst(x, y, PALETTE.yellow, 36, 300, 0.9, 1.4);
+        renderer.hud.banner(
+          'RÉSURRECTION',
+          a > 0 ? `Encore ${String(a)}` : 'Dernière chance',
+          PALETTE.yellow,
+          1.8,
+        );
+        cam.shake(0.6);
+        loop.hitStopFor(12);
+        haptics.boss();
+        break;
       case EV.PLAYER_DEATH:
         renderer.burst(x, y, PALETTE.cyan, 40, 320, 1, 1.6);
         renderer.ring(x, y, 160, PALETTE.cyan, 0.7);

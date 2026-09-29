@@ -36,7 +36,8 @@ export interface ModeRecord {
   lines: string[];
 }
 
-export function recordMode(d: SaveData, r: ModeResult): ModeRecord {
+/** `fragMult` : bonus de fragments de la méta (talents, Ascension). */
+export function recordMode(d: SaveData, r: ModeResult, fragMult = 1): ModeRecord {
   const out: ModeRecord = { fragments: 0, lines: [] };
   if (r.mode === 'training') {
     out.lines.push('Entraînement : partie non comptée.');
@@ -104,16 +105,18 @@ export function recordMode(d: SaveData, r: ModeResult): ModeRecord {
     default:
   }
   // Fragments ramenés : doublés en Hardcore, dont la moitié perdue à la mort.
-  let mult = 1;
+  let mult = fragMult;
   if (r.mode === 'hardcore') {
     const h = MODES.hardcore;
-    mult = h.rewardMult * (r.victory ? 1 : h.deathKeep);
+    mult *= h.rewardMult * (r.victory ? 1 : h.deathKeep);
   }
   out.fragments = Math.max(0, Math.floor(r.fragments * mult));
   d.wallet.fragments += out.fragments;
   if (out.fragments > 0) {
     out.lines.push(
-      `Fragments : +${String(out.fragments)}${mult !== 1 ? ` (×${String(mult)})` : ''}`,
+      `Fragments : +${String(out.fragments)}${
+        mult !== 1 ? ` (×${mult.toLocaleString('fr-FR', { maximumFractionDigits: 2 })})` : ''
+      }`,
     );
   }
   return out;

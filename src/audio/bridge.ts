@@ -102,6 +102,10 @@ export class GameAudio implements AudioBridge {
           sfx.play('player.hurt');
           e.duck(-4, 0.02, 0.15, 0.5);
           break;
+        case EV.PLAYER_REVIVE:
+          sfx.play('eveil.start');
+          e.duck(-6, 0.02, 0.6, 1);
+          break;
         case EV.PLAYER_DEATH:
           sfx.play('player.death');
           e.duck(-10, 0.05, 1.2, 2);

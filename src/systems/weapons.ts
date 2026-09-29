@@ -7,7 +7,6 @@
 import {
   RESONANCE,
   WEAPONS,
-  colorOf,
   elementIndex,
   type WeaponDef,
   type WeaponParams,
@@ -106,8 +105,6 @@ export function normParams(p: WeaponParams): WeaponParamsN {
   };
 }
 
-/** Teinte des images blanches (couleur de l'élément). */
-const TINT = Uint32Array.from(WEAPONS.map((w) => colorOf(w.color)));
 const ARCH = {
   projectile: 0,
   orbit: 1,
@@ -138,9 +135,24 @@ function projectileFrame(element: number): number {
   }
 }
 
+/**
+ * Image d'un tir : les images colorées d'origine (feu, givre) sont remplacées par leur
+ * équivalent blanc quand l'arme porte une apparence de maîtrise.
+ */
+function shotFrame(sim: RunSim, defIndex: number, frame: number): number {
+  if (sim.skinned[defIndex] === 0) return frame;
+  return frame === FRAME.SHOT_FIRE
+    ? FRAME.SHOT_ORB
+    : frame === FRAME.ORB_FROST
+      ? FRAME.ORB_GENERIC
+      : frame;
+}
+
 /** Les images colorées d'origine (feu, givre) ne sont pas teintées. */
-function tintFor(defIndex: number, frame: number): number {
-  return frame === FRAME.SHOT_FIRE || frame === FRAME.ORB_FROST ? 0xffffff : TINT[defIndex];
+function tintFor(sim: RunSim, defIndex: number, frame: number): number {
+  return frame === FRAME.SHOT_FIRE || frame === FRAME.ORB_FROST
+    ? 0xffffff
+    : sim.weaponTint[defIndex];
 }
 
 export function addWeapon(sim: RunSim, defIndex: number): WeaponInstance | null {
@@ -271,7 +283,12 @@ function castWeapon(sim: RunSim, w: WeaponInstance): boolean {
 
 function damageOf(sim: RunSim, w: WeaponInstance): number {
   const s = sim.state.player.stats;
-  return w.stats.damage * s.damageMult * s.elementMult[w.element];
+  return (
+    w.stats.damage *
+    s.damageMult *
+    s.elementMult[w.element] *
+    sim.state.meta.weaponDamage[w.defIndex]
+  );
 }
 
 function powerOf(sim: RunSim, w: WeaponInstance): number {
@@ -290,8 +307,8 @@ function fireProjectiles(sim: RunSim, w: WeaponInstance): void {
   const base = aimAngle(sim, px, py, 520);
   const n = w.stats.count + stats.amount;
   const prm = w.params;
-  const frame = projectileFrame(w.element);
-  const tint = tintFor(w.defIndex, frame);
+  const frame = shotFrame(sim, w.defIndex, projectileFrame(w.element));
+  const tint = tintFor(sim, w.defIndex, frame);
   const dmg = damageOf(sim, w);
   const power = powerOf(sim, w);
   const area = stats.areaMult;
@@ -350,7 +367,7 @@ function fireBoomerangs(sim: RunSim, w: WeaponInstance): void {
       12,
       w.stats.size * area,
       FRAME.SHOT_DISC,
-      TINT[w.defIndex],
+      sim.weaponTint[w.defIndex],
     );
     if (s < 0) break;
     Shot.kind[s] = SHOT_KIND.BOOMERANG;
@@ -388,7 +405,7 @@ function fireHoming(sim: RunSim, w: WeaponInstance): void {
       w.stats.duration * stats.durationMult,
       w.stats.size * area,
       frame,
-      TINT[w.defIndex],
+      sim.weaponTint[w.defIndex],
     );
     if (s < 0) break;
     Shot.kind[s] = SHOT_KIND.HOMING;
@@ -428,7 +445,7 @@ function fireBeams(sim: RunSim, w: WeaponInstance): void {
     Zone.rot[z] = angle;
     Zone.state[z] = prm.track;
     Zone.crit[z] = prm.critBonus;
-    armZone(z, w.element, w.slot, power, prm.tick, 0, TINT[w.defIndex]);
+    armZone(z, w.element, w.slot, power, prm.tick, 0, sim.weaponTint[w.defIndex]);
   }
   fireEvent(sim, w, px, py, 0);
 }
@@ -566,7 +583,7 @@ function placeMines(sim: RunSim, w: WeaponInstance): void {
     if (z < 0) break;
     Zone.w[z] = w.stats.size * stats.areaMult;
     Zone.h[z] = w.params.arm;
-    armZone(z, w.element, w.slot, power, 0, w.params.pull, TINT[w.defIndex]);
+    armZone(z, w.element, w.slot, power, 0, w.params.pull, sim.weaponTint[w.defIndex]);
   }
   fireEvent(sim, w, px, py, 0);
 }
@@ -614,11 +631,11 @@ function castZones(sim: RunSim, w: WeaponInstance): boolean {
       z = spawnZone(sim, ZONE.STRIKE, x, y, r, prm.strike, dmg, w.defIndex);
       if (z < 0) break;
       Zone.crit[z] = prm.critBonus;
-      armZone(z, w.element, w.slot, power, 0, 0, TINT[w.defIndex]);
+      armZone(z, w.element, w.slot, power, 0, 0, sim.weaponTint[w.defIndex]);
     } else {
       z = spawnZone(sim, ZONE.POOL, x, y, r, w.stats.duration * stats.durationMult, dmg, 0);
       if (z < 0) break;
-      armZone(z, w.element, w.slot, power, prm.tick, prm.pull, TINT[w.defIndex]);
+      armZone(z, w.element, w.slot, power, prm.tick, prm.pull, sim.weaponTint[w.defIndex]);
     }
   }
   releaseBuffer(sim);
@@ -664,14 +681,18 @@ function updateOrbit(sim: RunSim, w: WeaponInstance, cdMult: number): void {
   const stats = p.stats;
   const count = w.stats.count + stats.amount;
   // Ajuste le nombre d'éclats de cette arme.
-  const frame = w.element === FROST ? FRAME.ORB_FROST : FRAME.ORB_GENERIC;
+  const frame = shotFrame(
+    sim,
+    w.defIndex,
+    w.element === FROST ? FRAME.ORB_FROST : FRAME.ORB_GENERIC,
+  );
   while (w.shards < count) {
     const o = sim.spawnIn(pool);
     if (o < 0) break;
     Orbit.slot[o] = w.slot;
     Orbit.index[o] = w.shards++;
     Look.frame[o] = frame;
-    Look.tint[o] = tintFor(w.defIndex, frame);
+    Look.tint[o] = tintFor(sim, w.defIndex, frame);
   }
   const px = Pos.x[p.eid];
   const py = Pos.y[p.eid];

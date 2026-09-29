@@ -20,6 +20,7 @@ import {
   type WeeklyRulesetDef,
 } from '../content/data';
 import { Rng } from '../engine/rng';
+import { ascensionMods, MAX_ASCENSION } from '../meta/ascension';
 import type { RunOptions } from '../systems/sim';
 import type { RunRules } from '../systems/state';
 
@@ -106,6 +107,8 @@ export interface RunSetup {
   character: string;
   stage: string;
   loadout?: Loadout;
+  /** Palier d'Ascension choisi (Campagne, Hardcore). */
+  ascension?: number;
   now: Date;
   /** Graine des parties libres. */
   nonce: string;
@@ -119,6 +122,8 @@ export interface ModeRun {
   detail: string;
   /** Défi du jour / de la semaine : clé de période. */
   period: string;
+  /** Palier d'Ascension appliqué (0 : aucun). */
+  ascension: number;
 }
 
 /** Tous les boss, secteur par secteur : le mini-boss puis le boss final. */
@@ -141,14 +146,29 @@ export function buildRun(setup: RunSetup): ModeRun {
   const info = MODE_INFO[setup.mode];
   const character = CHARACTERS.find((c) => c.id === setup.character) ?? CHARACTERS[0];
   const stage = STAGES[setup.stage] ?? CAMPAIGN[0];
-  const free = { seed: setup.nonce, label: info.name, detail: stage.name, period: '' };
+  const free = {
+    seed: setup.nonce,
+    label: info.name,
+    detail: stage.name,
+    period: '',
+    ascension: 0,
+  };
   switch (setup.mode) {
     case 'campaign':
-    case 'hardcore':
+    case 'hardcore': {
+      const tier = Math.max(0, Math.min(MAX_ASCENSION, setup.ascension ?? 0));
       return {
         ...free,
-        options: { character: character.id, stage: stage.id, pactChoice: true },
+        ascension: tier,
+        detail: tier > 0 ? `${stage.name} · Ascension ${String(tier)}` : stage.name,
+        options: {
+          character: character.id,
+          stage: stage.id,
+          pactChoice: true,
+          rules: tier > 0 ? { mods: ascensionMods(tier) } : undefined,
+        },
       };
+    }
     case 'endless': {
       const e = MODES.endless;
       const rules: Partial<RunRules> = {
@@ -173,6 +193,7 @@ export function buildRun(setup: RunSetup): ModeRun {
         label: info.name,
         detail: `${c.day} · ${c.stage.name}`,
         period: c.day,
+        ascension: 0,
         options: {
           character: c.character.id,
           stage: c.stage.id,
@@ -199,6 +220,7 @@ export function buildRun(setup: RunSetup): ModeRun {
         label: info.name,
         detail: `${r.name} · ${c.stage.name}`,
         period: c.week,
+        ascension: 0,
         options: {
           character: character.id,
           stage: c.stage.id,

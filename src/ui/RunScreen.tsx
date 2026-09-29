@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ENEMIES, WEAPONS } from '../content/data';
+import { BOSSES, ENEMIES, REACTIONS, WEAPONS } from '../content/data';
+import { ascensionOpen } from '../meta/account';
+import { ascensionReward, ascensionSelected } from '../meta/ascension';
+import { metaBonus, type MetaBonus } from '../meta/bonus';
+import { applyRunMeta } from '../meta/progress';
 import { audio, initAudio } from '../audio';
 import { GameAudio, uiSound } from '../audio/bridge';
 import { GameHost } from '../game/host';
@@ -69,25 +73,31 @@ interface ActiveRun {
   mode: ModeId;
   run: ModeRun;
   counted: boolean;
+  /** Bonus de méta figés au lancement (fragments et XP de compte en fin de partie). */
+  meta: MetaBonus;
 }
 
 /** Construit la partie du mode choisi ; le défi du jour marque son essai dès le départ. */
 function setupRun(bench: boolean, again = false): ActiveRun {
   const prefs = useSave.getState().data;
   const mode = bench ? 'campaign' : useUi.getState().mode;
+  const stage = bench ? 'proto' : prefs.profile.stage;
   const run = buildRun({
     mode,
     character: prefs.profile.character,
-    stage: bench ? 'proto' : prefs.profile.stage,
+    stage,
     loadout: prefs.profile.loadout,
+    ascension: ascensionOpen(prefs) ? ascensionSelected(prefs, stage) : 0,
     now: new Date(),
     nonce: `run-${String(Date.now())}`,
   });
+  const meta = metaBonus(prefs);
   if (bench) run.options.pactChoice = false;
+  else run.options.meta = meta.run;
   // Essai du jour : seule la première partie lancée depuis le choix du mode compte.
   const ui = useUi.getState();
   const counted = mode === 'daily' && !again && ui.dailyCounted;
-  return { mode, run, counted };
+  return { mode, run, counted, meta };
 }
 
 /**
@@ -112,21 +122,41 @@ function recordRun(host: GameHost, active: ActiveRun): RunRecord {
   const counts = mode !== 'training';
   out.bestScore = counts && score > before.profile.bestScore;
   void useSave.getState().commit((d) => {
-    const result = recordMode(d, {
-      mode,
-      stage: st.stage.name,
-      character: st.character.name,
-      victory: st.status === 'victory',
-      score,
-      time: st.time,
-      bosses: st.stats.bossesDefeated.length,
-      fragments: st.stats.fragments,
-      period: run.period,
-      counted: active.counted,
-      at: Date.now(),
-    });
+    const result = recordMode(
+      d,
+      {
+        mode,
+        stage: st.stage.name,
+        character: st.character.name,
+        victory: st.status === 'victory',
+        score,
+        time: st.time,
+        bosses: st.stats.bossesDefeated.length,
+        fragments: st.stats.fragments,
+        period: run.period,
+        counted: active.counted,
+        at: Date.now(),
+      },
+      active.meta.fragMult * ascensionReward(run.ascension),
+    );
     out.modeLines = result.lines;
     if (!counts) return;
+    const progress = applyRunMeta(d, {
+      mode,
+      stage: st.stage.id,
+      stageName: st.stage.name,
+      victory: st.status === 'victory',
+      score,
+      ascension: run.ascension,
+      seed: run.seed,
+      weapons: st.weapons.map((w) => ({ id: w.def.id, damage: st.stats.damageBySlot[w.slot] })),
+      enemies: ENEMIES.filter((_, i) => st.stats.killsByType[i] > 0).map((e) => e.id),
+      evolutions: st.weapons.filter((w) => w.evolved).map((w) => w.def.evolution.id),
+      reactions: REACTIONS.filter((_, i) => st.resonance.countById[i] > 0).map((r) => r.id),
+      bosses: st.stats.bossesDefeated.map((i) => BOSSES[i].id),
+      xpMult: active.meta.xpMult,
+    });
+    out.modeLines.push(...progress.lines);
     const s = d.stats;
     s.runs++;
     if (st.status === 'victory') s.victories++;
@@ -140,7 +170,7 @@ function recordRun(host: GameHost, active: ActiveRun): RunRecord {
     if (st.status === 'victory') d.profile.bestRank = Math.max(d.profile.bestRank, rank);
     // La campagne n'avance qu'en Campagne et en Hardcore ; les boss vaincus comptent partout.
     const campaign = mode === 'campaign' || mode === 'hardcore';
-    const progress = recordStage(d, {
+    const stageProgress = recordStage(d, {
       stage: campaign ? st.stage.id : '',
       victory: st.status === 'victory',
       score,
@@ -148,8 +178,8 @@ function recordRun(host: GameHost, active: ActiveRun): RunRecord {
       rank,
       bosses: st.stats.bossesDefeated,
     });
-    out.stages = progress.stages.map((x) => x.name);
-    out.bosses = progress.bosses;
+    out.stages = stageProgress.stages.map((x) => x.name);
+    out.bosses = stageProgress.bosses;
     out.unlocked = applyUnlocks(d).map((c) => c.name);
   });
   return out;

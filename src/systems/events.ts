@@ -81,6 +81,8 @@ export const EV = {
   PACT: 38,
   /** Fin d'un dash : a : type, x/y : arrivée, v : rayon de l'effet. */
   DASH_END: 39,
+  /** Résurrection (méta) : x/y, a : résurrections restantes. */
+  PLAYER_REVIVE: 40,
 } as const;
 
 /** Actions d'ennemis signalées au rendu et à l'audio. */

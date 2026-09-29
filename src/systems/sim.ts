@@ -15,6 +15,7 @@ import {
   WEAPONS,
   CAMPAIGN,
   bossIndex,
+  colorOf,
 } from '../content/data';
 import { Foe, Life, Pos } from '../engine/components';
 import { DT } from '../engine/constants';
@@ -53,7 +54,14 @@ import {
 } from './runevents';
 import { createMechanic, updateStageMechanic } from './stagefx';
 import { createPacts, imposePacts, offerPacts, sealPacts } from './pacts';
-import type { AltarOfferKind, RunEventKind, RunRules, RunState, SimInput } from './state';
+import type {
+  AltarOfferKind,
+  MetaRunBonus,
+  RunEventKind,
+  RunRules,
+  RunState,
+  SimInput,
+} from './state';
 import { addWeapon, levelUpWeapon, maxWeaponLevel, updateWeapons } from './weapons';
 import { updateZones } from './zones';
 
@@ -71,6 +79,17 @@ export interface RunOptions {
   view?: { halfW: number; halfH: number };
   /** Règles posées par le mode de jeu (valeurs neutres par défaut). */
   rules?: Partial<RunRules>;
+  /** Bonus permanents (talents, Paragon, reliques, maîtrise). */
+  meta?: MetaRunBonus;
+}
+
+export function neutralMeta(): MetaRunBonus {
+  return {
+    stats: {},
+    revives: 0,
+    weaponDamage: WEAPONS.map(() => 1),
+    weaponTint: WEAPONS.map(() => 0),
+  };
 }
 
 export function defaultRules(): RunRules {
@@ -114,6 +133,9 @@ export class RunSim {
   /** Boss finaux des autres stages de la campagne (partie sans fin), dans l'ordre. */
   readonly endlessFinals: readonly number[];
   readonly state: RunState;
+  /** Teinte des tirs par arme (apparences de maîtrise comprises), arme à apparence choisie. */
+  readonly weaponTint: Uint32Array;
+  readonly skinned: Uint8Array;
   readonly input: SimInput = { moveX: 0, moveY: 0, dash: false, aim: 'auto' };
   readonly view: { halfW: number; halfH: number };
 
@@ -135,6 +157,10 @@ export class RunSim {
     this.plan = planStage(stage);
     this.endlessFinals = CAMPAIGN.filter((s) => s.id !== stage.id).map((s) => bossIndex(s.boss));
     const rules: RunRules = { ...defaultRules(), ...opts.rules };
+    const meta = opts.meta ?? neutralMeta();
+    // Teintes des armes : couleur d'origine, ou apparence de maîtrise.
+    this.weaponTint = Uint32Array.from(WEAPONS, (w, i) => meta.weaponTint[i] || colorOf(w.color));
+    this.skinned = Uint8Array.from(WEAPONS, (_, i) => (meta.weaponTint[i] ? 1 : 0));
     this.state = {
       tick: 0,
       time: 0,
@@ -165,6 +191,7 @@ export class RunSim {
         dashCharges: character.dash.charges,
         dashFromX: 0,
         dashFromY: 0,
+        revives: meta.revives,
         stats: baseStats(),
       },
       weapons: [],
@@ -186,9 +213,13 @@ export class RunSim {
       boss: createBossState(),
       levelUp: {
         choices: [],
-        rerolls: PROGRESSION.rerolls + (character.passive.stats.rerolls ?? 0),
-        banishes: PROGRESSION.banishes + (character.passive.stats.banishes ?? 0),
-        locks: PROGRESSION.locks + (character.passive.stats.locks ?? 0),
+        rerolls:
+          PROGRESSION.rerolls + (character.passive.stats.rerolls ?? 0) + (meta.stats.rerolls ?? 0),
+        banishes:
+          PROGRESSION.banishes +
+          (character.passive.stats.banishes ?? 0) +
+          (meta.stats.banishes ?? 0),
+        locks: PROGRESSION.locks + (character.passive.stats.locks ?? 0) + (meta.stats.locks ?? 0),
         locked: null,
         banished: new Set(),
       },
@@ -217,6 +248,7 @@ export class RunSim {
       pacts: createPacts(opts.pactChoice ?? false, rules.mods),
       mechanic: createMechanic(stage),
       rules,
+      meta,
       debug: { invincible: rules.sandbox },
     };
     const p = this.state.player;

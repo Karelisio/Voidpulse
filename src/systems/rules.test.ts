@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { BOSSES, CAMPAIGN, PASSIVES, WEAPONS, bossIndex } from '../content/data';
 import { Life } from '../engine/components';
 import { endlessBoss } from './director';
-import { RunSim, type RunOptions } from './sim';
+import { damagePlayer } from './player';
+import { neutralMeta, RunSim, type RunOptions } from './sim';
 
 function step(sim: RunSim, seconds: number): void {
   for (let t = 0; t < seconds * 60; t++) {
@@ -149,5 +150,39 @@ describe('règles de run', () => {
     sim.debugRemoveWeapon(first);
     expect(sim.state.weapons.map((w) => w.slot)).toEqual([0, 1]);
     step(sim, 2);
+  });
+});
+
+describe('bonus de méta', () => {
+  it('statistiques, résurrection, dégâts et apparence par arme', () => {
+    const base = make({ stage: 'forest' });
+    const meta = neutralMeta();
+    const sim = make({
+      stage: 'forest',
+      meta: {
+        stats: { damage: 0.5, maxHp: 20, rerolls: 2 },
+        revives: 1,
+        weaponDamage: meta.weaponDamage.map((_, i) => (i === 0 ? 2 : 1)),
+        weaponTint: meta.weaponTint.map((_, i) => (i === 0 ? 0x123456 : 0)),
+      },
+    });
+    const a = base.state.player.stats;
+    const b = sim.state.player.stats;
+    expect(b.damageMult).toBeCloseTo(a.damageMult * 1.5);
+    expect(b.maxHp).toBe(a.maxHp + 20);
+    expect(sim.state.levelUp.rerolls).toBe(base.state.levelUp.rerolls + 2);
+    expect(sim.weaponTint[0]).toBe(0x123456);
+    expect(sim.skinned[0]).toBe(1);
+    expect(sim.skinned[1]).toBe(0);
+    // Résurrection : une seule, à la moitié des PV.
+    const st = sim.state;
+    st.debug.invincible = false;
+    damagePlayer(sim, 1e6);
+    expect(st.status).toBe('running');
+    expect(st.player.hp).toBeCloseTo(b.maxHp * 0.5);
+    expect(st.player.revives).toBe(0);
+    st.player.iFrames = 0;
+    damagePlayer(sim, 1e6);
+    expect(st.status).toBe('dead');
   });
 });

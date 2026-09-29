@@ -2,14 +2,73 @@
 import { useState } from 'react';
 import { audio } from '../audio';
 import { uiSound } from '../audio/bridge';
-import { BOSSES, CAMPAIGN, PACTS } from '../content/data';
+import { BOSSES, CAMPAIGN, META, PACTS } from '../content/data';
+import { ascensionOpen } from '../meta/account';
+import {
+  ascensionReward,
+  ascensionSelected,
+  ascensionUnlocked,
+  selectAscension,
+} from '../meta/ascension';
 import { stageUnlocked } from '../meta/stages';
+import { useUi } from '../state/ui';
 import { useSave } from '../state/save';
 import { formatTime } from './summary';
 import { bossPortrait } from './portraits';
 
 function bossName(id: string | undefined): string {
   return BOSSES.find((b) => b.id === id)?.name ?? '';
+}
+
+/** Palier d'Ascension du secteur : ouvert palier après palier, en gagnant au plus haut. */
+function AscensionPicker({ stage }: { stage: string }) {
+  const data = useSave((s) => s.data);
+  const update = useSave((s) => s.update);
+  const max = ascensionUnlocked(data, stage);
+  const tier = ascensionSelected(data, stage);
+  const set = (t: number): void => {
+    uiSound(audio(), 'ui.click');
+    update((d) => {
+      selectAscension(d, stage, t);
+    });
+  };
+  const reward = ascensionReward(tier).toLocaleString('fr-FR', { maximumFractionDigits: 2 });
+  return (
+    <div className="ascension">
+      <div className="ascension-row">
+        <b>Ascension</b>
+        <button
+          aria-label="Palier inférieur"
+          disabled={tier <= 0}
+          onClick={() => {
+            set(tier - 1);
+          }}
+        >
+          −
+        </button>
+        <span id="ascension-tier">
+          {tier} / {max}
+        </span>
+        <button
+          aria-label="Palier supérieur"
+          disabled={tier >= max}
+          onClick={() => {
+            set(tier + 1);
+          }}
+        >
+          +
+        </button>
+        <small>Récompenses ×{reward}</small>
+      </div>
+      {tier > 0 && (
+        <ol className="ascension-list">
+          {META.ascension.tiers.slice(0, tier).map((t) => (
+            <li key={t.tier}>{t.description}</li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
 }
 
 export function StageSelect({
@@ -32,6 +91,11 @@ export function StageSelect({
   const s = CAMPAIGN[selected];
   const best = data.profile.stageBest[s.id] as (typeof data.profile.stageBest)[string] | undefined;
   const cleared = data.profile.cleared.includes(s.id);
+  const mode = useUi((st) => st.mode);
+  const ascension =
+    (mode === 'campaign' || mode === 'hardcore') &&
+    ascensionOpen(data) &&
+    ascensionUnlocked(data, s.id) > 0;
   const style = {
     '--stage': s.palette.grid,
     '--stage-2': s.palette.accent,
@@ -98,6 +162,7 @@ export function StageSelect({
                   }${cleared ? ' · terminé' : ''}`
                 : 'Jamais exploré'}
             </p>
+            {ascension && <AscensionPicker stage={s.id} />}
           </>
         ) : (
           <p className="muted">

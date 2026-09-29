@@ -105,6 +105,9 @@ export function updatePlayer(sim: RunSim): void {
   Look.rot[eid] = Math.atan2(p.faceY, p.faceX);
 }
 
+/** Invulnérabilité après une résurrection (s). */
+const REVIVE_IFRAMES = 2.5;
+
 /** Dégâts au joueur (ignorés pendant l'invulnérabilité). Renvoie true s'ils ont porté. */
 export function damagePlayer(sim: RunSim, amount: number): boolean {
   const p = sim.state.player;
@@ -125,6 +128,15 @@ export function damagePlayer(sim: RunSim, amount: number): boolean {
     Pos.y[p.eid],
     amount,
   );
+  if (p.hp <= 0 && p.revives > 0) {
+    // Résurrection (méta) : moitié des PV, longue invulnérabilité.
+    p.revives--;
+    p.hp = p.stats.maxHp * 0.5;
+    p.iFrames = REVIVE_IFRAMES;
+    Life.hp[p.eid] = p.hp;
+    sim.events.push(EV.PLAYER_REVIVE, p.revives, 0, Pos.x[p.eid], Pos.y[p.eid], 0);
+    return true;
+  }
   if (p.hp <= 0) {
     p.hp = 0;
     sim.state.status = 'dead';

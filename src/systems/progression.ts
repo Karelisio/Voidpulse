@@ -87,6 +87,8 @@ export function computeStats(sim: RunSim): PlayerStats {
   const st = sim.state;
   const stats = baseStats();
   applyStats(stats, st.character.passive.stats, 1);
+  // Méta : talents, Paragon, reliques.
+  applyStats(stats, st.meta.stats, 1);
   for (const p of st.passives) applyStats(stats, p.def.perLevel, p.level);
   // Bonus de la run (autel, marchand), puis pactes.
   const bonus = st.bonus;

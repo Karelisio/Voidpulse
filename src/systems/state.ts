@@ -81,6 +81,8 @@ export interface WeaponParamsN {
 }
 
 export interface PlayerState {
+  /** Résurrections restantes (méta). */
+  revives: number;
   eid: number;
   hp: number;
   level: number;
@@ -435,6 +437,8 @@ export interface RunState {
   pacts: PactState;
   mechanic: MechanicState;
   rules: RunRules;
+  /** Bonus permanents de la méta. */
+  meta: MetaRunBonus;
   stats: RunStats;
   debug: { invincible: boolean };
 }

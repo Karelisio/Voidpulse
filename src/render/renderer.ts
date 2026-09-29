@@ -12,7 +12,6 @@ import {
   ENEMIES,
   ENEMY_PARAM,
   STAGES,
-  WEAPONS,
   colorOf,
   type StageDef,
 } from '../content/data';
@@ -705,7 +704,7 @@ export class GameRenderer {
       p.rotation = this.time * 0.4;
       p.scaleX = r / 60;
       p.scaleY = r / 60;
-      p.color = particleColor(AURA_TINT[w.defIndex], 0.3 + 0.06 * Math.sin(this.time * 3));
+      p.color = particleColor(sim.weaponTint[w.defIndex], 0.3 + 0.06 * Math.sin(this.time * 3));
     }
     for (let i = 0; i < pool.count; i++) {
       const z = pool.active[i];
@@ -876,4 +875,3 @@ const ELITE_COLOR = 0xffd23d;
 const FROST_TINT = 0x8fd8ff;
 const BUBBLE_TINT = colorOf(AFFIXES.find((a) => a.id === 'shielded')?.color ?? '#7dfcff');
 const GUARD_TINT = 0x7dfcff;
-const AURA_TINT = Uint32Array.from(WEAPONS.map((w) => colorOf(w.color)));
