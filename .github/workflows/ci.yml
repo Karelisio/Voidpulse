@@ -2,6 +2,8 @@ name: CI
 
 on:
   pull_request:
+    # edited : le titre de la PR (message du squash) est revérifié quand il change.
+    types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
 
 concurrency:
