@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sauvegarde Android (≤ 11) : préférences (progression) oui, cache (APK) non. -->
+<full-backup-content>
+    <include domain="sharedpref" path="." />
+    <exclude domain="file" path="." />
+</full-backup-content>

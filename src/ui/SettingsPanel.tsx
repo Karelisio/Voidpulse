@@ -6,6 +6,7 @@ import { useState, type ReactNode } from 'react';
 import { num, setLanguage, t, useLang, type TKey } from '../i18n';
 import { QUALITY_PRESETS, type SaveData } from '../save/schema';
 import { notificationsAvailable, requestNotifications } from '../platform/notify';
+import { useBackHandler } from '../platform/back';
 import { useSave } from '../state/save';
 import { syncNotifications } from '../state/session';
 
@@ -614,6 +615,10 @@ function SaveTab() {
 
 export function SettingsPanel({ onClose }: { onClose: () => void }) {
   useLang();
+  useBackHandler(() => {
+    onClose();
+    return true;
+  });
   const d = useSave((s) => s.data);
   const update = useSave((s) => s.update);
   const error = useSave((s) => s.error);

@@ -13,6 +13,7 @@ import type { ControlPrefs, DisplayPrefs } from '../save/schema';
 import { RunSim, type RunOptions } from '../systems/sim';
 import type { RunStatus } from '../systems/state';
 import { dispatchEvents, type AudioSink } from './feel';
+import { nativeHaptics } from '../platform/android';
 import { Haptics } from './haptics';
 import { DEFAULT_INPUT, GameInput, type InputSettings } from './input';
 
@@ -143,7 +144,12 @@ export class GameHost {
     renderer.leftHanded = inputSettings.leftHanded;
     const input = new GameInput(renderer.app.canvas, inputSettings, () => renderer.hud.dashButton);
     input.attach();
-    return new GameHost(renderer, input, seed, options);
+    // Vue de la simulation (apparitions hors champ) selon l'orientation de l'écran.
+    const landscape = renderer.width > renderer.height;
+    const view = landscape ? { halfW: 490, halfH: 230 } : { halfW: 230, halfH: 490 };
+    const host = new GameHost(renderer, input, seed, { view, ...options });
+    host.haptics.setNative(nativeHaptics());
+    return host;
   }
 
   start(): void {

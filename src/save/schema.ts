@@ -46,6 +46,8 @@ export interface DisplayPrefs {
   accent: string;
   /** Le HUD prend la couleur d'accent de Material You. */
   hudAccent: boolean;
+  /** Orientation de l'écran (portrait par défaut). */
+  orientation: 'portrait' | 'landscape' | 'auto';
 }
 
 export type ColorblindMode = 'off' | 'deuteranopia' | 'protanopia' | 'tritanopia';
@@ -239,6 +241,7 @@ export function defaultSave(now = Date.now()): SaveData {
       colorblind: 'off',
       accent: '#7c5cff',
       hudAccent: false,
+      orientation: 'portrait',
     },
     stats: {
       runs: 0,

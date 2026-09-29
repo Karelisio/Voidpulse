@@ -7,7 +7,7 @@ import type { KeyValueStore } from './backend';
 import { decodeSlot, encodeSlot, normalize } from './codec';
 import { defaultSave, type SaveData } from './schema';
 
-const SLOTS = ['voidpulse.save.a', 'voidpulse.save.b'] as const;
+export const SLOTS = ['voidpulse.save.a', 'voidpulse.save.b'] as const;
 
 export interface LoadResult {
   data: SaveData;

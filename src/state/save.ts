@@ -8,9 +8,14 @@ import { audio, initAudio } from '../audio';
 import { LocalStore } from '../save/backend';
 import { exportSave, importSave } from '../save/codec';
 import { defaultSave, type SaveData } from '../save/schema';
-import { SaveStore } from '../save/store';
+import { SaveStore, SLOTS } from '../save/store';
+import { isNative } from '../platform/native';
+import { migrateFromLocalStorage, PreferencesStore } from '../platform/prefs-store';
 
-const store = new SaveStore(new LocalStore());
+// Android : Preferences (SharedPreferences, sauvegardée par Android) ; web : localStorage.
+const native = isNative();
+const kv = native ? new PreferencesStore() : new LocalStore();
+const store = new SaveStore(kv);
 
 interface SaveState {
   data: SaveData;
@@ -66,6 +71,7 @@ export const useSave = create<SaveState>((set, get) => ({
 /** Charge la sauvegarde au démarrage de l'application. */
 export async function initSave(): Promise<void> {
   try {
+    if (native) await migrateFromLocalStorage(kv, SLOTS);
     const res = await store.load();
     useSave.setState({ data: res.data, status: 'ready', error: null });
     if (res.recovered) console.warn('Sauvegarde : un emplacement corrompu a été ignoré.');

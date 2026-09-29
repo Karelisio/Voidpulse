@@ -4,6 +4,7 @@
  * quand l'appareil passe du mode clair au mode sombre (Material You).
  */
 import { setLanguage } from '../i18n';
+import { applyOrientation, initAndroid } from '../platform/android';
 import { applyTheme } from '../theme';
 import type { DisplayPrefs } from '../save/schema';
 import { useSave } from './save';
@@ -15,11 +16,14 @@ function apply(d: DisplayPrefs): void {
     last?.language === d.language &&
     last.theme === d.theme &&
     last.colorblind === d.colorblind &&
-    last.accent === d.accent
+    last.accent === d.accent &&
+    last.orientation === d.orientation
   ) {
     return;
   }
+  const prev = last;
   last = d;
+  if (prev?.orientation !== d.orientation) applyOrientation(d.orientation);
   setLanguage(d.language);
   document.documentElement.lang = d.language;
   applyTheme(d);
@@ -27,6 +31,9 @@ function apply(d: DisplayPrefs): void {
 
 export function watchPrefs(): void {
   apply(useSave.getState().data.display);
+  void initAndroid(() => {
+    applyTheme(useSave.getState().data.display);
+  });
   useSave.subscribe((s) => {
     apply(s.data.display);
   });

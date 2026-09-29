@@ -1,0 +1,6 @@
+{
+  "appId": "com.karelisio.voidpulse",
+  "appName": "Voidpulse",
+  "github": { "owner": "karelisio", "repo": "voidpulse" },
+  "update": { "checkEveryHours": 24, "apkPattern": "voidpulse-v{version}.apk" }
+}

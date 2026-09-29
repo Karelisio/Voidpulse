@@ -10,6 +10,8 @@ import { audio, initAudio } from '../audio';
 import { GameAudio, uiSound } from '../audio/bridge';
 import { GameHost } from '../game/host';
 import { t, useLang } from '../i18n';
+import { keepAwake } from '../platform/android';
+import { useBackHandler } from '../platform/back';
 import { useSave } from '../state/save';
 import { useUi, type LevelUpView } from '../state/ui';
 import { SettingsPanel } from './SettingsPanel';
@@ -220,6 +222,20 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
   const pact = useUi((s) => s.pact);
   const [host, setHost] = useState<GameHost | null>(null);
   const activeRef = useRef<ActiveRun | null>(null);
+  // Bouton retour : met en pause, puis reprend ; les autres surcouches attendent un choix.
+  useBackHandler(() => {
+    const h = hostRef.current;
+    const ov = useUi.getState().overlay;
+    if (!h) return true;
+    if (ov === null) {
+      h.pause();
+      setOverlay('pause');
+    } else if (ov === 'pause') {
+      setOverlay(null);
+      h.resume();
+    }
+    return true;
+  });
   const training = useUi((s) => s.mode) === 'training' && !bench;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [debugWeapon, setDebugWeapon] = useState(0);
@@ -295,6 +311,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       announce(host, active);
       setHost(host);
     });
+    keepAwake(true);
     const onHide = (): void => {
       const host = hostRef.current;
       if (document.hidden && host && useUi.getState().overlay === null) {
@@ -305,6 +322,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
     document.addEventListener('visibilitychange', onHide);
     return () => {
       disposed = true;
+      keepAwake(false);
       document.removeEventListener('visibilitychange', onHide);
       hostRef.current?.destroy();
       hostRef.current = null;

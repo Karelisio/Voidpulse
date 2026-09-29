@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { dayKey, modeNeeds } from './modes/modes';
+import { useBackHandler } from './platform/back';
 import { beginDaily } from './modes/records';
 import { useSave } from './state/save';
 import { useUi } from './state/ui';
@@ -24,6 +25,21 @@ export function App() {
   const [bench, setBench] = useState(false);
   const debug = useUi((s) => s.debugUnlocked);
   const needs = modeNeeds(mode);
+  // Bouton retour : écran précédent ; depuis l'accueil, rien (l'application se ferme).
+  useBackHandler(() => {
+    const parent: Partial<Record<typeof screen, typeof screen>> = {
+      modes: 'title',
+      select: 'modes',
+      stage: 'select',
+      build: 'select',
+      progression: 'title',
+      goals: 'title',
+    };
+    const to = parent[screen];
+    if (!to) return screen === 'run';
+    setScreen(to);
+    return true;
+  });
 
   if (screen === 'run') {
     return (
