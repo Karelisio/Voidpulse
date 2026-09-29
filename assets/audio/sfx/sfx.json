@@ -90,6 +90,45 @@
       "priority": 5,
       "cooldownMs": 0
     },
+    "chest.drop": {
+      "files": [
+        "chest.drop/0.ogg",
+        "chest.drop/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 100
+    },
+    "chest.open": {
+      "files": [
+        "chest.open/0.ogg",
+        "chest.open/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -9,
+      "pitchVar": 0.015,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 3,
+      "cooldownMs": 200
+    },
+    "chest.reveal": {
+      "files": [
+        "chest.reveal/0.ogg",
+        "chest.reveal/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -11,
+      "pitchVar": 0.015,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 3,
+      "cooldownMs": 150
+    },
     "dash": {
       "files": [
         "dash/0.ogg",
@@ -103,6 +142,19 @@
       "maxVoices": 2,
       "priority": 2,
       "cooldownMs": 80
+    },
+    "elite.spawn": {
+      "files": [
+        "elite.spawn/0.ogg",
+        "elite.spawn/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -7,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 3,
+      "cooldownMs": 250
     },
     "enemy.shot": {
       "files": [
@@ -128,6 +180,18 @@
       "volVar": 0.08,
       "maxVoices": 1,
       "priority": 3,
+      "cooldownMs": 0
+    },
+    "eveil.finale": {
+      "files": [
+        "eveil.finale/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -4,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
       "cooldownMs": 0
     },
     "eveil.nova": {
@@ -156,6 +220,18 @@
       "priority": 5,
       "cooldownMs": 0
     },
+    "evolution": {
+      "files": [
+        "evolution/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -5,
+      "pitchVar": 0.01,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 5,
+      "cooldownMs": 0
+    },
     "explosion": {
       "files": [
         "explosion/0.ogg",
@@ -178,7 +254,7 @@
         "fire.acidpool/3.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -16,
+      "gainDb": -13,
       "pitchVar": 0.06,
       "volVar": 0.08,
       "maxVoices": 3,
@@ -207,7 +283,7 @@
         "fire.blizzard/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -17,
+      "gainDb": -14,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -264,7 +340,7 @@
         "fire.entropyray/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -15,
+      "gainDb": -13,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -278,7 +354,7 @@
         "fire.firemine/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -16,
+      "gainDb": -15,
       "pitchVar": 0.05,
       "volVar": 0.08,
       "maxVoices": 3,
@@ -292,7 +368,7 @@
         "fire.flamewheel/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -18,
+      "gainDb": -17,
       "pitchVar": 0.05,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -320,7 +396,7 @@
         "fire.frostblade/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -16,
+      "gainDb": -18,
       "pitchVar": 0.05,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -334,7 +410,7 @@
         "fire.glacialwave/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -14,
+      "gainDb": -15,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -348,7 +424,7 @@
         "fire.glyphs/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -16,
+      "gainDb": -18,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 3,
@@ -362,7 +438,7 @@
         "fire.horizon/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -18,
+      "gainDb": -17,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -391,7 +467,7 @@
         "fire.miasma/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -19,
+      "gainDb": -18,
       "pitchVar": 0.05,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -421,7 +497,7 @@
         "fire.parasite/3.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -15,
+      "gainDb": -14,
       "pitchVar": 0.06,
       "volVar": 0.08,
       "maxVoices": 3,
@@ -435,7 +511,7 @@
         "fire.phoenix/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -15,
+      "gainDb": -14,
       "pitchVar": 0.05,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -449,7 +525,7 @@
         "fire.prismray/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -16,
+      "gainDb": -17,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -463,7 +539,7 @@
         "fire.railgun/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -14,
+      "gainDb": -17,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -491,7 +567,7 @@
         "fire.sigil/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -14,
+      "gainDb": -15,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -505,7 +581,7 @@
         "fire.singularity/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -16,
+      "gainDb": -14,
       "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 3,
@@ -548,7 +624,7 @@
         "fire.voidlink/3.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -15,
+      "gainDb": -13,
       "pitchVar": 0.06,
       "volVar": 0.08,
       "maxVoices": 3,
@@ -563,7 +639,7 @@
         "fire.voidshard/3.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -14,
+      "gainDb": -13,
       "pitchVar": 0.05,
       "volVar": 0.08,
       "maxVoices": 3,
@@ -577,7 +653,7 @@
         "fire.voltdisc/2.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -15,
+      "gainDb": -17,
       "pitchVar": 0.05,
       "volVar": 0.08,
       "maxVoices": 2,
@@ -592,7 +668,7 @@
         "fire.wasps/3.ogg"
       ],
       "bus": "sfx",
-      "gainDb": -16,
+      "gainDb": -14,
       "pitchVar": 0.06,
       "volVar": 0.08,
       "maxVoices": 3,
@@ -622,6 +698,21 @@
       ],
       "bus": "sfx",
       "gainDb": -17,
+      "pitchVar": 0.08,
+      "volVar": 0.08,
+      "maxVoices": 4,
+      "priority": 0,
+      "cooldownMs": 40
+    },
+    "hit.arcane": {
+      "files": [
+        "hit.arcane/0.ogg",
+        "hit.arcane/1.ogg",
+        "hit.arcane/2.ogg",
+        "hit.arcane/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -18,
       "pitchVar": 0.08,
       "volVar": 0.08,
       "maxVoices": 4,
@@ -678,6 +769,36 @@
         "hit.lightning/1.ogg",
         "hit.lightning/2.ogg",
         "hit.lightning/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -18,
+      "pitchVar": 0.08,
+      "volVar": 0.08,
+      "maxVoices": 4,
+      "priority": 0,
+      "cooldownMs": 40
+    },
+    "hit.poison": {
+      "files": [
+        "hit.poison/0.ogg",
+        "hit.poison/1.ogg",
+        "hit.poison/2.ogg",
+        "hit.poison/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -18,
+      "pitchVar": 0.08,
+      "volVar": 0.08,
+      "maxVoices": 4,
+      "priority": 0,
+      "cooldownMs": 40
+    },
+    "hit.void": {
+      "files": [
+        "hit.void/0.ogg",
+        "hit.void/1.ogg",
+        "hit.void/2.ogg",
+        "hit.void/3.ogg"
       ],
       "bus": "sfx",
       "gainDb": -18,
@@ -781,6 +902,104 @@
       "priority": 2,
       "cooldownMs": 70
     },
+    "reaction.absolutezero": {
+      "files": [
+        "reaction.absolutezero/0.ogg",
+        "reaction.absolutezero/1.ogg",
+        "reaction.absolutezero/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -11,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 3,
+      "cooldownMs": 90
+    },
+    "reaction.blackflame": {
+      "files": [
+        "reaction.blackflame/0.ogg",
+        "reaction.blackflame/1.ogg",
+        "reaction.blackflame/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -9,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 3,
+      "cooldownMs": 90
+    },
+    "reaction.corrosion": {
+      "files": [
+        "reaction.corrosion/0.ogg",
+        "reaction.corrosion/1.ogg",
+        "reaction.corrosion/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 90
+    },
+    "reaction.deflagration": {
+      "files": [
+        "reaction.deflagration/0.ogg",
+        "reaction.deflagration/1.ogg",
+        "reaction.deflagration/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -11,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 90
+    },
+    "reaction.implosion": {
+      "files": [
+        "reaction.implosion/0.ogg",
+        "reaction.implosion/1.ogg",
+        "reaction.implosion/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -9,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 3,
+      "cooldownMs": 90
+    },
+    "reaction.necrocrystal": {
+      "files": [
+        "reaction.necrocrystal/0.ogg",
+        "reaction.necrocrystal/1.ogg",
+        "reaction.necrocrystal/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 90
+    },
+    "reaction.nova": {
+      "files": [
+        "reaction.nova/0.ogg",
+        "reaction.nova/1.ogg",
+        "reaction.nova/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -11,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 90
+    },
     "reaction.overload": {
       "files": [
         "reaction.overload/0.ogg",
@@ -790,6 +1009,48 @@
       "bus": "sfx",
       "gainDb": -8,
       "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 3,
+      "cooldownMs": 90
+    },
+    "reaction.plague": {
+      "files": [
+        "reaction.plague/0.ogg",
+        "reaction.plague/1.ogg",
+        "reaction.plague/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 90
+    },
+    "reaction.prism": {
+      "files": [
+        "reaction.prism/0.ogg",
+        "reaction.prism/1.ogg",
+        "reaction.prism/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 90
+    },
+    "reaction.rift": {
+      "files": [
+        "reaction.rift/0.ogg",
+        "reaction.rift/1.ogg",
+        "reaction.rift/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -9,
+      "pitchVar": 0.04,
       "volVar": 0.08,
       "maxVoices": 3,
       "priority": 3,
@@ -807,6 +1068,34 @@
       "volVar": 0.08,
       "maxVoices": 3,
       "priority": 3,
+      "cooldownMs": 90
+    },
+    "reaction.surge": {
+      "files": [
+        "reaction.surge/0.ogg",
+        "reaction.surge/1.ogg",
+        "reaction.surge/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
+      "cooldownMs": 90
+    },
+    "reaction.toxicchain": {
+      "files": [
+        "reaction.toxicchain/0.ogg",
+        "reaction.toxicchain/1.ogg",
+        "reaction.toxicchain/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -10,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 2,
       "cooldownMs": 90
     },
     "reaction.vapor": {
