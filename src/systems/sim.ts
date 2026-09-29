@@ -13,6 +13,8 @@ import {
   PROGRESSION,
   STAGES,
   WEAPONS,
+  CAMPAIGN,
+  bossIndex,
 } from '../content/data';
 import { Foe, Life, Pos } from '../engine/components';
 import { DT } from '../engine/constants';
@@ -51,7 +53,7 @@ import {
 } from './runevents';
 import { createMechanic, updateStageMechanic } from './stagefx';
 import { createPacts, imposePacts, offerPacts, sealPacts } from './pacts';
-import type { AltarOfferKind, RunEventKind, RunState, SimInput } from './state';
+import type { AltarOfferKind, RunEventKind, RunRules, RunState, SimInput } from './state';
 import { addWeapon, levelUpWeapon, maxWeaponLevel, updateWeapons } from './weapons';
 import { updateZones } from './zones';
 
@@ -67,6 +69,24 @@ export interface RunOptions {
   pactChoice?: boolean;
   /** Demi-dimensions du champ visible (unités monde), fixées pour la run. Portrait par défaut. */
   view?: { halfW: number; halfH: number };
+  /** Règles posées par le mode de jeu (valeurs neutres par défaut). */
+  rules?: Partial<RunRules>;
+}
+
+export function defaultRules(): RunRules {
+  return {
+    mods: {},
+    endless: null,
+    bossQueue: [],
+    bossRest: 4,
+    bossHp: 1,
+    healOnBoss: 0,
+    sandbox: false,
+    noRunEvents: false,
+    elements: [],
+    fixedMaxHp: 0,
+    loadout: { weapons: [], passives: [] },
+  };
 }
 
 export class RunSim {
@@ -91,6 +111,8 @@ export class RunSim {
   readonly point = { x: 0, y: 0 };
   readonly rng: { spawn: Rng; combat: Rng; ai: Rng; loot: Rng; levelup: Rng; pact: Rng };
   readonly plan: StagePlan;
+  /** Boss finaux des autres stages de la campagne (partie sans fin), dans l'ordre. */
+  readonly endlessFinals: readonly number[];
   readonly state: RunState;
   readonly input: SimInput = { moveX: 0, moveY: 0, dash: false, aim: 'auto' };
   readonly view: { halfW: number; halfH: number };
@@ -111,6 +133,8 @@ export class RunSim {
     const stage = STAGES[opts.stage ?? 'proto'];
     if (!stage) throw new Error(`Stage inconnu : ${opts.stage ?? ''}`);
     this.plan = planStage(stage);
+    this.endlessFinals = CAMPAIGN.filter((s) => s.id !== stage.id).map((s) => bossIndex(s.boss));
+    const rules: RunRules = { ...defaultRules(), ...opts.rules };
     this.state = {
       tick: 0,
       time: 0,
@@ -154,6 +178,10 @@ export class RunSim {
         bossSpawned: false,
         densityMult: 1,
         eliteT: PROGRESSION.elite.first,
+        dmgScale: 1,
+        waveBase: 0,
+        bossCount: 0,
+        restT: rules.bossRest > 0 ? Math.min(3, rules.bossRest) : 0,
       },
       boss: createBossState(),
       levelUp: {
@@ -186,9 +214,10 @@ export class RunSim {
         spent: 0,
         runEvents: 0,
       },
-      pacts: createPacts(opts.pactChoice ?? false),
+      pacts: createPacts(opts.pactChoice ?? false, rules.mods),
       mechanic: createMechanic(stage),
-      debug: { invincible: false },
+      rules,
+      debug: { invincible: rules.sandbox },
     };
     const p = this.state.player;
     p.eid = spawnPlayer(this);
@@ -196,11 +225,32 @@ export class RunSim {
     p.hp = p.stats.maxHp;
     const weapon = WEAPONS.findIndex((w) => w.id === (opts.weapon ?? character.weapon));
     addWeapon(this, weapon < 0 ? 0 : weapon);
+    this.applyLoadout(rules.loadout);
     if (opts.pacts && opts.pacts.length > 0) {
       imposePacts(this, opts.pacts);
       this.fullHealth();
     }
     if (opts.pactChoice) offerPacts(this, PACTS.offer, PACTS.maxStart);
+  }
+
+  /** Build de départ (Boss Rush) : armes et passifs aux niveaux donnés, puis pleine vie. */
+  private applyLoadout(loadout: RunRules['loadout']): void {
+    if (loadout.weapons.length === 0 && loadout.passives.length === 0) return;
+    const st = this.state;
+    for (const { index, level } of loadout.weapons) {
+      const w = st.weapons.find((x) => x.defIndex === index) ?? addWeapon(this, index);
+      if (!w) continue;
+      const max = maxWeaponLevel(w.def);
+      while (w.level < Math.min(level, max)) levelUpWeapon(w);
+    }
+    for (const { index, level } of loadout.passives) {
+      if (st.passives.length >= PROGRESSION.maxPassives) break;
+      if (st.passives.some((p) => p.defIndex === index)) continue;
+      const def = PASSIVES[index];
+      st.passives.push({ def, defIndex: index, level: Math.min(level, def.maxLevel) });
+    }
+    refreshStats(this);
+    this.fullHealth();
   }
 
   private fullHealth(): void {
@@ -392,10 +442,49 @@ export class RunSim {
     gainLevel(this);
   }
 
-  debugBoss(): void {
+  /** Boss du stage, ou boss donné (entraînement) ; jamais deux à la fois. */
+  debugBoss(index = this.plan.boss): void {
     if (this.state.boss.eid >= 0) return;
     this.state.director.bossSpawned = true;
-    spawnBoss(this, this.plan.boss);
+    spawnBoss(this, index, { ends: !this.state.rules.sandbox, chest: false });
+  }
+
+  /** Ajoute un passif (ou le monte d'un niveau). */
+  debugPassive(defIndex: number): void {
+    const st = this.state;
+    const p = st.passives.find((x) => x.defIndex === defIndex);
+    if (p) p.level = Math.min(p.def.maxLevel, p.level + 1);
+    else if (st.passives.length < PROGRESSION.maxPassives)
+      st.passives.push({ def: PASSIVES[defIndex], defIndex, level: 1 });
+    refreshStats(this);
+  }
+
+  /** Retire une arme (entraînement). */
+  debugRemoveWeapon(defIndex: number): void {
+    const st = this.state;
+    const i = st.weapons.findIndex((x) => x.defIndex === defIndex);
+    if (i < 0 || st.weapons.length <= 1) return;
+    st.weapons.splice(i, 1);
+    // Emplacements renumérotés : les éclats en orbite sont recréés.
+    const orbits = this.world.orbits;
+    while (orbits.count > 0) orbits.despawn(orbits.active[orbits.count - 1]);
+    st.weapons.forEach((w, slot) => {
+      w.slot = slot;
+      w.shards = 0;
+    });
+  }
+
+  /** Efface tous les ennemis et leurs projectiles (entraînement). */
+  debugClear(): void {
+    const w = this.world;
+    for (const pool of [w.enemies, w.bullets]) {
+      while (pool.count > 0) pool.despawn(pool.active[pool.count - 1]);
+    }
+    const b = this.state.boss;
+    if (b.eid >= 0) {
+      w.boss.despawn(b.eid);
+      b.eid = -1;
+    }
   }
 
   debugEveil(): void {

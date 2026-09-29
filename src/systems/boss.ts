@@ -11,6 +11,7 @@ import { Body, Foe, Life, Look, Pos, Status, Vel } from '../engine/components';
 import { DT } from '../engine/constants';
 import { fireBullet, spawnEnemy } from './enemies';
 import { EV, TELEGRAPH_KIND } from './events';
+import { onBossDefeated } from './director';
 import { dropChest, dropGem, magnetizeAll } from './pickups';
 import { damagePlayer } from './player';
 import type { RunSim } from './sim';
@@ -51,7 +52,7 @@ const LASER_LENGTH = 1000;
 const LASER_WIDTH = 26;
 const LASER_TIME = 0.55;
 /** Un mini-boss réapparaît plus solide. */
-const MINI_REPEAT_HP = 1.6;
+export const MINI_REPEAT_HP = 1.6;
 const TAU = Math.PI * 2;
 
 export function createBossState(): BossState {
@@ -73,11 +74,24 @@ export function createBossState(): BossState {
     ty: 0,
     invulnT: 0,
     appearances: 0,
+    ends: false,
+    chest: false,
   };
 }
 
-/** Apparition d'un boss (`repeat` : nombre d'apparitions précédentes de ce mini-boss). */
-export function spawnBoss(sim: RunSim, index: number, repeat = 0): void {
+export interface BossSpawnOptions {
+  /** Multiplicateur de PV. */
+  hp?: number;
+  /** Apparitions précédentes de ce boss dans la run. */
+  repeat?: number;
+  /** Sa mort termine la run ; il lâche un coffre. Par défaut : boss final / mini-boss. */
+  ends?: boolean;
+  chest?: boolean;
+}
+
+/** Apparition d'un boss. */
+export function spawnBoss(sim: RunSim, index: number, opts: BossSpawnOptions = {}): void {
+  const repeat = opts.repeat ?? 0;
   const e = sim.spawnIn(sim.world.boss);
   if (e < 0) return;
   const def = BOSSES[index];
@@ -91,7 +105,7 @@ export function spawnBoss(sim: RunSim, index: number, repeat = 0): void {
   // Pactes : PV des ennemis ; « Colère du gardien » : boss enragé d'emblée (PV et vitesse +25 %).
   const mods = sim.state.pacts.mods;
   const rage = mods.bossRage > 0 ? 1.25 : 1;
-  Life.hp[e] = def.hp * mods.enemyHp * rage * (repeat > 0 ? MINI_REPEAT_HP : 1);
+  Life.hp[e] = def.hp * mods.enemyHp * rage * (opts.hp ?? 1);
   Life.max[e] = Life.hp[e];
   Foe.speed[e] = def.speed * rage;
   Foe.dmg[e] = def.contactDamage;
@@ -106,6 +120,8 @@ export function spawnBoss(sim: RunSim, index: number, repeat = 0): void {
   b.invulnT = 1.6;
   b.patternCursor = 0;
   b.appearances = repeat + 1;
+  b.ends = opts.ends ?? def.kind === 'final';
+  b.chest = opts.chest ?? def.kind === 'mini';
   sim.events.push(EV.BOSS_SPAWN, index, def.kind === 'mini' ? 1 : 0, Pos.x[e], Pos.y[e], 0);
 }
 
@@ -148,7 +164,7 @@ export function updateBoss(sim: RunSim): void {
     if (b.timer <= 0) {
       sim.world.boss.despawn(e);
       b.eid = -1;
-      if (def.kind === 'final') {
+      if (b.ends) {
         sim.state.status = 'victory';
         sim.events.push(EV.RUN_END, 1, 0, 0, 0, 0);
       }
@@ -169,7 +185,8 @@ export function updateBoss(sim: RunSim): void {
       const a = (i / n) * TAU;
       dropGem(sim, x + Math.cos(a) * 40, y + Math.sin(a) * 40, 10);
     }
-    if (mini) dropChest(sim, x, y);
+    if (b.chest) dropChest(sim, x, y);
+    onBossDefeated(sim);
     magnetizeAll(sim);
     return;
   }

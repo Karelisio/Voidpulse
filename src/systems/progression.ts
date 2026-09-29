@@ -103,6 +103,7 @@ export function computeStats(sim: RunSim): PlayerStats {
   stats.luck += m.luck;
   stats.amount += m.amount;
   stats.critChance += m.critChance;
+  if (st.rules.fixedMaxHp > 0) stats.maxHp = st.rules.fixedMaxHp;
   return stats;
 }
 
@@ -133,8 +134,11 @@ function candidates(sim: RunSim): { choice: LevelUpChoice; weight: number }[] {
   const st = sim.state;
   const out: { choice: LevelUpChoice; weight: number }[] = [];
   const banned = st.levelUp.banished;
+  const elements = st.rules.elements;
   WEAPONS.forEach((def, index) => {
     const owned = st.weapons.find((w) => w.defIndex === index);
+    // Défi à éléments imposés : les autres armes ne sont pas proposées.
+    if (!owned && elements.length > 0 && !elements.includes(def.element)) return;
     const choice: LevelUpChoice | null = owned
       ? owned.level < maxWeaponLevel(def) && !owned.evolved
         ? { kind: 'weapon-up', index, level: owned.level + 1 }

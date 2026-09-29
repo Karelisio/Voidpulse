@@ -169,6 +169,13 @@ export interface DirectorState {
   densityMult: number;
   /** Délai avant la prochaine élite (s). */
   eliteT: number;
+  /** Multiplicateur des dégâts des ennemis qui apparaissent (partie sans fin). */
+  dmgScale: number;
+  /** Décalage des vagues scénarisées (rejouées en boucle dans une partie sans fin). */
+  waveBase: number;
+  /** Boss déjà appelés (partie sans fin, file de boss) ; répit avant le prochain de la file. */
+  bossCount: number;
+  restT: number;
 }
 
 export type BossPhaseState = 'enter' | 'idle' | 'telegraph' | 'execute' | 'recover' | 'dying';
@@ -193,6 +200,9 @@ export interface BossState {
   invulnT: number;
   /** Apparitions de ce boss dans la run (mini-boss : la deuxième est plus solide). */
   appearances: number;
+  /** Sa mort termine la run (victoire) ; il lâche un coffre. */
+  ends: boolean;
+  chest: boolean;
 }
 
 export type ChoiceKind = 'weapon-new' | 'weapon-up' | 'passive-new' | 'passive-up' | 'heal';
@@ -332,6 +342,8 @@ export interface PactState {
   /** Paliers déjà passés ; paliers actifs seulement si la run propose des pactes. */
   milestone: number;
   enabled: boolean;
+  /** Modificateurs de base (règles du mode), puis cumul avec les pactes. */
+  base: Partial<RunMods>;
   mods: RunMods;
 }
 
@@ -348,6 +360,47 @@ export interface MechanicState {
   flowA: number;
   flowT: number;
   dotT: number;
+}
+
+/**
+ * Règles de run génériques, posées par les modes de jeu (la simulation ne connaît pas les
+ * modes) : durée sans fin, boss enchaînés, bac à sable, build de départ, éléments permis…
+ */
+export interface RunRules {
+  /** Modificateurs de base (mêmes clés que les pactes), cumulés avec eux, sans chaleur. */
+  mods: Partial<RunMods>;
+  /**
+   * Partie sans fin : le calendrier du stage est remplacé par un boss toutes les `bossEvery` s
+   * (PV +`bossHpStep` par apparition), et au-delà de la fin prévue du stage, PV, dégâts et
+   * densité des ennemis montent sans limite (densité plafonnée).
+   */
+  endless: {
+    bossEvery: number;
+    bossHpStep: number;
+    hpPerMin: number;
+    damagePerMin: number;
+    densityPerMin: number;
+    densityCap: number;
+  } | null;
+  /** Boss enchaînés (index dans BOSSES), sans ennemis ordinaires : victoire après le dernier. */
+  bossQueue: readonly number[];
+  /** Répit entre deux boss de la file (s), PV des boss de la file, soin à chaque boss vaincu. */
+  bossRest: number;
+  bossHp: number;
+  healOnBoss: number;
+  /** Bac à sable : aucun spawn automatique, jamais de fin. */
+  sandbox: boolean;
+  /** Pas d'événements de run (marchand, autel, horde, faille). */
+  noRunEvents: boolean;
+  /** Éléments permis pour les armes proposées (vide : tous). */
+  elements: readonly string[];
+  /** PV max imposés (0 : libres). */
+  fixedMaxHp: number;
+  /** Build de départ : armes et passifs (index), avec niveaux. */
+  loadout: {
+    weapons: readonly { index: number; level: number }[];
+    passives: readonly { index: number; level: number }[];
+  };
 }
 
 export interface RunState {
@@ -370,6 +423,7 @@ export interface RunState {
   bonus: RunBonus;
   pacts: PactState;
   mechanic: MechanicState;
+  rules: RunRules;
   stats: RunStats;
   debug: { invincible: boolean };
 }

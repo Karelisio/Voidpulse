@@ -113,7 +113,7 @@ export function spawnEnemy(
   Foe.type[e] = type;
   Foe.state[e] = STATE.MOVE;
   Foe.speed[e] = def.speed * mods.enemySpeed * sim.rng.spawn.range(0.9, 1.1);
-  Foe.dmg[e] = def.damage;
+  Foe.dmg[e] = def.damage * sim.state.director.dmgScale;
   Foe.xp[e] = def.xp;
   Foe.kbRes[e] = def.knockbackRes;
   const p = sim.state.player.eid;

@@ -13,11 +13,12 @@ import {
 } from '../content/data';
 import { Foe, Pos } from '../engine/components';
 import { DT } from '../engine/constants';
-import { bossAlive, spawnBoss } from './boss';
+import { bossAlive, MINI_REPEAT_HP, spawnBoss } from './boss';
 import { affixesAt, makeElite } from './elites';
 import { BEHAVIOR, spawnEnemy } from './enemies';
 import { EV } from './events';
 import { updatePactMilestones } from './pacts';
+import { healPlayer } from './player';
 import { updateRunEvents } from './runevents';
 import type { RunSim } from './sim';
 
@@ -91,31 +92,104 @@ function pickType(sim: RunSim, t: number): number {
 const SPAWNS_PER_TICK = 4;
 const TAU = Math.PI * 2;
 
+/**
+ * Boss selon les règles de la run : file de boss (Boss Rush, défi « boss uniquement »),
+ * partie sans fin (un boss toutes les `bossEvery` s), sinon calendrier du stage (mini-boss
+ * aux instants prévus, boss final à la fin). Un seul boss à la fois : le suivant attend.
+ */
+function updateBosses(sim: RunSim, t: number): void {
+  const st = sim.state;
+  const rules = st.rules;
+  const dir = st.director;
+  if (bossAlive(sim)) return;
+  const queue = rules.bossQueue;
+  if (queue.length > 0) {
+    if (dir.bossCount >= queue.length) return;
+    dir.restT -= DT;
+    if (dir.restT > 0) return;
+    const last = dir.bossCount === queue.length - 1;
+    spawnBoss(sim, queue[dir.bossCount], { hp: rules.bossHp, ends: last, chest: !last });
+    dir.bossCount++;
+    return;
+  }
+  const endless = rules.endless;
+  if (endless) {
+    if (t < (dir.bossCount + 1) * endless.bossEvery) return;
+    const index = endlessBoss(sim, dir.bossCount);
+    spawnBoss(sim, index, {
+      hp: 1 + endless.bossHpStep * dir.bossCount,
+      ends: false,
+      chest: true,
+    });
+    dir.bossCount++;
+    return;
+  }
+  const stage = st.stage;
+  if (sim.plan.mini >= 0 && dir.miniIndex < stage.miniAt.length) {
+    if (t >= stage.miniAt[dir.miniIndex] && t < stage.bossAt) {
+      spawnBoss(sim, sim.plan.mini, {
+        repeat: dir.miniIndex,
+        hp: dir.miniIndex > 0 ? MINI_REPEAT_HP : 1,
+      });
+      dir.miniIndex++;
+    }
+  }
+  if (!dir.bossSpawned && t >= stage.bossAt) {
+    dir.bossSpawned = true;
+    spawnBoss(sim, sim.plan.boss);
+  }
+}
+
+/**
+ * Boss n° k d'une partie sans fin : le mini-boss puis le boss final du stage, puis les boss
+ * finaux des autres stages dans l'ordre de la campagne, en boucle.
+ */
+export function endlessBoss(sim: RunSim, k: number): number {
+  const plan = sim.plan;
+  const own = plan.mini >= 0 ? [plan.mini, plan.boss] : [plan.boss];
+  if (k < own.length) return own[k];
+  const others = sim.endlessFinals;
+  if (others.length === 0) return plan.boss;
+  return others[(k - own.length) % others.length];
+}
+
+/** Appelé à la mort d'un boss : soin éventuel, répit avant le suivant de la file. */
+export function onBossDefeated(sim: RunSim): void {
+  const st = sim.state;
+  const rules = st.rules;
+  st.director.restT = rules.bossRest;
+  if (rules.healOnBoss > 0) healPlayer(sim, st.player.stats.maxHp * rules.healOnBoss);
+}
+
 export function updateDirector(sim: RunSim): void {
   const st = sim.state;
+  const rules = st.rules;
+  if (rules.sandbox) return;
   const stage = st.stage;
   const dir = st.director;
   const t = st.time;
 
-  // Mini-boss aux instants prévus, boss final à la fin ; un seul boss à la fois (le suivant
-  // attend la mort du précédent).
-  const busy = bossAlive(sim);
-  if (!busy && sim.plan.mini >= 0 && dir.miniIndex < stage.miniAt.length) {
-    if (t >= stage.miniAt[dir.miniIndex] && t < stage.bossAt) {
-      spawnBoss(sim, sim.plan.mini, dir.miniIndex);
-      dir.miniIndex++;
-    }
-  }
-  if (!busy && !dir.bossSpawned && t >= stage.bossAt) {
-    dir.bossSpawned = true;
-    spawnBoss(sim, sim.plan.boss);
+  updateBosses(sim, t);
+  // File de boss : ni foule, ni vagues, ni élites, ni événements.
+  if (rules.bossQueue.length > 0) {
+    dir.target = 0;
+    return;
   }
 
-  const hpScale = curve(stage.hpScale, t);
+  // Au-delà de la fin prévue du stage (partie sans fin) : montée sans limite.
+  const endless = rules.endless;
+  const over = endless ? Math.max(0, t - stage.duration) / 60 : 0;
+  const hpScale = curve(stage.hpScale, t) * (1 + (endless ? endless.hpPerMin * over : 0));
   dir.hpScale = hpScale;
-  while (dir.waveIndex < stage.waves.length && stage.waves[dir.waveIndex].at <= t) {
+  dir.dmgScale = 1 + (endless ? endless.damagePerMin * over : 0);
+  while (dir.waveIndex < stage.waves.length && stage.waves[dir.waveIndex].at + dir.waveBase <= t) {
     runWave(sim, dir.waveIndex, hpScale);
     dir.waveIndex++;
+    // Partie sans fin : les vagues du stage reviennent à chaque cycle.
+    if (endless && dir.waveIndex === stage.waves.length) {
+      dir.waveIndex = 0;
+      dir.waveBase += stage.duration;
+    }
   }
 
   // Élite périodique (porteuse d'un coffre).
@@ -125,12 +199,14 @@ export function updateDirector(sim: RunSim): void {
     spawnElite(sim, t, hpScale);
   }
 
-  updateRunEvents(sim);
+  if (!rules.noRunEvents) updateRunEvents(sim);
   updatePactMilestones(sim);
 
   // Pendant un boss, la foule ordinaire se raréfie.
   const bossFactor = bossAlive(sim) ? (st.boss.def?.kind === 'mini' ? 0.6 : 0.4) : 1;
-  const target = curve(stage.density, t) * dir.densityMult * st.pacts.mods.density * bossFactor;
+  let density = curve(stage.density, t);
+  if (endless) density = Math.min(endless.densityCap, density * (1 + endless.densityPerMin * over));
+  const target = density * dir.densityMult * st.pacts.mods.density * bossFactor;
   dir.target = target;
   let deficit = target - sim.world.enemies.count;
   let budget = SPAWNS_PER_TICK;

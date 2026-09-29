@@ -17,16 +17,26 @@ export function neutralMods(): RunMods {
   return m;
 }
 
-export function createPacts(enabled: boolean): PactState {
-  return { taken: [], offer: [], picks: 0, milestone: 0, enabled, mods: neutralMods() };
+export function createPacts(enabled: boolean, base: Partial<RunMods> = {}): PactState {
+  const pacts: PactState = {
+    taken: [],
+    offer: [],
+    picks: 0,
+    milestone: 0,
+    enabled,
+    base,
+    mods: neutralMods(),
+  };
+  recomputeMods(pacts);
+  return pacts;
 }
 
-/** Recalcule les modificateurs cumulés à partir des pactes scellés. */
+/** Recalcule les modificateurs cumulés : base du mode, puis pactes scellés. */
 export function recomputeMods(pacts: PactState): void {
   const m = neutralMods();
   const mult = new Set<string>(RUN_MOD_MULT);
-  for (const p of pacts.taken) {
-    for (const [k, v] of Object.entries(p.mods) as [keyof RunMods, number][]) {
+  for (const mods of [pacts.base, ...pacts.taken.map((p) => p.mods)]) {
+    for (const [k, v] of Object.entries(mods) as [keyof RunMods, number][]) {
       if (mult.has(k)) m[k] *= v;
       else m[k] += v;
     }
