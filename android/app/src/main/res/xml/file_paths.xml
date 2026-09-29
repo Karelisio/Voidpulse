@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fichiers partagés via FileProvider : cache uniquement (APK de mise à jour, exports). -->
+<paths>
+    <cache-path name="cache" path="." />
+</paths>

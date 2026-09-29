@@ -1,0 +1,76 @@
+{
+  "first": 75,
+  "interval": [95, 130],
+  "bossBuffer": 35,
+  "distance": [260, 340],
+  "coinChance": 0.012,
+  "eliteCoins": 4,
+  "merchant": {
+    "duration": 45,
+    "radius": 30,
+    "priceScale": 600,
+    "offers": 3,
+    "stock": [
+      {
+        "id": "heal",
+        "price": 12,
+        "value": 1
+      },
+      {
+        "id": "weapon",
+        "price": 22,
+        "value": 1
+      },
+      {
+        "id": "passive",
+        "price": 18,
+        "value": 1
+      },
+      {
+        "id": "maxhp",
+        "price": 15,
+        "value": 15
+      },
+      {
+        "id": "reroll",
+        "price": 8,
+        "value": 2
+      },
+      {
+        "id": "chest",
+        "price": 30,
+        "value": 1
+      }
+    ]
+  },
+  "altar": {
+    "duration": 40,
+    "radius": 44,
+    "channel": 1.6,
+    "blood": {
+      "cost": 0.3,
+      "rewards": 3
+    },
+    "flesh": {
+      "cost": 15,
+      "damage": 0.12
+    },
+    "gold": {
+      "cost": 0.5,
+      "min": 10
+    }
+  },
+  "horde": {
+    "duration": 16,
+    "every": 1.6,
+    "count": 9,
+    "enemy": "goldling"
+  },
+  "rift": {
+    "duration": 30,
+    "radius": 40,
+    "time": 8,
+    "slow": 0.3,
+    "xp": 1.5
+  }
+}

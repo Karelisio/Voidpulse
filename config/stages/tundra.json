@@ -1,0 +1,170 @@
+{
+  "id": "tundra",
+  "name": "Toundra cristalline",
+  "order": 6,
+  "biome": "tundra",
+  "description": "La glace fait glisser, le blizzard ralentit.",
+  "duration": 900,
+  "bossAt": 900,
+  "boss": "frostwyrm",
+  "miniBoss": "elderyeti",
+  "miniAt": [300, 600],
+  "mechanic": {
+    "kind": "ice",
+    "every": 70,
+    "length": 12,
+    "count": 8,
+    "radius": 120,
+    "power": 1.6,
+    "description": "Plaques de glace glissantes, blizzards ralentissants."
+  },
+  "palette": {
+    "base": "#0a1018",
+    "grid": "#bfefff",
+    "accent": "#8fd8ff"
+  },
+  "density": [
+    [0, 28],
+    [60, 67],
+    [180, 154],
+    [300, 210],
+    [420, 280],
+    [600, 364],
+    [780, 448],
+    [900, 196],
+    [1000, 238]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "icewolf": 1
+      }
+    ],
+    [
+      50,
+      {
+        "icewolf": 0.92,
+        "crystalgolem": 0.08
+      }
+    ],
+    [
+      140,
+      {
+        "icewolf": 0.85,
+        "crystalgolem": 0.08,
+        "yeti": 0.07
+      }
+    ],
+    [
+      240,
+      {
+        "icewolf": 0.65,
+        "crystalgolem": 0.08,
+        "yeti": 0.07,
+        "frostspirit": 0.1,
+        "frostbomb": 0.1
+      }
+    ],
+    [
+      420,
+      {
+        "icewolf": 0.57,
+        "crystalgolem": 0.08,
+        "yeti": 0.07,
+        "frostspirit": 0.14,
+        "frostbomb": 0.14
+      }
+    ],
+    [
+      660,
+      {
+        "icewolf": 0.53,
+        "crystalgolem": 0.08,
+        "yeti": 0.07,
+        "frostspirit": 0.16,
+        "frostbomb": 0.16
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 1.0],
+    [300, 3.15],
+    [600, 8.0],
+    [900, 12.5],
+    [1200, 17.5]
+  ],
+  "waves": [
+    {
+      "at": 30,
+      "kind": "ring",
+      "enemy": "icewolf",
+      "count": 12
+    },
+    {
+      "at": 95,
+      "kind": "line",
+      "enemy": "crystalgolem",
+      "count": 8
+    },
+    {
+      "at": 160,
+      "kind": "pincer",
+      "enemy": "yeti",
+      "count": 6
+    },
+    {
+      "at": 225,
+      "kind": "swarm",
+      "enemy": "frostbomb",
+      "count": 10
+    },
+    {
+      "at": 270,
+      "kind": "escort",
+      "enemy": "frostspirit",
+      "count": 10,
+      "minion": "icewolf"
+    },
+    {
+      "at": 400,
+      "kind": "ring",
+      "enemy": "icewolf",
+      "count": 40
+    },
+    {
+      "at": 470,
+      "kind": "escort",
+      "enemy": "frostspirit",
+      "count": 12,
+      "minion": "crystalgolem",
+      "elite": true
+    },
+    {
+      "at": 540,
+      "kind": "pincer",
+      "enemy": "frostbomb",
+      "count": 16
+    },
+    {
+      "at": 700,
+      "kind": "ring",
+      "enemy": "icewolf",
+      "count": 56
+    },
+    {
+      "at": 760,
+      "kind": "escort",
+      "enemy": "yeti",
+      "count": 14,
+      "minion": "icewolf",
+      "elite": true
+    },
+    {
+      "at": 840,
+      "kind": "line",
+      "enemy": "frostspirit",
+      "count": 10
+    }
+  ]
+}

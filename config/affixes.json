@@ -1,0 +1,138 @@
+[
+  {
+    "id": "swift",
+    "name": "Rapide",
+    "description": "Se déplace bien plus vite.",
+    "color": "#6af0ff",
+    "excludes": [],
+    "params": {
+      "speed": 1.5
+    }
+  },
+  {
+    "id": "regen",
+    "name": "Régénération",
+    "description": "Régénère ses PV en continu.",
+    "color": "#7dff9a",
+    "excludes": [],
+    "params": {
+      "rate": 0.025
+    }
+  },
+  {
+    "id": "splitting",
+    "name": "Fractionnement",
+    "description": "Se divise en trois copies à sa mort.",
+    "color": "#ff9cf7",
+    "excludes": [],
+    "params": {
+      "count": 3,
+      "hp": 0.3
+    }
+  },
+  {
+    "id": "frostaura",
+    "name": "Aura glaciale",
+    "description": "Ralentit fortement le joueur à proximité.",
+    "color": "#8fd8ff",
+    "excludes": [],
+    "params": {
+      "radius": 150,
+      "slow": 0.4
+    }
+  },
+  {
+    "id": "armored",
+    "name": "Blindé",
+    "description": "Encaisse moins de dégâts et ignore le recul.",
+    "color": "#c8d0e0",
+    "excludes": [],
+    "params": {
+      "damage": 0.55
+    }
+  },
+  {
+    "id": "shielded",
+    "name": "Bouclier",
+    "description": "Une bulle absorbe les coups et se recharge.",
+    "color": "#7dfcff",
+    "excludes": [],
+    "params": {
+      "hp": 0.4,
+      "delay": 5
+    }
+  },
+  {
+    "id": "volatile",
+    "name": "Instable",
+    "description": "Explose peu après sa mort.",
+    "color": "#ffb13d",
+    "excludes": ["kamikaze"],
+    "params": {
+      "fuse": 1.2,
+      "radius": 150,
+      "damage": 28
+    }
+  },
+  {
+    "id": "summoner",
+    "name": "Invocateur",
+    "description": "Invoque régulièrement des renforts.",
+    "color": "#b37bff",
+    "excludes": ["summoner"],
+    "params": {
+      "cooldown": 7,
+      "count": 5
+    }
+  },
+  {
+    "id": "blinking",
+    "name": "Téléporteur",
+    "description": "Se téléporte près du joueur.",
+    "color": "#8a7dff",
+    "excludes": ["teleporter", "burrower"],
+    "params": {
+      "cooldown": 6,
+      "telegraph": 0.6,
+      "range": 110
+    }
+  },
+  {
+    "id": "berserk",
+    "name": "Enragé",
+    "description": "Plus rapide et plus fort sous la moitié de ses PV.",
+    "color": "#ff3d5a",
+    "excludes": [],
+    "params": {
+      "threshold": 0.5,
+      "speed": 1.4,
+      "damage": 1.5
+    }
+  },
+  {
+    "id": "burning",
+    "name": "Incandescent",
+    "description": "Laisse une traînée de flammes.",
+    "color": "#ff7a2f",
+    "excludes": [],
+    "params": {
+      "every": 0.45,
+      "radius": 34,
+      "dps": 8,
+      "time": 3
+    }
+  },
+  {
+    "id": "gunner",
+    "name": "Artilleur",
+    "description": "Tire des salves en étoile.",
+    "color": "#fff06a",
+    "excludes": ["turret"],
+    "params": {
+      "cooldown": 3.2,
+      "count": 10,
+      "speed": 150,
+      "damage": 8
+    }
+  }
+]

@@ -1,0 +1,252 @@
+[
+  {
+    "id": "vitality",
+    "name": "Cœur de néon",
+    "description": "+20 PV max par niveau.",
+    "color": "#ff3ea5",
+    "maxLevel": 5,
+    "perLevel": {
+      "maxHp": 20
+    }
+  },
+  {
+    "id": "swiftness",
+    "name": "Semelles phasiques",
+    "description": "+8 % de vitesse de déplacement par niveau.",
+    "color": "#b8ff4d",
+    "maxLevel": 5,
+    "perLevel": {
+      "speed": 0.08
+    }
+  },
+  {
+    "id": "magnet",
+    "name": "Aimant quantique",
+    "description": "+25 % de rayon de collecte par niveau.",
+    "color": "#b04dff",
+    "maxLevel": 5,
+    "perLevel": {
+      "pickupRadius": 0.25
+    }
+  },
+  {
+    "id": "capacitor",
+    "name": "Condensateur",
+    "description": "-7 % de temps de recharge des armes par niveau.",
+    "color": "#ffd23d",
+    "maxLevel": 5,
+    "perLevel": {
+      "cooldown": 0.07
+    }
+  },
+  {
+    "id": "amplifier",
+    "name": "Amplificateur",
+    "description": "+10 % de dégâts par niveau.",
+    "color": "#ff8a3d",
+    "maxLevel": 5,
+    "perLevel": {
+      "damage": 0.1
+    }
+  },
+  {
+    "id": "lens",
+    "name": "Lentille focale",
+    "description": "+10 % de zone d'effet par niveau.",
+    "color": "#3ee6ff",
+    "maxLevel": 5,
+    "perLevel": {
+      "area": 0.1
+    }
+  },
+  {
+    "id": "plating",
+    "name": "Blindage réactif",
+    "description": "-1 dégât subi par coup, par niveau.",
+    "color": "#9fb8ff",
+    "maxLevel": 5,
+    "perLevel": {
+      "armor": 1
+    }
+  },
+  {
+    "id": "nanites",
+    "name": "Nanites",
+    "description": "+0,3 PV régénérés par seconde, par niveau.",
+    "color": "#7dffbe",
+    "maxLevel": 5,
+    "perLevel": {
+      "regen": 0.3
+    }
+  },
+  {
+    "id": "scope",
+    "name": "Viseur critique",
+    "description": "+5 % de chance de coup critique par niveau.",
+    "color": "#ff5a7a",
+    "maxLevel": 5,
+    "perLevel": {
+      "critChance": 0.05
+    }
+  },
+  {
+    "id": "overclock",
+    "name": "Surcadence",
+    "description": "+15 % de dégâts critiques par niveau.",
+    "color": "#ff3e5e",
+    "maxLevel": 5,
+    "perLevel": {
+      "critMult": 0.15
+    }
+  },
+  {
+    "id": "accelerator",
+    "name": "Accélérateur",
+    "description": "+10 % de vitesse des projectiles par niveau.",
+    "color": "#6ff7ff",
+    "maxLevel": 5,
+    "perLevel": {
+      "projectileSpeed": 0.1
+    }
+  },
+  {
+    "id": "persistence",
+    "name": "Stase temporelle",
+    "description": "+10 % de durée des effets par niveau.",
+    "color": "#c8a8ff",
+    "maxLevel": 5,
+    "perLevel": {
+      "duration": 0.1
+    }
+  },
+  {
+    "id": "multiplier",
+    "name": "Duplicateur",
+    "description": "+1 projectile, éclat, mine ou rebond par niveau.",
+    "color": "#ffe16a",
+    "maxLevel": 2,
+    "perLevel": {
+      "amount": 1
+    }
+  },
+  {
+    "id": "clover",
+    "name": "Trèfle quantique",
+    "description": "+10 % de chance : coffres plus généreux.",
+    "color": "#3dff8a",
+    "maxLevel": 5,
+    "perLevel": {
+      "luck": 0.1
+    }
+  },
+  {
+    "id": "growth",
+    "name": "Catalyseur",
+    "description": "+8 % d'expérience gagnée par niveau.",
+    "color": "#a8ff6a",
+    "maxLevel": 5,
+    "perLevel": {
+      "growth": 0.08
+    }
+  },
+  {
+    "id": "greed",
+    "name": "Collecteur",
+    "description": "+12 % de fragments gagnés par niveau.",
+    "color": "#ffc83d",
+    "maxLevel": 5,
+    "perLevel": {
+      "greed": 0.12
+    }
+  },
+  {
+    "id": "phase",
+    "name": "Bobine de phase",
+    "description": "-8 % de recharge du dash par niveau.",
+    "color": "#7fb8ff",
+    "maxLevel": 5,
+    "perLevel": {
+      "dashCooldown": 0.08
+    }
+  },
+  {
+    "id": "focus",
+    "name": "Focaliseur élémentaire",
+    "description": "+12 % de puissance des statuts élémentaires par niveau.",
+    "color": "#ffa0f0",
+    "maxLevel": 5,
+    "perLevel": {
+      "status": 0.12
+    }
+  },
+  {
+    "id": "resonator",
+    "name": "Résonateur",
+    "description": "+10 % de remplissage de la jauge de Résonance par niveau.",
+    "color": "#d98bff",
+    "maxLevel": 5,
+    "perLevel": {
+      "gauge": 0.1
+    }
+  },
+  {
+    "id": "pyro",
+    "name": "Noyau pyrique",
+    "description": "+12 % de dégâts de feu par niveau.",
+    "color": "#ff7a2f",
+    "maxLevel": 5,
+    "perLevel": {
+      "fire": 0.12
+    }
+  },
+  {
+    "id": "cryo",
+    "name": "Noyau cryogénique",
+    "description": "+12 % de dégâts de givre par niveau.",
+    "color": "#7fe8ff",
+    "maxLevel": 5,
+    "perLevel": {
+      "frost": 0.12
+    }
+  },
+  {
+    "id": "electro",
+    "name": "Noyau électrique",
+    "description": "+12 % de dégâts de foudre par niveau.",
+    "color": "#fff06a",
+    "maxLevel": 5,
+    "perLevel": {
+      "lightning": 0.12
+    }
+  },
+  {
+    "id": "toxo",
+    "name": "Noyau toxique",
+    "description": "+12 % de dégâts de poison par niveau.",
+    "color": "#9cff3d",
+    "maxLevel": 5,
+    "perLevel": {
+      "poison": 0.12
+    }
+  },
+  {
+    "id": "arcano",
+    "name": "Noyau arcanique",
+    "description": "+12 % de dégâts d'arcane par niveau.",
+    "color": "#ff6af0",
+    "maxLevel": 5,
+    "perLevel": {
+      "arcane": 0.12
+    }
+  },
+  {
+    "id": "entropo",
+    "name": "Noyau entropique",
+    "description": "+12 % de dégâts du vide par niveau.",
+    "color": "#8a5cff",
+    "maxLevel": 5,
+    "perLevel": {
+      "void": 0.12
+    }
+  }
+]

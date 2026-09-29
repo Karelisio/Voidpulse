@@ -1,0 +1,170 @@
+{
+  "id": "station",
+  "name": "Station orbitale",
+  "order": 5,
+  "biome": "station",
+  "description": "Sans gravité, chaque mouvement garde son élan.",
+  "duration": 900,
+  "bossAt": 900,
+  "boss": "guardianai",
+  "miniBoss": "droneadmiral",
+  "miniAt": [300, 600],
+  "mechanic": {
+    "kind": "zeroG",
+    "every": 0,
+    "length": 0,
+    "count": 0,
+    "radius": 0,
+    "power": 3,
+    "description": "Apesanteur : le vaisseau glisse sur son élan."
+  },
+  "palette": {
+    "base": "#070a14",
+    "grid": "#6ad1ff",
+    "accent": "#ff5ad7"
+  },
+  "density": [
+    [0, 26],
+    [60, 63],
+    [180, 145],
+    [300, 198],
+    [420, 264],
+    [600, 343],
+    [780, 422],
+    [900, 185],
+    [1000, 224]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "drone": 1
+      }
+    ],
+    [
+      50,
+      {
+        "drone": 0.92,
+        "projector": 0.08
+      }
+    ],
+    [
+      140,
+      {
+        "drone": 0.65,
+        "projector": 0.15,
+        "mech": 0.2
+      }
+    ],
+    [
+      240,
+      {
+        "drone": 0.5,
+        "projector": 0.15,
+        "mech": 0.15,
+        "turret": 0.1,
+        "carrier": 0.1
+      }
+    ],
+    [
+      420,
+      {
+        "drone": 0.42,
+        "projector": 0.15,
+        "mech": 0.15,
+        "turret": 0.14,
+        "carrier": 0.14
+      }
+    ],
+    [
+      660,
+      {
+        "drone": 0.36,
+        "projector": 0.16,
+        "mech": 0.16,
+        "turret": 0.16,
+        "carrier": 0.16
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 1.0],
+    [300, 2.88],
+    [600, 7.04],
+    [900, 11.0],
+    [1200, 15.4]
+  ],
+  "waves": [
+    {
+      "at": 30,
+      "kind": "ring",
+      "enemy": "drone",
+      "count": 20
+    },
+    {
+      "at": 95,
+      "kind": "line",
+      "enemy": "projector",
+      "count": 8
+    },
+    {
+      "at": 160,
+      "kind": "pincer",
+      "enemy": "mech",
+      "count": 12
+    },
+    {
+      "at": 225,
+      "kind": "swarm",
+      "enemy": "carrier",
+      "count": 10
+    },
+    {
+      "at": 270,
+      "kind": "escort",
+      "enemy": "turret",
+      "count": 10,
+      "minion": "drone"
+    },
+    {
+      "at": 400,
+      "kind": "ring",
+      "enemy": "drone",
+      "count": 40
+    },
+    {
+      "at": 470,
+      "kind": "escort",
+      "enemy": "turret",
+      "count": 12,
+      "minion": "projector",
+      "elite": true
+    },
+    {
+      "at": 540,
+      "kind": "pincer",
+      "enemy": "carrier",
+      "count": 16
+    },
+    {
+      "at": 700,
+      "kind": "ring",
+      "enemy": "drone",
+      "count": 56
+    },
+    {
+      "at": 760,
+      "kind": "escort",
+      "enemy": "mech",
+      "count": 14,
+      "minion": "drone",
+      "elite": true
+    },
+    {
+      "at": 840,
+      "kind": "line",
+      "enemy": "turret",
+      "count": 10
+    }
+  ]
+}

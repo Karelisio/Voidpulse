@@ -1,0 +1,138 @@
+{
+  "id": "proto",
+  "name": "Forêt brumeuse (prototype)",
+  "duration": 360,
+  "bossAt": 300,
+  "boss": "sentinel",
+  "density": [
+    [0, 18],
+    [30, 40],
+    [60, 65],
+    [120, 120],
+    [180, 190],
+    [240, 270],
+    [290, 320],
+    [300, 80],
+    [360, 100]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "mite": 1
+      }
+    ],
+    [
+      40,
+      {
+        "mite": 0.8,
+        "spitter": 0.2
+      }
+    ],
+    [
+      80,
+      {
+        "mite": 0.65,
+        "spitter": 0.15,
+        "bomber": 0.2
+      }
+    ],
+    [
+      130,
+      {
+        "mite": 0.5,
+        "spitter": 0.15,
+        "bomber": 0.15,
+        "brute": 0.1,
+        "blinker": 0.1
+      }
+    ],
+    [
+      200,
+      {
+        "mite": 0.45,
+        "spitter": 0.15,
+        "bomber": 0.15,
+        "brute": 0.12,
+        "blinker": 0.13
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 1],
+    [120, 1.4],
+    [240, 2.1],
+    [360, 2.8]
+  ],
+  "waves": [
+    {
+      "at": 25,
+      "kind": "ring",
+      "enemy": "mite",
+      "count": 20
+    },
+    {
+      "at": 70,
+      "kind": "line",
+      "enemy": "spitter",
+      "count": 8
+    },
+    {
+      "at": 110,
+      "kind": "pincer",
+      "enemy": "bomber",
+      "count": 12
+    },
+    {
+      "at": 160,
+      "kind": "escort",
+      "enemy": "brute",
+      "count": 10,
+      "minion": "mite"
+    },
+    {
+      "at": 210,
+      "kind": "swarm",
+      "enemy": "blinker",
+      "count": 10
+    },
+    {
+      "at": 245,
+      "kind": "escort",
+      "enemy": "brute",
+      "count": 12,
+      "minion": "spitter",
+      "elite": true
+    },
+    {
+      "at": 260,
+      "kind": "ring",
+      "enemy": "mite",
+      "count": 40
+    }
+  ],
+  "runEvents": [
+    [75, "merchant"],
+    [140, "horde"],
+    [195, "rift"],
+    [235, "altar"]
+  ],
+  "order": 0,
+  "biome": "forest",
+  "description": "Stage de test court.",
+  "miniAt": [],
+  "mechanic": {
+    "kind": "none",
+    "every": 0,
+    "length": 0,
+    "count": 0,
+    "radius": 0,
+    "power": 0,
+    "description": ""
+  },
+  "palette": {
+    "base": "#0a0b16",
+    "grid": "#3ee6ff",
+    "accent": "#b04dff"
+  }
+}

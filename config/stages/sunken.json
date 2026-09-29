@@ -1,0 +1,170 @@
+{
+  "id": "sunken",
+  "name": "Cité engloutie",
+  "order": 3,
+  "biome": "sunken",
+  "description": "Des bassins d'eau ralentissent tout ce qui les traverse.",
+  "duration": 900,
+  "bossAt": 900,
+  "boss": "leviathan",
+  "miniBoss": "crabking",
+  "miniAt": [300, 600],
+  "mechanic": {
+    "kind": "water",
+    "every": 0,
+    "length": 0,
+    "count": 9,
+    "radius": 110,
+    "power": 0.35,
+    "description": "Eaux lentes : joueur et ennemis ralentis."
+  },
+  "palette": {
+    "base": "#04111a",
+    "grid": "#3dffd2",
+    "accent": "#5ad7ff"
+  },
+  "density": [
+    [0, 23],
+    [60, 56],
+    [180, 128],
+    [300, 174],
+    [420, 232],
+    [600, 302],
+    [780, 371],
+    [900, 162],
+    [1000, 197]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "eel": 1
+      }
+    ],
+    [
+      50,
+      {
+        "eel": 0.92,
+        "siren": 0.08
+      }
+    ],
+    [
+      140,
+      {
+        "eel": 0.65,
+        "siren": 0.15,
+        "angler": 0.2
+      }
+    ],
+    [
+      240,
+      {
+        "eel": 0.5,
+        "siren": 0.15,
+        "angler": 0.15,
+        "crab": 0.1,
+        "puffer": 0.1
+      }
+    ],
+    [
+      420,
+      {
+        "eel": 0.42,
+        "siren": 0.15,
+        "angler": 0.15,
+        "crab": 0.14,
+        "puffer": 0.14
+      }
+    ],
+    [
+      660,
+      {
+        "eel": 0.36,
+        "siren": 0.16,
+        "angler": 0.16,
+        "crab": 0.16,
+        "puffer": 0.16
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 1.0],
+    [300, 2.34],
+    [600, 5.12],
+    [900, 8.0],
+    [1200, 11.2]
+  ],
+  "waves": [
+    {
+      "at": 30,
+      "kind": "ring",
+      "enemy": "eel",
+      "count": 20
+    },
+    {
+      "at": 95,
+      "kind": "line",
+      "enemy": "siren",
+      "count": 8
+    },
+    {
+      "at": 160,
+      "kind": "pincer",
+      "enemy": "angler",
+      "count": 12
+    },
+    {
+      "at": 225,
+      "kind": "swarm",
+      "enemy": "puffer",
+      "count": 10
+    },
+    {
+      "at": 270,
+      "kind": "escort",
+      "enemy": "crab",
+      "count": 10,
+      "minion": "eel"
+    },
+    {
+      "at": 400,
+      "kind": "ring",
+      "enemy": "eel",
+      "count": 40
+    },
+    {
+      "at": 470,
+      "kind": "escort",
+      "enemy": "crab",
+      "count": 12,
+      "minion": "siren",
+      "elite": true
+    },
+    {
+      "at": 540,
+      "kind": "pincer",
+      "enemy": "puffer",
+      "count": 16
+    },
+    {
+      "at": 700,
+      "kind": "ring",
+      "enemy": "eel",
+      "count": 56
+    },
+    {
+      "at": 760,
+      "kind": "escort",
+      "enemy": "angler",
+      "count": 14,
+      "minion": "eel",
+      "elite": true
+    },
+    {
+      "at": 840,
+      "kind": "line",
+      "enemy": "crab",
+      "count": 10
+    }
+  ]
+}

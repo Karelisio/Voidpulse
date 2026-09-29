@@ -1,0 +1,1990 @@
+[
+  {
+    "id": "ember",
+    "name": "Braise",
+    "description": "Tire des éclats de feu sur l'ennemi le plus proche. Brûle.",
+    "element": "fire",
+    "archetype": "projectile",
+    "color": "#ff7a2f",
+    "base": {
+      "damage": 13,
+      "cooldown": 0.95,
+      "count": 1,
+      "pierce": 0,
+      "speed": 480,
+      "size": 7,
+      "range": 0,
+      "duration": 1.1,
+      "status": 5
+    },
+    "params": {
+      "spread": 0.16
+    },
+    "levels": [
+      {
+        "damage": 4
+      },
+      {
+        "count": 1
+      },
+      {
+        "pierce": 1,
+        "status": 2
+      },
+      {
+        "count": 1,
+        "damage": 4
+      },
+      {
+        "cooldown": -0.15
+      },
+      {
+        "count": 1
+      },
+      {
+        "pierce": 1,
+        "damage": 6,
+        "status": 3
+      }
+    ],
+    "evolution": {
+      "id": "solarvolley",
+      "name": "Salve solaire",
+      "description": "Des salves d'éclats solaires qui explosent à l'impact.",
+      "passive": "pyro",
+      "base": {
+        "damage": 30,
+        "cooldown": 0.7,
+        "count": 5,
+        "pierce": 2,
+        "speed": 560,
+        "size": 9,
+        "range": 0,
+        "duration": 1.2,
+        "status": 10
+      },
+      "params": {
+        "spread": 0.14,
+        "explode": 42
+      }
+    }
+  },
+  {
+    "id": "flamewheel",
+    "name": "Roue de flammes",
+    "description": "Des boules de feu tournent autour de toi. Brûlent au contact.",
+    "element": "fire",
+    "archetype": "orbit",
+    "color": "#ff7a2f",
+    "base": {
+      "damage": 10,
+      "cooldown": 0.6,
+      "count": 2,
+      "pierce": 0,
+      "speed": 2.6,
+      "size": 11,
+      "range": 95,
+      "duration": 0,
+      "status": 6
+    },
+    "params": {},
+    "levels": [
+      {
+        "damage": 3
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 15
+      },
+      {
+        "damage": 3,
+        "status": 2
+      },
+      {
+        "speed": 0.5
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 6,
+        "size": 3
+      }
+    ],
+    "evolution": {
+      "id": "sunring",
+      "name": "Anneau solaire",
+      "description": "Six soleils miniatures en orbite large.",
+      "passive": "lens",
+      "base": {
+        "damage": 26,
+        "cooldown": 0.4,
+        "count": 6,
+        "pierce": 0,
+        "speed": 3.4,
+        "size": 16,
+        "range": 130,
+        "duration": 0,
+        "status": 12
+      },
+      "params": {}
+    }
+  },
+  {
+    "id": "brazier",
+    "name": "Brasier",
+    "description": "Une aura ardente brûle les ennemis proches.",
+    "element": "fire",
+    "archetype": "aura",
+    "color": "#ff7a2f",
+    "base": {
+      "damage": 5,
+      "cooldown": 0.5,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 70,
+      "duration": 0,
+      "status": 4
+    },
+    "params": {},
+    "levels": [
+      {
+        "range": 10
+      },
+      {
+        "damage": 2
+      },
+      {
+        "status": 2
+      },
+      {
+        "range": 12
+      },
+      {
+        "damage": 3
+      },
+      {
+        "cooldown": -0.1
+      },
+      {
+        "damage": 4,
+        "range": 15
+      }
+    ],
+    "evolution": {
+      "id": "volcanoheart",
+      "name": "Cœur du volcan",
+      "description": "Une fournaise qui repousse et consume tout autour de toi.",
+      "passive": "vitality",
+      "base": {
+        "damage": 16,
+        "cooldown": 0.35,
+        "count": 1,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 150,
+        "duration": 0,
+        "status": 14
+      },
+      "params": {
+        "knock": 30
+      }
+    }
+  },
+  {
+    "id": "firemine",
+    "name": "Mines incendiaires",
+    "description": "Pose des mines qui explosent au passage des ennemis.",
+    "element": "fire",
+    "archetype": "mines",
+    "color": "#ff7a2f",
+    "base": {
+      "damage": 34,
+      "cooldown": 2.2,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 28,
+      "range": 70,
+      "duration": 10,
+      "status": 6
+    },
+    "params": {
+      "arm": 0.35
+    },
+    "levels": [
+      {
+        "damage": 8
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 12
+      },
+      {
+        "cooldown": -0.3
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 12
+      },
+      {
+        "range": 18,
+        "status": 4
+      }
+    ],
+    "evolution": {
+      "id": "napalmfield",
+      "name": "Champ de napalm",
+      "description": "Chaque explosion laisse une nappe de feu.",
+      "passive": "persistence",
+      "base": {
+        "damage": 70,
+        "cooldown": 1.4,
+        "count": 4,
+        "pierce": 0,
+        "speed": 0,
+        "size": 34,
+        "range": 110,
+        "duration": 12,
+        "status": 14
+      },
+      "params": {
+        "arm": 0.3,
+        "pool": 3
+      }
+    }
+  },
+  {
+    "id": "phoenix",
+    "name": "Phénix",
+    "description": "Des oiseaux de feu fondent sur les ennemis.",
+    "element": "fire",
+    "archetype": "homing",
+    "color": "#ff7a2f",
+    "base": {
+      "damage": 22,
+      "cooldown": 1.6,
+      "count": 1,
+      "pierce": 0,
+      "speed": 300,
+      "size": 9,
+      "range": 0,
+      "duration": 3,
+      "status": 7
+    },
+    "params": {
+      "turn": 5,
+      "spread": 0.6
+    },
+    "levels": [
+      {
+        "damage": 5
+      },
+      {
+        "count": 1
+      },
+      {
+        "speed": 40
+      },
+      {
+        "damage": 6
+      },
+      {
+        "count": 1
+      },
+      {
+        "cooldown": -0.25
+      },
+      {
+        "damage": 10,
+        "status": 4
+      }
+    ],
+    "evolution": {
+      "id": "eternalphoenix",
+      "name": "Phénix éternel",
+      "description": "Une nuée de phénix qui explosent en gerbes de flammes.",
+      "passive": "growth",
+      "base": {
+        "damage": 48,
+        "cooldown": 0.9,
+        "count": 5,
+        "pierce": 2,
+        "speed": 420,
+        "size": 12,
+        "range": 0,
+        "duration": 4,
+        "status": 14
+      },
+      "params": {
+        "turn": 7,
+        "spread": 0.9,
+        "explode": 55
+      }
+    }
+  },
+  {
+    "id": "frost",
+    "name": "Éclats de givre",
+    "description": "Des éclats gelés tournent autour de toi. Ralentissent puis gèlent.",
+    "element": "frost",
+    "archetype": "orbit",
+    "color": "#7fe8ff",
+    "base": {
+      "damage": 8,
+      "cooldown": 0.55,
+      "count": 2,
+      "pierce": 0,
+      "speed": 3.2,
+      "size": 9,
+      "range": 72,
+      "duration": 0,
+      "status": 0.3
+    },
+    "params": {},
+    "levels": [
+      {
+        "damage": 3
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 12,
+        "status": 0.05
+      },
+      {
+        "count": 1,
+        "damage": 3
+      },
+      {
+        "speed": 0.6
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 5,
+        "range": 14,
+        "status": 0.1
+      }
+    ],
+    "evolution": {
+      "id": "shardstorm",
+      "name": "Tempête d'éclats",
+      "description": "Huit éclats tournoient à grande vitesse et gèlent net.",
+      "passive": "cryo",
+      "base": {
+        "damage": 20,
+        "cooldown": 0.35,
+        "count": 8,
+        "pierce": 0,
+        "speed": 4.6,
+        "size": 12,
+        "range": 110,
+        "duration": 0,
+        "status": 0.6
+      },
+      "params": {}
+    }
+  },
+  {
+    "id": "icelance",
+    "name": "Lance de glace",
+    "description": "Une lance perforante et rapide. Ralentit.",
+    "element": "frost",
+    "archetype": "projectile",
+    "color": "#7fe8ff",
+    "base": {
+      "damage": 28,
+      "cooldown": 1.5,
+      "count": 1,
+      "pierce": 3,
+      "speed": 720,
+      "size": 8,
+      "range": 0,
+      "duration": 1,
+      "status": 0.35
+    },
+    "params": {
+      "spread": 0.08
+    },
+    "levels": [
+      {
+        "damage": 7
+      },
+      {
+        "pierce": 2
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 8,
+        "status": 0.1
+      },
+      {
+        "cooldown": -0.25
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 14,
+        "pierce": 3
+      }
+    ],
+    "evolution": {
+      "id": "borealspear",
+      "name": "Lance boréale",
+      "description": "Des lances qui traversent tout et éclatent en fragments.",
+      "passive": "accelerator",
+      "base": {
+        "damage": 70,
+        "cooldown": 0.9,
+        "count": 3,
+        "pierce": 99,
+        "speed": 950,
+        "size": 11,
+        "range": 0,
+        "duration": 1.1,
+        "status": 0.6
+      },
+      "params": {
+        "spread": 0.1,
+        "split": 4
+      }
+    }
+  },
+  {
+    "id": "glacialwave",
+    "name": "Onde glaciale",
+    "description": "Une onde de froid repousse et ralentit les ennemis autour de toi.",
+    "element": "frost",
+    "archetype": "nova",
+    "color": "#7fe8ff",
+    "base": {
+      "damage": 16,
+      "cooldown": 2.6,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 120,
+      "duration": 0,
+      "status": 0.45
+    },
+    "params": {
+      "knock": 90
+    },
+    "levels": [
+      {
+        "damage": 4
+      },
+      {
+        "range": 15
+      },
+      {
+        "status": 0.1
+      },
+      {
+        "cooldown": -0.3
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 6,
+        "range": 20
+      },
+      {
+        "status": 0.15,
+        "damage": 8
+      }
+    ],
+    "evolution": {
+      "id": "absolutewinter",
+      "name": "Hiver absolu",
+      "description": "Trois ondes successives qui gèlent tout sur leur passage.",
+      "passive": "focus",
+      "base": {
+        "damage": 42,
+        "cooldown": 1.6,
+        "count": 3,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 210,
+        "duration": 0,
+        "status": 1
+      },
+      "params": {
+        "knock": 140
+      }
+    }
+  },
+  {
+    "id": "blizzard",
+    "name": "Blizzard",
+    "description": "Des tempêtes de neige se forment sur les ennemis. Ralentissent.",
+    "element": "frost",
+    "archetype": "zone",
+    "color": "#7fe8ff",
+    "base": {
+      "damage": 5,
+      "cooldown": 3.2,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 75,
+      "duration": 4,
+      "status": 0.2
+    },
+    "params": {
+      "tick": 0.5
+    },
+    "levels": [
+      {
+        "range": 10
+      },
+      {
+        "damage": 2
+      },
+      {
+        "count": 1
+      },
+      {
+        "duration": 1
+      },
+      {
+        "status": 0.08,
+        "damage": 2
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 20,
+        "damage": 4
+      }
+    ],
+    "evolution": {
+      "id": "blizzardeye",
+      "name": "Œil du blizzard",
+      "description": "Des tempêtes qui aspirent les ennemis en leur cœur.",
+      "passive": "magnet",
+      "base": {
+        "damage": 16,
+        "cooldown": 2.2,
+        "count": 3,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 140,
+        "duration": 6,
+        "status": 0.45
+      },
+      "params": {
+        "tick": 0.4,
+        "pull": 70
+      }
+    }
+  },
+  {
+    "id": "frostblade",
+    "name": "Lame de givre",
+    "description": "Une lame tournoyante part et revient. Ralentit.",
+    "element": "frost",
+    "archetype": "boomerang",
+    "color": "#7fe8ff",
+    "base": {
+      "damage": 20,
+      "cooldown": 1.8,
+      "count": 1,
+      "pierce": 0,
+      "speed": 420,
+      "size": 13,
+      "range": 240,
+      "duration": 0,
+      "status": 0.3
+    },
+    "params": {
+      "spread": 0.5
+    },
+    "levels": [
+      {
+        "damage": 5
+      },
+      {
+        "count": 1
+      },
+      {
+        "size": 3
+      },
+      {
+        "damage": 6
+      },
+      {
+        "speed": 60,
+        "range": 30
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 10,
+        "status": 0.15
+      }
+    ],
+    "evolution": {
+      "id": "bladestorm",
+      "name": "Tourbillon de lames",
+      "description": "Quatre lames en croix balaient tout.",
+      "passive": "multiplier",
+      "base": {
+        "damage": 44,
+        "cooldown": 1.1,
+        "count": 4,
+        "pierce": 0,
+        "speed": 540,
+        "size": 20,
+        "range": 300,
+        "duration": 0,
+        "status": 0.6
+      },
+      "params": {
+        "spread": 1.57
+      }
+    }
+  },
+  {
+    "id": "arc",
+    "name": "Arc voltaïque",
+    "description": "Un éclair rebondit d'ennemi en ennemi. Électrise.",
+    "element": "lightning",
+    "archetype": "chain",
+    "color": "#fff06a",
+    "base": {
+      "damage": 17,
+      "cooldown": 1.35,
+      "count": 3,
+      "pierce": 0,
+      "speed": 0,
+      "size": 4,
+      "range": 260,
+      "duration": 0.14,
+      "status": 2.5
+    },
+    "params": {},
+    "levels": [
+      {
+        "damage": 5
+      },
+      {
+        "count": 1
+      },
+      {
+        "cooldown": -0.15
+      },
+      {
+        "count": 1,
+        "damage": 5
+      },
+      {
+        "range": 40
+      },
+      {
+        "count": 2
+      },
+      {
+        "damage": 8,
+        "cooldown": -0.15
+      }
+    ],
+    "evolution": {
+      "id": "voltstorm",
+      "name": "Tempête voltaïque",
+      "description": "Des éclairs qui se ramifient à chaque rebond.",
+      "passive": "capacitor",
+      "base": {
+        "damage": 40,
+        "cooldown": 0.8,
+        "count": 10,
+        "pierce": 0,
+        "speed": 0,
+        "size": 4,
+        "range": 320,
+        "duration": 0.14,
+        "status": 4
+      },
+      "params": {
+        "fork": 2
+      }
+    }
+  },
+  {
+    "id": "railgun",
+    "name": "Canon à rail",
+    "description": "Un trait d'énergie traverse tout sur une longue ligne. Électrise.",
+    "element": "lightning",
+    "archetype": "beam",
+    "color": "#fff06a",
+    "base": {
+      "damage": 26,
+      "cooldown": 2.2,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 10,
+      "range": 520,
+      "duration": 0.25,
+      "status": 1.5
+    },
+    "params": {
+      "tick": 0.12
+    },
+    "levels": [
+      {
+        "damage": 7
+      },
+      {
+        "size": 4
+      },
+      {
+        "cooldown": -0.3
+      },
+      {
+        "damage": 8
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 80,
+        "status": 1
+      },
+      {
+        "damage": 14
+      }
+    ],
+    "evolution": {
+      "id": "ioncannon",
+      "name": "Canon à ions",
+      "description": "Deux faisceaux larges aux coups souvent critiques.",
+      "passive": "scope",
+      "base": {
+        "damage": 60,
+        "cooldown": 1.4,
+        "count": 2,
+        "pierce": 0,
+        "speed": 0,
+        "size": 26,
+        "range": 700,
+        "duration": 0.35,
+        "status": 3
+      },
+      "params": {
+        "tick": 0.1,
+        "critBonus": 0.25
+      }
+    }
+  },
+  {
+    "id": "voltdisc",
+    "name": "Disque volt",
+    "description": "Un disque électrique part et revient. Électrise.",
+    "element": "lightning",
+    "archetype": "boomerang",
+    "color": "#fff06a",
+    "base": {
+      "damage": 16,
+      "cooldown": 1.5,
+      "count": 1,
+      "pierce": 0,
+      "speed": 480,
+      "size": 11,
+      "range": 220,
+      "duration": 0,
+      "status": 2
+    },
+    "params": {
+      "spread": 0.6
+    },
+    "levels": [
+      {
+        "damage": 4
+      },
+      {
+        "count": 1
+      },
+      {
+        "speed": 60
+      },
+      {
+        "damage": 5,
+        "status": 1
+      },
+      {
+        "range": 40
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 9
+      }
+    ],
+    "evolution": {
+      "id": "fulgurdisc",
+      "name": "Disque fulgurant",
+      "description": "Trois disques qui projettent des arcs à chaque impact.",
+      "passive": "swiftness",
+      "base": {
+        "damage": 36,
+        "cooldown": 0.9,
+        "count": 3,
+        "pierce": 0,
+        "speed": 640,
+        "size": 15,
+        "range": 300,
+        "duration": 0,
+        "status": 3.5
+      },
+      "params": {
+        "spread": 0.8,
+        "arcs": 0.5
+      }
+    }
+  },
+  {
+    "id": "discharge",
+    "name": "Décharge",
+    "description": "Une décharge frappe tous les ennemis proches. Électrise.",
+    "element": "lightning",
+    "archetype": "nova",
+    "color": "#fff06a",
+    "base": {
+      "damage": 14,
+      "cooldown": 1.8,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 95,
+      "duration": 0,
+      "status": 2
+    },
+    "params": {
+      "knock": 50
+    },
+    "levels": [
+      {
+        "damage": 4
+      },
+      {
+        "range": 12
+      },
+      {
+        "cooldown": -0.25
+      },
+      {
+        "damage": 5
+      },
+      {
+        "count": 1
+      },
+      {
+        "status": 1,
+        "range": 15
+      },
+      {
+        "damage": 9
+      }
+    ],
+    "evolution": {
+      "id": "stormheart",
+      "name": "Cœur d'orage",
+      "description": "Chaque décharge projette des arcs vers les ennemis plus lointains.",
+      "passive": "electro",
+      "base": {
+        "damage": 34,
+        "cooldown": 1.1,
+        "count": 2,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 150,
+        "duration": 0,
+        "status": 3.5
+      },
+      "params": {
+        "knock": 80,
+        "arcs": 4
+      }
+    }
+  },
+  {
+    "id": "storm",
+    "name": "Orage",
+    "description": "La foudre s'abat sur des ennemis au hasard. Électrise.",
+    "element": "lightning",
+    "archetype": "zone",
+    "color": "#fff06a",
+    "base": {
+      "damage": 30,
+      "cooldown": 1.6,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 50,
+      "duration": 0,
+      "status": 2
+    },
+    "params": {
+      "strike": 0.35
+    },
+    "levels": [
+      {
+        "damage": 8
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 10
+      },
+      {
+        "cooldown": -0.2
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 10,
+        "status": 1
+      },
+      {
+        "count": 2
+      }
+    ],
+    "evolution": {
+      "id": "skydeluge",
+      "name": "Déluge céleste",
+      "description": "Un déluge d'éclairs aux impacts critiques.",
+      "passive": "overclock",
+      "base": {
+        "damage": 60,
+        "cooldown": 0.9,
+        "count": 6,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 70,
+        "duration": 0,
+        "status": 3.5
+      },
+      "params": {
+        "strike": 0.3,
+        "critBonus": 0.2
+      }
+    }
+  },
+  {
+    "id": "acidpool",
+    "name": "Flaque acide",
+    "description": "Des flaques d'acide se forment sous les ennemis. Empoisonnent.",
+    "element": "poison",
+    "archetype": "zone",
+    "color": "#9cff3d",
+    "base": {
+      "damage": 4,
+      "cooldown": 3,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 70,
+      "duration": 5,
+      "status": 1
+    },
+    "params": {
+      "tick": 0.5
+    },
+    "levels": [
+      {
+        "range": 10
+      },
+      {
+        "damage": 1,
+        "status": 0.5
+      },
+      {
+        "count": 1
+      },
+      {
+        "duration": 1.5
+      },
+      {
+        "damage": 2
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 20,
+        "status": 1
+      }
+    ],
+    "evolution": {
+      "id": "corrosivemire",
+      "name": "Marais corrosif",
+      "description": "De vastes marais d'acide aux toxines foudroyantes.",
+      "passive": "toxo",
+      "base": {
+        "damage": 10,
+        "cooldown": 2,
+        "count": 3,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 130,
+        "duration": 8,
+        "status": 2.5
+      },
+      "params": {
+        "tick": 0.4
+      }
+    }
+  },
+  {
+    "id": "miasma",
+    "name": "Miasme",
+    "description": "Un nuage toxique t'entoure et empoisonne les ennemis.",
+    "element": "poison",
+    "archetype": "aura",
+    "color": "#9cff3d",
+    "base": {
+      "damage": 2,
+      "cooldown": 0.6,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 85,
+      "duration": 0,
+      "status": 1
+    },
+    "params": {},
+    "levels": [
+      {
+        "range": 10
+      },
+      {
+        "status": 0.5
+      },
+      {
+        "damage": 1
+      },
+      {
+        "range": 12
+      },
+      {
+        "cooldown": -0.1
+      },
+      {
+        "status": 1
+      },
+      {
+        "range": 18,
+        "damage": 2
+      }
+    ],
+    "evolution": {
+      "id": "plaguecloud",
+      "name": "Nuée pestilentielle",
+      "description": "Un immense nuage qui empoisonne et te soigne.",
+      "passive": "nanites",
+      "base": {
+        "damage": 6,
+        "cooldown": 0.4,
+        "count": 1,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 170,
+        "duration": 0,
+        "status": 3
+      },
+      "params": {
+        "heal": 0.6
+      }
+    }
+  },
+  {
+    "id": "wasps",
+    "name": "Guêpes toxiques",
+    "description": "Des guêpes traquent les ennemis. Empoisonnent.",
+    "element": "poison",
+    "archetype": "homing",
+    "color": "#9cff3d",
+    "base": {
+      "damage": 9,
+      "cooldown": 1.2,
+      "count": 2,
+      "pierce": 0,
+      "speed": 260,
+      "size": 6,
+      "range": 0,
+      "duration": 3.5,
+      "status": 1.5
+    },
+    "params": {
+      "turn": 6,
+      "spread": 1.2
+    },
+    "levels": [
+      {
+        "count": 1
+      },
+      {
+        "damage": 3
+      },
+      {
+        "status": 0.5
+      },
+      {
+        "count": 1
+      },
+      {
+        "speed": 40
+      },
+      {
+        "damage": 4
+      },
+      {
+        "count": 2
+      }
+    ],
+    "evolution": {
+      "id": "queenswarm",
+      "name": "Essaim reine",
+      "description": "Un essaim de huit guêpes qui transpercent leurs proies.",
+      "passive": "clover",
+      "base": {
+        "damage": 18,
+        "cooldown": 0.7,
+        "count": 8,
+        "pierce": 1,
+        "speed": 340,
+        "size": 8,
+        "range": 0,
+        "duration": 4.5,
+        "status": 2.5
+      },
+      "params": {
+        "turn": 8,
+        "spread": 1.6
+      }
+    }
+  },
+  {
+    "id": "venomscythe",
+    "name": "Faux venimeuse",
+    "description": "Une faux large part et revient. Empoisonne.",
+    "element": "poison",
+    "archetype": "boomerang",
+    "color": "#9cff3d",
+    "base": {
+      "damage": 24,
+      "cooldown": 2,
+      "count": 1,
+      "pierce": 0,
+      "speed": 380,
+      "size": 18,
+      "range": 200,
+      "duration": 0,
+      "status": 1.5
+    },
+    "params": {
+      "spread": 0.7
+    },
+    "levels": [
+      {
+        "damage": 6
+      },
+      {
+        "size": 4
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 6,
+        "status": 0.5
+      },
+      {
+        "range": 40
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 12
+      }
+    ],
+    "evolution": {
+      "id": "reaper",
+      "name": "Faucheuse",
+      "description": "Trois faux géantes qui fauchent tout autour de toi.",
+      "passive": "amplifier",
+      "base": {
+        "damage": 55,
+        "cooldown": 1.2,
+        "count": 3,
+        "pierce": 0,
+        "speed": 480,
+        "size": 28,
+        "range": 280,
+        "duration": 0,
+        "status": 3
+      },
+      "params": {
+        "spread": 2.1
+      }
+    }
+  },
+  {
+    "id": "parasite",
+    "name": "Lien parasite",
+    "description": "Un lien toxique saute d'ennemi en ennemi. Empoisonne.",
+    "element": "poison",
+    "archetype": "chain",
+    "color": "#9cff3d",
+    "base": {
+      "damage": 10,
+      "cooldown": 1.6,
+      "count": 3,
+      "pierce": 0,
+      "speed": 0,
+      "size": 4,
+      "range": 220,
+      "duration": 0.14,
+      "status": 1.5
+    },
+    "params": {},
+    "levels": [
+      {
+        "count": 1
+      },
+      {
+        "damage": 3
+      },
+      {
+        "status": 0.5
+      },
+      {
+        "count": 1
+      },
+      {
+        "cooldown": -0.2
+      },
+      {
+        "damage": 4
+      },
+      {
+        "count": 2
+      }
+    ],
+    "evolution": {
+      "id": "symbiosis",
+      "name": "Symbiose",
+      "description": "Un lien ramifié qui te soigne à chaque proie.",
+      "passive": "resonator",
+      "base": {
+        "damage": 24,
+        "cooldown": 1,
+        "count": 9,
+        "pierce": 0,
+        "speed": 0,
+        "size": 4,
+        "range": 280,
+        "duration": 0.14,
+        "status": 3
+      },
+      "params": {
+        "heal": 0.4,
+        "fork": 1
+      }
+    }
+  },
+  {
+    "id": "runes",
+    "name": "Sphères runiques",
+    "description": "Des runes en orbite exposent les ennemis : dégâts subis accrus.",
+    "element": "arcane",
+    "archetype": "orbit",
+    "color": "#ff6af0",
+    "base": {
+      "damage": 7,
+      "cooldown": 0.5,
+      "count": 3,
+      "pierce": 0,
+      "speed": 2.2,
+      "size": 8,
+      "range": 110,
+      "duration": 0,
+      "status": 0.12
+    },
+    "params": {},
+    "levels": [
+      {
+        "damage": 2
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 15
+      },
+      {
+        "status": 0.04
+      },
+      {
+        "count": 1
+      },
+      {
+        "speed": 0.5,
+        "damage": 3
+      },
+      {
+        "damage": 5,
+        "count": 1
+      }
+    ],
+    "evolution": {
+      "id": "constellation",
+      "name": "Constellation",
+      "description": "Neuf étoiles runiques qui brisent les défenses.",
+      "passive": "arcano",
+      "base": {
+        "damage": 17,
+        "cooldown": 0.35,
+        "count": 9,
+        "pierce": 0,
+        "speed": 3,
+        "size": 11,
+        "range": 150,
+        "duration": 0,
+        "status": 0.3
+      },
+      "params": {}
+    }
+  },
+  {
+    "id": "prismray",
+    "name": "Rayon prismatique",
+    "description": "Un rayon qui balaie les ennemis. Expose.",
+    "element": "arcane",
+    "archetype": "beam",
+    "color": "#ff6af0",
+    "base": {
+      "damage": 5,
+      "cooldown": 2.4,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 12,
+      "range": 300,
+      "duration": 1.2,
+      "status": 0.15
+    },
+    "params": {
+      "tick": 0.1,
+      "sweep": 1.6
+    },
+    "levels": [
+      {
+        "damage": 1.5
+      },
+      {
+        "duration": 0.3
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 50
+      },
+      {
+        "damage": 2,
+        "status": 0.05
+      },
+      {
+        "cooldown": -0.3
+      },
+      {
+        "count": 1
+      }
+    ],
+    "evolution": {
+      "id": "absolutespectrum",
+      "name": "Spectre absolu",
+      "description": "Quatre rayons qui tournoient autour de toi.",
+      "passive": "lens",
+      "base": {
+        "damage": 12,
+        "cooldown": 1.6,
+        "count": 4,
+        "pierce": 0,
+        "speed": 0,
+        "size": 18,
+        "range": 380,
+        "duration": 1.8,
+        "status": 0.3
+      },
+      "params": {
+        "tick": 0.08,
+        "sweep": 2.2
+      }
+    }
+  },
+  {
+    "id": "missiles",
+    "name": "Missiles arcaniques",
+    "description": "Une volée de missiles à tête chercheuse. Expose.",
+    "element": "arcane",
+    "archetype": "homing",
+    "color": "#ff6af0",
+    "base": {
+      "damage": 8,
+      "cooldown": 1.4,
+      "count": 3,
+      "pierce": 0,
+      "speed": 360,
+      "size": 5,
+      "range": 0,
+      "duration": 2.5,
+      "status": 0.1
+    },
+    "params": {
+      "turn": 9,
+      "spread": 1
+    },
+    "levels": [
+      {
+        "count": 1
+      },
+      {
+        "damage": 2
+      },
+      {
+        "count": 1
+      },
+      {
+        "status": 0.05
+      },
+      {
+        "speed": 40,
+        "damage": 2
+      },
+      {
+        "count": 2
+      },
+      {
+        "damage": 4
+      }
+    ],
+    "evolution": {
+      "id": "astralrain",
+      "name": "Pluie astrale",
+      "description": "Une pluie de missiles qui explosent en étoiles.",
+      "passive": "greed",
+      "base": {
+        "damage": 16,
+        "cooldown": 0.9,
+        "count": 12,
+        "pierce": 0,
+        "speed": 460,
+        "size": 7,
+        "range": 0,
+        "duration": 3,
+        "status": 0.25
+      },
+      "params": {
+        "turn": 11,
+        "spread": 1.5,
+        "explode": 30
+      }
+    }
+  },
+  {
+    "id": "sigil",
+    "name": "Sceau arcanique",
+    "description": "Un sceau éclate autour de toi. Expose.",
+    "element": "arcane",
+    "archetype": "nova",
+    "color": "#ff6af0",
+    "base": {
+      "damage": 22,
+      "cooldown": 3,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 140,
+      "duration": 0,
+      "status": 0.2
+    },
+    "params": {},
+    "levels": [
+      {
+        "damage": 5
+      },
+      {
+        "range": 15
+      },
+      {
+        "status": 0.05
+      },
+      {
+        "cooldown": -0.35
+      },
+      {
+        "damage": 6
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 25,
+        "damage": 10
+      }
+    ],
+    "evolution": {
+      "id": "eternalsigil",
+      "name": "Sceau éternel",
+      "description": "Trois sceaux concentriques qui brisent toute défense.",
+      "passive": "persistence",
+      "base": {
+        "damage": 50,
+        "cooldown": 2,
+        "count": 3,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 230,
+        "duration": 0,
+        "status": 0.4
+      },
+      "params": {}
+    }
+  },
+  {
+    "id": "glyphs",
+    "name": "Glyphes",
+    "description": "Pose des glyphes piégés qui explosent. Exposent.",
+    "element": "arcane",
+    "archetype": "mines",
+    "color": "#ff6af0",
+    "base": {
+      "damage": 26,
+      "cooldown": 2.5,
+      "count": 2,
+      "pierce": 0,
+      "speed": 0,
+      "size": 30,
+      "range": 60,
+      "duration": 12,
+      "status": 0.18
+    },
+    "params": {
+      "arm": 0.4
+    },
+    "levels": [
+      {
+        "damage": 6
+      },
+      {
+        "count": 1
+      },
+      {
+        "range": 10
+      },
+      {
+        "status": 0.05
+      },
+      {
+        "cooldown": -0.35
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 12
+      }
+    ],
+    "evolution": {
+      "id": "forbiddengrimoire",
+      "name": "Grimoire interdit",
+      "description": "Six glyphes aux explosions dévastatrices.",
+      "passive": "focus",
+      "base": {
+        "damage": 55,
+        "cooldown": 1.5,
+        "count": 6,
+        "pierce": 0,
+        "speed": 0,
+        "size": 38,
+        "range": 95,
+        "duration": 14,
+        "status": 0.4
+      },
+      "params": {
+        "arm": 0.3
+      }
+    }
+  },
+  {
+    "id": "voidshard",
+    "name": "Éclat du vide",
+    "description": "Des éclats lents qui rongent un % des PV max et attirent.",
+    "element": "void",
+    "archetype": "projectile",
+    "color": "#8a5cff",
+    "base": {
+      "damage": 16,
+      "cooldown": 1.3,
+      "count": 1,
+      "pierce": 1,
+      "speed": 300,
+      "size": 10,
+      "range": 0,
+      "duration": 1.6,
+      "status": 0.01
+    },
+    "params": {
+      "spread": 0.3
+    },
+    "levels": [
+      {
+        "damage": 4
+      },
+      {
+        "count": 1
+      },
+      {
+        "status": 0.004
+      },
+      {
+        "pierce": 1
+      },
+      {
+        "cooldown": -0.2
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 8,
+        "status": 0.006
+      }
+    ],
+    "evolution": {
+      "id": "nullspear",
+      "name": "Lance du néant",
+      "description": "Des lances qui implosent en ravageant les PV max.",
+      "passive": "entropo",
+      "base": {
+        "damage": 38,
+        "cooldown": 0.8,
+        "count": 4,
+        "pierce": 5,
+        "speed": 380,
+        "size": 14,
+        "range": 0,
+        "duration": 1.8,
+        "status": 0.03
+      },
+      "params": {
+        "spread": 0.25,
+        "explode": 50
+      }
+    }
+  },
+  {
+    "id": "singularity",
+    "name": "Singularité",
+    "description": "Une mine qui aspire les ennemis puis détone.",
+    "element": "void",
+    "archetype": "mines",
+    "color": "#8a5cff",
+    "base": {
+      "damage": 45,
+      "cooldown": 4,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 34,
+      "range": 90,
+      "duration": 10,
+      "status": 0.015
+    },
+    "params": {
+      "pull": 160,
+      "arm": 0.4
+    },
+    "levels": [
+      {
+        "damage": 10
+      },
+      {
+        "range": 15
+      },
+      {
+        "status": 0.005
+      },
+      {
+        "cooldown": -0.5
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 15
+      },
+      {
+        "range": 20
+      }
+    ],
+    "evolution": {
+      "id": "blackhole",
+      "name": "Trou noir",
+      "description": "Deux trous noirs qui dévorent des foules entières.",
+      "passive": "phase",
+      "base": {
+        "damage": 110,
+        "cooldown": 2.5,
+        "count": 2,
+        "pierce": 0,
+        "speed": 0,
+        "size": 44,
+        "range": 150,
+        "duration": 12,
+        "status": 0.035
+      },
+      "params": {
+        "pull": 260,
+        "arm": 0.3
+      }
+    }
+  },
+  {
+    "id": "horizon",
+    "name": "Horizon des événements",
+    "description": "Une aura qui attire les ennemis et ronge leurs PV max.",
+    "element": "void",
+    "archetype": "aura",
+    "color": "#8a5cff",
+    "base": {
+      "damage": 3,
+      "cooldown": 0.7,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 0,
+      "range": 90,
+      "duration": 0,
+      "status": 0.004
+    },
+    "params": {
+      "pull": 25
+    },
+    "levels": [
+      {
+        "range": 10
+      },
+      {
+        "status": 0.002
+      },
+      {
+        "damage": 2
+      },
+      {
+        "range": 12
+      },
+      {
+        "cooldown": -0.12
+      },
+      {
+        "status": 0.003
+      },
+      {
+        "range": 20,
+        "damage": 3
+      }
+    ],
+    "evolution": {
+      "id": "absolutehorizon",
+      "name": "Horizon absolu",
+      "description": "Un horizon immense dont rien ne s'échappe.",
+      "passive": "plating",
+      "base": {
+        "damage": 8,
+        "cooldown": 0.45,
+        "count": 1,
+        "pierce": 0,
+        "speed": 0,
+        "size": 0,
+        "range": 170,
+        "duration": 0,
+        "status": 0.012
+      },
+      "params": {
+        "pull": 55
+      }
+    }
+  },
+  {
+    "id": "entropyray",
+    "name": "Rayon d'entropie",
+    "description": "Un rayon verrouillé sur sa cible qui ronge les PV max.",
+    "element": "void",
+    "archetype": "beam",
+    "color": "#8a5cff",
+    "base": {
+      "damage": 4,
+      "cooldown": 3,
+      "count": 1,
+      "pierce": 0,
+      "speed": 0,
+      "size": 16,
+      "range": 260,
+      "duration": 1.5,
+      "status": 0.006
+    },
+    "params": {
+      "tick": 0.12,
+      "track": 1
+    },
+    "levels": [
+      {
+        "damage": 1
+      },
+      {
+        "duration": 0.4
+      },
+      {
+        "status": 0.003
+      },
+      {
+        "size": 6
+      },
+      {
+        "cooldown": -0.4
+      },
+      {
+        "count": 1
+      },
+      {
+        "damage": 3,
+        "range": 60
+      }
+    ],
+    "evolution": {
+      "id": "annihilationray",
+      "name": "Rayon d'annihilation",
+      "description": "Deux rayons d'annihilation qui dévorent leurs cibles.",
+      "passive": "overclock",
+      "base": {
+        "damage": 10,
+        "cooldown": 2,
+        "count": 2,
+        "pierce": 0,
+        "speed": 0,
+        "size": 30,
+        "range": 360,
+        "duration": 2.4,
+        "status": 0.015
+      },
+      "params": {
+        "tick": 0.1,
+        "track": 1
+      }
+    }
+  },
+  {
+    "id": "voidlink",
+    "name": "Lien du néant",
+    "description": "Un lien d'ombre saute d'ennemi en ennemi. Ronge les PV max.",
+    "element": "void",
+    "archetype": "chain",
+    "color": "#8a5cff",
+    "base": {
+      "damage": 12,
+      "cooldown": 2,
+      "count": 3,
+      "pierce": 0,
+      "speed": 0,
+      "size": 4,
+      "range": 200,
+      "duration": 0.14,
+      "status": 0.01
+    },
+    "params": {},
+    "levels": [
+      {
+        "count": 1
+      },
+      {
+        "status": 0.004
+      },
+      {
+        "damage": 3
+      },
+      {
+        "count": 1
+      },
+      {
+        "cooldown": -0.3
+      },
+      {
+        "status": 0.004,
+        "damage": 4
+      },
+      {
+        "count": 2
+      }
+    ],
+    "evolution": {
+      "id": "oblivionchain",
+      "name": "Chaîne de l'oubli",
+      "description": "Une chaîne ramifiée qui efface ses proies.",
+      "passive": "resonator",
+      "base": {
+        "damage": 28,
+        "cooldown": 1.2,
+        "count": 8,
+        "pierce": 0,
+        "speed": 0,
+        "size": 4,
+        "range": 260,
+        "duration": 0.14,
+        "status": 0.025
+      },
+      "params": {
+        "fork": 1
+      }
+    }
+  }
+]

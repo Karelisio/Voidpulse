@@ -1,0 +1,170 @@
+{
+  "id": "cathedral",
+  "name": "Cathédrale du vide",
+  "order": 8,
+  "biome": "cathedral",
+  "description": "Des puits du vide s'ouvrent et attirent tout ce qui passe.",
+  "duration": 900,
+  "bossAt": 900,
+  "boss": "voidarchon",
+  "miniBoss": "seraphwarden",
+  "miniAt": [300, 600],
+  "mechanic": {
+    "kind": "voidWell",
+    "every": 35,
+    "length": 6,
+    "count": 1,
+    "radius": 260,
+    "power": 110,
+    "description": "Puits du vide : attraction vers leur centre."
+  },
+  "palette": {
+    "base": "#0a0612",
+    "grid": "#9d5cff",
+    "accent": "#ff7ad9"
+  },
+  "density": [
+    [0, 31],
+    [60, 75],
+    [180, 172],
+    [300, 234],
+    [420, 312],
+    [600, 406],
+    [780, 499],
+    [900, 218],
+    [1000, 265]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "wisp": 1
+      }
+    ],
+    [
+      50,
+      {
+        "wisp": 0.92,
+        "warden": 0.08
+      }
+    ],
+    [
+      140,
+      {
+        "wisp": 0.65,
+        "warden": 0.15,
+        "voidknight": 0.2
+      }
+    ],
+    [
+      240,
+      {
+        "wisp": 0.5,
+        "warden": 0.15,
+        "voidknight": 0.15,
+        "acolyte": 0.1,
+        "seraph": 0.1
+      }
+    ],
+    [
+      420,
+      {
+        "wisp": 0.42,
+        "warden": 0.15,
+        "voidknight": 0.15,
+        "acolyte": 0.14,
+        "seraph": 0.14
+      }
+    ],
+    [
+      660,
+      {
+        "wisp": 0.36,
+        "warden": 0.16,
+        "voidknight": 0.16,
+        "acolyte": 0.16,
+        "seraph": 0.16
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 1.0],
+    [300, 3.69],
+    [600, 9.92],
+    [900, 15.5],
+    [1200, 21.7]
+  ],
+  "waves": [
+    {
+      "at": 30,
+      "kind": "ring",
+      "enemy": "wisp",
+      "count": 20
+    },
+    {
+      "at": 95,
+      "kind": "line",
+      "enemy": "warden",
+      "count": 8
+    },
+    {
+      "at": 160,
+      "kind": "pincer",
+      "enemy": "voidknight",
+      "count": 12
+    },
+    {
+      "at": 225,
+      "kind": "swarm",
+      "enemy": "seraph",
+      "count": 10
+    },
+    {
+      "at": 270,
+      "kind": "escort",
+      "enemy": "acolyte",
+      "count": 10,
+      "minion": "wisp"
+    },
+    {
+      "at": 400,
+      "kind": "ring",
+      "enemy": "wisp",
+      "count": 40
+    },
+    {
+      "at": 470,
+      "kind": "escort",
+      "enemy": "acolyte",
+      "count": 12,
+      "minion": "warden",
+      "elite": true
+    },
+    {
+      "at": 540,
+      "kind": "pincer",
+      "enemy": "seraph",
+      "count": 16
+    },
+    {
+      "at": 700,
+      "kind": "ring",
+      "enemy": "wisp",
+      "count": 56
+    },
+    {
+      "at": 760,
+      "kind": "escort",
+      "enemy": "voidknight",
+      "count": 14,
+      "minion": "wisp",
+      "elite": true
+    },
+    {
+      "at": 840,
+      "kind": "line",
+      "enemy": "acolyte",
+      "count": 10
+    }
+  ]
+}

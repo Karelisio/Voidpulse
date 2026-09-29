@@ -1,0 +1,19 @@
+{
+  "markDuration": 4,
+  "reactionCooldown": 0.4,
+  "gaugeMax": 100,
+  "diversityWindow": 10,
+  "diversityBonus": 0.5,
+  "repeatFalloff": 0.7,
+  "repeatFloor": 0.3,
+  "eveil": {
+    "duration": 8,
+    "novaInterval": 0.7,
+    "novaRadius": 190,
+    "novaDamage": 28,
+    "cooldownMult": 0.6,
+    "ultimateScale": 0.8,
+    "finaleRadius": 300,
+    "finaleDamage": 90
+  }
+}

@@ -1,0 +1,575 @@
+/* --- Objectifs : quêtes, saison, succès ------------------------------------------------- */
+
+.meta-tabs.goals-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.goals-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.goals-count {
+  min-width: 18px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--vp-gold);
+  color: #1a1030;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
+.goals-sub {
+  color: var(--vp-accent-2);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.goals-hint {
+  color: var(--vp-muted);
+}
+
+.goals-empty {
+  text-align: center;
+  color: var(--vp-muted);
+}
+
+/* --- Barres ------------------------------------------------------------------------------ */
+
+.goals-bar {
+  --tone: var(--vp-accent-2);
+  height: 10px;
+  min-width: 0;
+  border-radius: 999px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel-2);
+  overflow: hidden;
+}
+
+.goals-bar.thin {
+  height: 6px;
+}
+
+.goals-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tone) 55%, #000), var(--tone));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--tone) 70%, transparent);
+  transition: width 0.3s ease;
+}
+
+.goals-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 98px;
+  align-items: center;
+  gap: 10px;
+}
+
+.goals-progress .goals-num {
+  text-align: right;
+}
+
+.goals-num {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.goals-num.muted {
+  color: var(--vp-muted);
+}
+
+/* --- Sections et cartes de quêtes --------------------------------------------------------- */
+
+.goals-section {
+  display: grid;
+  gap: 8px;
+}
+
+.goals-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.goals-section-head h3 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.goals-section-head small {
+  color: var(--vp-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.goals-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goals-quest {
+  --tone: var(--vp-accent-2);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-line);
+  border-left: 3px solid var(--tone);
+  background: var(--vp-panel);
+}
+
+.goals-quest.ready {
+  border-color: var(--vp-gold);
+  border-left-color: var(--vp-gold);
+  background: linear-gradient(90deg, rgba(255, 210, 61, 0.1), var(--vp-panel) 70%);
+  box-shadow: 0 0 14px rgba(255, 210, 61, 0.25);
+}
+
+.goals-quest.ready .goals-bar {
+  --tone: var(--vp-gold);
+}
+
+.goals-quest.claimed {
+  opacity: 0.6;
+}
+
+.goals-quest-icon {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--tone) 60%, transparent));
+}
+
+.goals-quest-body {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.goals-quest-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.goals-quest .goals-bar {
+  --tone: inherit;
+}
+
+.goals-quest-foot {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.goals-reward {
+  flex: 1 1 130px;
+  min-width: 0;
+  color: var(--vp-muted);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.goals-reward b {
+  color: var(--vp-gold);
+}
+
+.goals-actions {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.goals-reroll {
+  padding: 7px 10px;
+  min-height: 36px;
+  font-size: 12.5px;
+}
+
+.goals-claim {
+  min-height: 36px;
+  padding: 7px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--vp-gold);
+  background: rgba(255, 210, 61, 0.16);
+  color: var(--vp-gold);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.goals-claim:not(:disabled) {
+  box-shadow: 0 0 14px rgba(255, 210, 61, 0.4);
+}
+
+.goals-claim:disabled {
+  border-color: var(--vp-line);
+  background: var(--vp-panel-2);
+  color: var(--vp-muted);
+}
+
+.goals-claim.wide {
+  min-height: 44px;
+  width: 100%;
+  font-size: 15px;
+}
+
+.goals-done {
+  padding: 7px 4px;
+  color: var(--vp-poison);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* --- Saison ------------------------------------------------------------------------------ */
+
+.goals-banner {
+  --tone: var(--vp-accent-2);
+  border-left-color: var(--tone);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--tone) 16%, transparent),
+    var(--vp-panel) 60%
+  );
+  box-shadow: 0 0 18px color-mix(in srgb, var(--tone) 22%, transparent);
+}
+
+.goals-banner-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 10px;
+}
+
+.meta .goals-banner h3 {
+  color: var(--tone);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--tone) 60%, transparent);
+}
+
+.goals-banner-head small {
+  color: var(--vp-muted);
+  font-size: 12.5px;
+}
+
+.goals-tierbox {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.goals-tier-big {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-width: 72px;
+}
+
+.goals-tier-big small {
+  color: var(--vp-muted);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.goals-tier-big b {
+  font-size: 44px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--tone);
+  text-shadow: 0 0 16px var(--tone);
+}
+
+.goals-tier-xp {
+  display: grid;
+  gap: 4px;
+}
+
+.goals-banner .goals-bar {
+  --tone: inherit;
+  height: 12px;
+}
+
+.goals-track {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.goals-tier {
+  --tone: var(--vp-line);
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  min-height: 74px;
+  padding: 6px 2px;
+  border-radius: 10px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel);
+  color: var(--vp-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+button.goals-tier:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.goals-tier-n {
+  color: var(--vp-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.goals-tier-r {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.goals-tier-r b {
+  color: var(--vp-gold);
+}
+
+.goals-tier.milestone {
+  border-color: color-mix(in srgb, var(--vp-gold) 55%, var(--vp-line));
+}
+
+.goals-tier.relic {
+  border-color: var(--tone);
+}
+
+.goals-tier.locked > * {
+  opacity: 0.45;
+}
+
+.goals-tier.ready {
+  border-color: var(--vp-gold);
+  background: linear-gradient(180deg, rgba(255, 210, 61, 0.16), var(--vp-panel));
+  box-shadow: 0 0 14px rgba(255, 210, 61, 0.45);
+  cursor: pointer;
+  animation: goals-glow 1.8s ease-in-out infinite;
+}
+
+.goals-tier.claimed {
+  background: var(--vp-panel-2);
+}
+
+.goals-tier.claimed > :not(.goals-tier-check) {
+  opacity: 0.4;
+}
+
+.goals-tier-check {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  color: var(--vp-poison);
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@keyframes goals-glow {
+  50% {
+    box-shadow: 0 0 6px rgba(255, 210, 61, 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goals-tier.ready {
+    animation: none;
+  }
+}
+
+/* --- Succès ------------------------------------------------------------------------------ */
+
+.goals-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  font-size: 13px;
+  color: var(--vp-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.goals-summary b {
+  color: var(--vp-gold);
+}
+
+.goals-chips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.goals-chips button {
+  padding: 8px 2px;
+  border-radius: 999px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel-2);
+  color: var(--vp-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.goals-chips button small {
+  color: var(--vp-accent-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.goals-chips button.on {
+  border-color: var(--vp-accent);
+  color: var(--vp-fg);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--vp-accent) 40%, transparent);
+}
+
+.goals-ach {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel);
+  /* 200 cartes : on ne peint que celles à l'écran. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 96px;
+}
+
+.goals-ach.done {
+  border-color: color-mix(in srgb, var(--vp-poison) 45%, var(--vp-line));
+  border-left: 3px solid var(--vp-poison);
+}
+
+.goals-ach-mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel-2);
+  color: var(--vp-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.goals-ach.done .goals-ach-mark {
+  border-color: var(--vp-poison);
+  color: var(--vp-poison);
+  font-size: 18px;
+  box-shadow: 0 0 10px rgba(156, 255, 61, 0.3);
+}
+
+.goals-ach-body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.goals-ach-body h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.goals-ach-body p {
+  margin: 0;
+  color: var(--vp-muted);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.goals-ach.done .goals-bar {
+  --tone: var(--vp-poison);
+}
+
+.goals-ach-reward {
+  color: var(--vp-gold);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* --- Succès débloqués et notification --------------------------------------------------- */
+
+.goals-unlocked {
+  display: grid;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-poison);
+  background: var(--vp-panel);
+  box-shadow: 0 0 14px rgba(156, 255, 61, 0.25);
+}
+
+.meta .goals-unlocked h3 {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vp-poison);
+}
+
+.goals-unlocked ul {
+  display: grid;
+  gap: 3px;
+  max-height: 132px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  font-size: 13px;
+}
+
+.goals-unlocked li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.goals-unlocked li b {
+  color: var(--vp-gold);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.meta > .goals-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  width: min(400px, calc(100% - 32px));
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-gold);
+  background: var(--vp-panel-2);
+  color: var(--vp-fg);
+  font-size: 13.5px;
+  text-align: center;
+  transform: translateX(-50%);
+  box-shadow: 0 0 18px rgba(255, 210, 61, 0.35);
+  pointer-events: none;
+}

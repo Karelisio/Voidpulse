@@ -1,0 +1,1802 @@
+[
+  {
+    "id": "kills-1",
+    "name": "Exterminateur I",
+    "description": "Éliminer 100 ennemis au total.",
+    "metric": "kills",
+    "key": "",
+    "value": 100,
+    "reward": 25
+  },
+  {
+    "id": "kills-2",
+    "name": "Exterminateur II",
+    "description": "Éliminer 1 000 ennemis au total.",
+    "metric": "kills",
+    "key": "",
+    "value": 1000,
+    "reward": 50
+  },
+  {
+    "id": "kills-3",
+    "name": "Exterminateur III",
+    "description": "Éliminer 5 000 ennemis au total.",
+    "metric": "kills",
+    "key": "",
+    "value": 5000,
+    "reward": 100
+  },
+  {
+    "id": "kills-4",
+    "name": "Exterminateur IV",
+    "description": "Éliminer 20 000 ennemis au total.",
+    "metric": "kills",
+    "key": "",
+    "value": 20000,
+    "reward": 200
+  },
+  {
+    "id": "kills-5",
+    "name": "Exterminateur V",
+    "description": "Éliminer 50 000 ennemis au total.",
+    "metric": "kills",
+    "key": "",
+    "value": 50000,
+    "reward": 400
+  },
+  {
+    "id": "kills-6",
+    "name": "Exterminateur VI",
+    "description": "Éliminer 100 000 ennemis au total.",
+    "metric": "kills",
+    "key": "",
+    "value": 100000,
+    "reward": 800
+  },
+  {
+    "id": "kills-7",
+    "name": "Exterminateur VII",
+    "description": "Éliminer 250 000 ennemis au total.",
+    "metric": "kills",
+    "key": "",
+    "value": 250000,
+    "reward": 1500
+  },
+  {
+    "id": "runs-1",
+    "name": "Pilote assidu I",
+    "description": "Terminer 1 parties.",
+    "metric": "runs",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "runs-2",
+    "name": "Pilote assidu II",
+    "description": "Terminer 10 parties.",
+    "metric": "runs",
+    "key": "",
+    "value": 10,
+    "reward": 50
+  },
+  {
+    "id": "runs-3",
+    "name": "Pilote assidu III",
+    "description": "Terminer 25 parties.",
+    "metric": "runs",
+    "key": "",
+    "value": 25,
+    "reward": 100
+  },
+  {
+    "id": "runs-4",
+    "name": "Pilote assidu IV",
+    "description": "Terminer 50 parties.",
+    "metric": "runs",
+    "key": "",
+    "value": 50,
+    "reward": 200
+  },
+  {
+    "id": "runs-5",
+    "name": "Pilote assidu V",
+    "description": "Terminer 100 parties.",
+    "metric": "runs",
+    "key": "",
+    "value": 100,
+    "reward": 400
+  },
+  {
+    "id": "runs-6",
+    "name": "Pilote assidu VI",
+    "description": "Terminer 250 parties.",
+    "metric": "runs",
+    "key": "",
+    "value": 250,
+    "reward": 800
+  },
+  {
+    "id": "runs-7",
+    "name": "Pilote assidu VII",
+    "description": "Terminer 500 parties.",
+    "metric": "runs",
+    "key": "",
+    "value": 500,
+    "reward": 1500
+  },
+  {
+    "id": "victories-1",
+    "name": "Vainqueur I",
+    "description": "Remporter 1 victoires.",
+    "metric": "victories",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "victories-2",
+    "name": "Vainqueur II",
+    "description": "Remporter 5 victoires.",
+    "metric": "victories",
+    "key": "",
+    "value": 5,
+    "reward": 50
+  },
+  {
+    "id": "victories-3",
+    "name": "Vainqueur III",
+    "description": "Remporter 10 victoires.",
+    "metric": "victories",
+    "key": "",
+    "value": 10,
+    "reward": 100
+  },
+  {
+    "id": "victories-4",
+    "name": "Vainqueur IV",
+    "description": "Remporter 25 victoires.",
+    "metric": "victories",
+    "key": "",
+    "value": 25,
+    "reward": 200
+  },
+  {
+    "id": "victories-5",
+    "name": "Vainqueur V",
+    "description": "Remporter 50 victoires.",
+    "metric": "victories",
+    "key": "",
+    "value": 50,
+    "reward": 400
+  },
+  {
+    "id": "victories-6",
+    "name": "Vainqueur VI",
+    "description": "Remporter 100 victoires.",
+    "metric": "victories",
+    "key": "",
+    "value": 100,
+    "reward": 800
+  },
+  {
+    "id": "victories-7",
+    "name": "Vainqueur VII",
+    "description": "Remporter 200 victoires.",
+    "metric": "victories",
+    "key": "",
+    "value": 200,
+    "reward": 1500
+  },
+  {
+    "id": "elites-1",
+    "name": "Chasseur d’élites I",
+    "description": "Abattre 10 élites.",
+    "metric": "elites",
+    "key": "",
+    "value": 10,
+    "reward": 25
+  },
+  {
+    "id": "elites-2",
+    "name": "Chasseur d’élites II",
+    "description": "Abattre 50 élites.",
+    "metric": "elites",
+    "key": "",
+    "value": 50,
+    "reward": 50
+  },
+  {
+    "id": "elites-3",
+    "name": "Chasseur d’élites III",
+    "description": "Abattre 200 élites.",
+    "metric": "elites",
+    "key": "",
+    "value": 200,
+    "reward": 100
+  },
+  {
+    "id": "elites-4",
+    "name": "Chasseur d’élites IV",
+    "description": "Abattre 500 élites.",
+    "metric": "elites",
+    "key": "",
+    "value": 500,
+    "reward": 200
+  },
+  {
+    "id": "elites-5",
+    "name": "Chasseur d’élites V",
+    "description": "Abattre 1 000 élites.",
+    "metric": "elites",
+    "key": "",
+    "value": 1000,
+    "reward": 400
+  },
+  {
+    "id": "bosses-1",
+    "name": "Tueur de colosses I",
+    "description": "Vaincre 1 boss ou mini-boss.",
+    "metric": "bosses",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "bosses-2",
+    "name": "Tueur de colosses II",
+    "description": "Vaincre 10 boss ou mini-boss.",
+    "metric": "bosses",
+    "key": "",
+    "value": 10,
+    "reward": 50
+  },
+  {
+    "id": "bosses-3",
+    "name": "Tueur de colosses III",
+    "description": "Vaincre 25 boss ou mini-boss.",
+    "metric": "bosses",
+    "key": "",
+    "value": 25,
+    "reward": 100
+  },
+  {
+    "id": "bosses-4",
+    "name": "Tueur de colosses IV",
+    "description": "Vaincre 50 boss ou mini-boss.",
+    "metric": "bosses",
+    "key": "",
+    "value": 50,
+    "reward": 200
+  },
+  {
+    "id": "bosses-5",
+    "name": "Tueur de colosses V",
+    "description": "Vaincre 100 boss ou mini-boss.",
+    "metric": "bosses",
+    "key": "",
+    "value": 100,
+    "reward": 400
+  },
+  {
+    "id": "bosses-6",
+    "name": "Tueur de colosses VI",
+    "description": "Vaincre 250 boss ou mini-boss.",
+    "metric": "bosses",
+    "key": "",
+    "value": 250,
+    "reward": 800
+  },
+  {
+    "id": "eveils-1",
+    "name": "Éveillé I",
+    "description": "Déclencher 1 Éveils.",
+    "metric": "eveils",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "eveils-2",
+    "name": "Éveillé II",
+    "description": "Déclencher 10 Éveils.",
+    "metric": "eveils",
+    "key": "",
+    "value": 10,
+    "reward": 50
+  },
+  {
+    "id": "eveils-3",
+    "name": "Éveillé III",
+    "description": "Déclencher 50 Éveils.",
+    "metric": "eveils",
+    "key": "",
+    "value": 50,
+    "reward": 100
+  },
+  {
+    "id": "eveils-4",
+    "name": "Éveillé IV",
+    "description": "Déclencher 200 Éveils.",
+    "metric": "eveils",
+    "key": "",
+    "value": 200,
+    "reward": 200
+  },
+  {
+    "id": "eveils-5",
+    "name": "Éveillé V",
+    "description": "Déclencher 500 Éveils.",
+    "metric": "eveils",
+    "key": "",
+    "value": 500,
+    "reward": 400
+  },
+  {
+    "id": "eveils-6",
+    "name": "Éveillé VI",
+    "description": "Déclencher 1 000 Éveils.",
+    "metric": "eveils",
+    "key": "",
+    "value": 1000,
+    "reward": 800
+  },
+  {
+    "id": "reactions-1",
+    "name": "Alchimiste I",
+    "description": "Déclencher 100 réactions.",
+    "metric": "reactions",
+    "key": "",
+    "value": 100,
+    "reward": 25
+  },
+  {
+    "id": "reactions-2",
+    "name": "Alchimiste II",
+    "description": "Déclencher 1 000 réactions.",
+    "metric": "reactions",
+    "key": "",
+    "value": 1000,
+    "reward": 50
+  },
+  {
+    "id": "reactions-3",
+    "name": "Alchimiste III",
+    "description": "Déclencher 10 000 réactions.",
+    "metric": "reactions",
+    "key": "",
+    "value": 10000,
+    "reward": 100
+  },
+  {
+    "id": "reactions-4",
+    "name": "Alchimiste IV",
+    "description": "Déclencher 50 000 réactions.",
+    "metric": "reactions",
+    "key": "",
+    "value": 50000,
+    "reward": 200
+  },
+  {
+    "id": "gold-1",
+    "name": "Collectionneur I",
+    "description": "Ramasser 500 fragments en partie.",
+    "metric": "gold",
+    "key": "",
+    "value": 500,
+    "reward": 25
+  },
+  {
+    "id": "gold-2",
+    "name": "Collectionneur II",
+    "description": "Ramasser 5 000 fragments en partie.",
+    "metric": "gold",
+    "key": "",
+    "value": 5000,
+    "reward": 50
+  },
+  {
+    "id": "gold-3",
+    "name": "Collectionneur III",
+    "description": "Ramasser 20 000 fragments en partie.",
+    "metric": "gold",
+    "key": "",
+    "value": 20000,
+    "reward": 100
+  },
+  {
+    "id": "gold-4",
+    "name": "Collectionneur IV",
+    "description": "Ramasser 100 000 fragments en partie.",
+    "metric": "gold",
+    "key": "",
+    "value": 100000,
+    "reward": 200
+  },
+  {
+    "id": "chests-1",
+    "name": "Pilleur I",
+    "description": "Ouvrir 10 coffres.",
+    "metric": "chests",
+    "key": "",
+    "value": 10,
+    "reward": 25
+  },
+  {
+    "id": "chests-2",
+    "name": "Pilleur II",
+    "description": "Ouvrir 50 coffres.",
+    "metric": "chests",
+    "key": "",
+    "value": 50,
+    "reward": 50
+  },
+  {
+    "id": "chests-3",
+    "name": "Pilleur III",
+    "description": "Ouvrir 200 coffres.",
+    "metric": "chests",
+    "key": "",
+    "value": 200,
+    "reward": 100
+  },
+  {
+    "id": "chests-4",
+    "name": "Pilleur IV",
+    "description": "Ouvrir 500 coffres.",
+    "metric": "chests",
+    "key": "",
+    "value": 500,
+    "reward": 200
+  },
+  {
+    "id": "hours-1",
+    "name": "Vétéran I",
+    "description": "Jouer 1 heure(s).",
+    "metric": "playHours",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "hours-2",
+    "name": "Vétéran II",
+    "description": "Jouer 5 heure(s).",
+    "metric": "playHours",
+    "key": "",
+    "value": 5,
+    "reward": 50
+  },
+  {
+    "id": "hours-3",
+    "name": "Vétéran III",
+    "description": "Jouer 10 heure(s).",
+    "metric": "playHours",
+    "key": "",
+    "value": 10,
+    "reward": 100
+  },
+  {
+    "id": "hours-4",
+    "name": "Vétéran IV",
+    "description": "Jouer 25 heure(s).",
+    "metric": "playHours",
+    "key": "",
+    "value": 25,
+    "reward": 200
+  },
+  {
+    "id": "hours-5",
+    "name": "Vétéran V",
+    "description": "Jouer 50 heure(s).",
+    "metric": "playHours",
+    "key": "",
+    "value": 50,
+    "reward": 400
+  },
+  {
+    "id": "level-1",
+    "name": "Montée en puissance I",
+    "description": "Atteindre le niveau 10 en une partie.",
+    "metric": "bestLevel",
+    "key": "",
+    "value": 10,
+    "reward": 25
+  },
+  {
+    "id": "level-2",
+    "name": "Montée en puissance II",
+    "description": "Atteindre le niveau 20 en une partie.",
+    "metric": "bestLevel",
+    "key": "",
+    "value": 20,
+    "reward": 50
+  },
+  {
+    "id": "level-3",
+    "name": "Montée en puissance III",
+    "description": "Atteindre le niveau 30 en une partie.",
+    "metric": "bestLevel",
+    "key": "",
+    "value": 30,
+    "reward": 100
+  },
+  {
+    "id": "level-4",
+    "name": "Montée en puissance IV",
+    "description": "Atteindre le niveau 40 en une partie.",
+    "metric": "bestLevel",
+    "key": "",
+    "value": 40,
+    "reward": 200
+  },
+  {
+    "id": "level-5",
+    "name": "Montée en puissance V",
+    "description": "Atteindre le niveau 50 en une partie.",
+    "metric": "bestLevel",
+    "key": "",
+    "value": 50,
+    "reward": 400
+  },
+  {
+    "id": "clear-forest",
+    "name": "Maître : Forêt brumeuse",
+    "description": "Terminer le secteur Forêt brumeuse.",
+    "metric": "stageClear",
+    "key": "forest",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "clear-desert",
+    "name": "Maître : Désert de verre",
+    "description": "Terminer le secteur Désert de verre.",
+    "metric": "stageClear",
+    "key": "desert",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "clear-sunken",
+    "name": "Maître : Cité engloutie",
+    "description": "Terminer le secteur Cité engloutie.",
+    "metric": "stageClear",
+    "key": "sunken",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "clear-volcano",
+    "name": "Maître : Volcan",
+    "description": "Terminer le secteur Volcan.",
+    "metric": "stageClear",
+    "key": "volcano",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "clear-station",
+    "name": "Maître : Station orbitale",
+    "description": "Terminer le secteur Station orbitale.",
+    "metric": "stageClear",
+    "key": "station",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "clear-tundra",
+    "name": "Maître : Toundra cristalline",
+    "description": "Terminer le secteur Toundra cristalline.",
+    "metric": "stageClear",
+    "key": "tundra",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "clear-swamp",
+    "name": "Maître : Marais toxique",
+    "description": "Terminer le secteur Marais toxique.",
+    "metric": "stageClear",
+    "key": "swamp",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "clear-cathedral",
+    "name": "Maître : Cathédrale du vide",
+    "description": "Terminer le secteur Cathédrale du vide.",
+    "metric": "stageClear",
+    "key": "cathedral",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "asc5-forest",
+    "name": "Ascendant : Forêt brumeuse",
+    "description": "Gagner en Ascension 5 : Forêt brumeuse.",
+    "metric": "ascension",
+    "key": "forest",
+    "value": 5,
+    "reward": 400
+  },
+  {
+    "id": "asc20-forest",
+    "name": "Transcendant : Forêt brumeuse",
+    "description": "Gagner en Ascension 20 : Forêt brumeuse.",
+    "metric": "ascension",
+    "key": "forest",
+    "value": 20,
+    "reward": 2000
+  },
+  {
+    "id": "asc5-desert",
+    "name": "Ascendant : Désert de verre",
+    "description": "Gagner en Ascension 5 : Désert de verre.",
+    "metric": "ascension",
+    "key": "desert",
+    "value": 5,
+    "reward": 400
+  },
+  {
+    "id": "asc20-desert",
+    "name": "Transcendant : Désert de verre",
+    "description": "Gagner en Ascension 20 : Désert de verre.",
+    "metric": "ascension",
+    "key": "desert",
+    "value": 20,
+    "reward": 2000
+  },
+  {
+    "id": "asc5-sunken",
+    "name": "Ascendant : Cité engloutie",
+    "description": "Gagner en Ascension 5 : Cité engloutie.",
+    "metric": "ascension",
+    "key": "sunken",
+    "value": 5,
+    "reward": 400
+  },
+  {
+    "id": "asc20-sunken",
+    "name": "Transcendant : Cité engloutie",
+    "description": "Gagner en Ascension 20 : Cité engloutie.",
+    "metric": "ascension",
+    "key": "sunken",
+    "value": 20,
+    "reward": 2000
+  },
+  {
+    "id": "asc5-volcano",
+    "name": "Ascendant : Volcan",
+    "description": "Gagner en Ascension 5 : Volcan.",
+    "metric": "ascension",
+    "key": "volcano",
+    "value": 5,
+    "reward": 400
+  },
+  {
+    "id": "asc20-volcano",
+    "name": "Transcendant : Volcan",
+    "description": "Gagner en Ascension 20 : Volcan.",
+    "metric": "ascension",
+    "key": "volcano",
+    "value": 20,
+    "reward": 2000
+  },
+  {
+    "id": "asc5-station",
+    "name": "Ascendant : Station orbitale",
+    "description": "Gagner en Ascension 5 : Station orbitale.",
+    "metric": "ascension",
+    "key": "station",
+    "value": 5,
+    "reward": 400
+  },
+  {
+    "id": "asc20-station",
+    "name": "Transcendant : Station orbitale",
+    "description": "Gagner en Ascension 20 : Station orbitale.",
+    "metric": "ascension",
+    "key": "station",
+    "value": 20,
+    "reward": 2000
+  },
+  {
+    "id": "asc5-tundra",
+    "name": "Ascendant : Toundra cristalline",
+    "description": "Gagner en Ascension 5 : Toundra cristalline.",
+    "metric": "ascension",
+    "key": "tundra",
+    "value": 5,
+    "reward": 400
+  },
+  {
+    "id": "asc20-tundra",
+    "name": "Transcendant : Toundra cristalline",
+    "description": "Gagner en Ascension 20 : Toundra cristalline.",
+    "metric": "ascension",
+    "key": "tundra",
+    "value": 20,
+    "reward": 2000
+  },
+  {
+    "id": "asc5-swamp",
+    "name": "Ascendant : Marais toxique",
+    "description": "Gagner en Ascension 5 : Marais toxique.",
+    "metric": "ascension",
+    "key": "swamp",
+    "value": 5,
+    "reward": 400
+  },
+  {
+    "id": "asc20-swamp",
+    "name": "Transcendant : Marais toxique",
+    "description": "Gagner en Ascension 20 : Marais toxique.",
+    "metric": "ascension",
+    "key": "swamp",
+    "value": 20,
+    "reward": 2000
+  },
+  {
+    "id": "asc5-cathedral",
+    "name": "Ascendant : Cathédrale du vide",
+    "description": "Gagner en Ascension 5 : Cathédrale du vide.",
+    "metric": "ascension",
+    "key": "cathedral",
+    "value": 5,
+    "reward": 400
+  },
+  {
+    "id": "asc20-cathedral",
+    "name": "Transcendant : Cathédrale du vide",
+    "description": "Gagner en Ascension 20 : Cathédrale du vide.",
+    "metric": "ascension",
+    "key": "cathedral",
+    "value": 20,
+    "reward": 2000
+  },
+  {
+    "id": "boss-sentinel",
+    "name": "Fléau : Sentinelle de la brume",
+    "description": "Vaincre Sentinelle de la brume.",
+    "metric": "boss",
+    "key": "sentinel",
+    "value": 1,
+    "reward": 200
+  },
+  {
+    "id": "boss-thornwalker",
+    "name": "Fléau : Arpenteur des ronces",
+    "description": "Vaincre Arpenteur des ronces.",
+    "metric": "boss",
+    "key": "thornwalker",
+    "value": 1,
+    "reward": 100
+  },
+  {
+    "id": "boss-prismscorpion",
+    "name": "Fléau : Scorpion prisme",
+    "description": "Vaincre Scorpion prisme.",
+    "metric": "boss",
+    "key": "prismscorpion",
+    "value": 1,
+    "reward": 100
+  },
+  {
+    "id": "boss-glasscolossus",
+    "name": "Fléau : Colosse de verre",
+    "description": "Vaincre Colosse de verre.",
+    "metric": "boss",
+    "key": "glasscolossus",
+    "value": 1,
+    "reward": 200
+  },
+  {
+    "id": "boss-crabking",
+    "name": "Fléau : Roi crabe",
+    "description": "Vaincre Roi crabe.",
+    "metric": "boss",
+    "key": "crabking",
+    "value": 1,
+    "reward": 100
+  },
+  {
+    "id": "boss-leviathan",
+    "name": "Fléau : Léviathan",
+    "description": "Vaincre Léviathan.",
+    "metric": "boss",
+    "key": "leviathan",
+    "value": 1,
+    "reward": 200
+  },
+  {
+    "id": "boss-ashsmith",
+    "name": "Fléau : Forgeron de cendre",
+    "description": "Vaincre Forgeron de cendre.",
+    "metric": "boss",
+    "key": "ashsmith",
+    "value": 1,
+    "reward": 100
+  },
+  {
+    "id": "boss-magmaheart",
+    "name": "Fléau : Cœur de magma",
+    "description": "Vaincre Cœur de magma.",
+    "metric": "boss",
+    "key": "magmaheart",
+    "value": 1,
+    "reward": 200
+  },
+  {
+    "id": "boss-droneadmiral",
+    "name": "Fléau : Drone amiral",
+    "description": "Vaincre Drone amiral.",
+    "metric": "boss",
+    "key": "droneadmiral",
+    "value": 1,
+    "reward": 100
+  },
+  {
+    "id": "boss-guardianai",
+    "name": "Fléau : IA gardienne",
+    "description": "Vaincre IA gardienne.",
+    "metric": "boss",
+    "key": "guardianai",
+    "value": 1,
+    "reward": 200
+  },
+  {
+    "id": "boss-elderyeti",
+    "name": "Fléau : Yéti ancien",
+    "description": "Vaincre Yéti ancien.",
+    "metric": "boss",
+    "key": "elderyeti",
+    "value": 1,
+    "reward": 100
+  },
+  {
+    "id": "boss-frostwyrm",
+    "name": "Fléau : Wyrm de givre",
+    "description": "Vaincre Wyrm de givre.",
+    "metric": "boss",
+    "key": "frostwyrm",
+    "value": 1,
+    "reward": 200
+  },
+  {
+    "id": "boss-rothydra",
+    "name": "Fléau : Hydre putride",
+    "description": "Vaincre Hydre putride.",
+    "metric": "boss",
+    "key": "rothydra",
+    "value": 1,
+    "reward": 100
+  },
+  {
+    "id": "boss-bogqueen",
+    "name": "Fléau : Reine des marais",
+    "description": "Vaincre Reine des marais.",
+    "metric": "boss",
+    "key": "bogqueen",
+    "value": 1,
+    "reward": 200
+  },
+  {
+    "id": "boss-seraphwarden",
+    "name": "Fléau : Séraphin gardien",
+    "description": "Vaincre Séraphin gardien.",
+    "metric": "boss",
+    "key": "seraphwarden",
+    "value": 1,
+    "reward": 100
+  },
+  {
+    "id": "boss-voidarchon",
+    "name": "Fléau : Archonte du vide",
+    "description": "Vaincre Archonte du vide.",
+    "metric": "boss",
+    "key": "voidarchon",
+    "value": 1,
+    "reward": 200
+  },
+  {
+    "id": "unlock-lyra",
+    "name": "Recrue : Lyra",
+    "description": "Débloquer Lyra.",
+    "metric": "character",
+    "key": "lyra",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "unlock-kael",
+    "name": "Recrue : Kael",
+    "description": "Débloquer Kael.",
+    "metric": "character",
+    "key": "kael",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "unlock-brakka",
+    "name": "Recrue : Brakka",
+    "description": "Débloquer Brakka.",
+    "metric": "character",
+    "key": "brakka",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "unlock-sable",
+    "name": "Recrue : Sable",
+    "description": "Débloquer Sable.",
+    "metric": "character",
+    "key": "sable",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "unlock-mira",
+    "name": "Recrue : Mira",
+    "description": "Débloquer Mira.",
+    "metric": "character",
+    "key": "mira",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "unlock-orin",
+    "name": "Recrue : Orin",
+    "description": "Débloquer Orin.",
+    "metric": "character",
+    "key": "orin",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "unlock-zeph",
+    "name": "Recrue : Zeph",
+    "description": "Débloquer Zeph.",
+    "metric": "character",
+    "key": "zeph",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "unlock-ysolde",
+    "name": "Recrue : Ysolde",
+    "description": "Débloquer Ysolde.",
+    "metric": "character",
+    "key": "ysolde",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-vex",
+    "name": "As : Vex",
+    "description": "Remporter une victoire avec Vex.",
+    "metric": "charWin",
+    "key": "vex",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-nova",
+    "name": "As : Nova",
+    "description": "Remporter une victoire avec Nova.",
+    "metric": "charWin",
+    "key": "nova",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-volt",
+    "name": "As : Volt",
+    "description": "Remporter une victoire avec Volt.",
+    "metric": "charWin",
+    "key": "volt",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-toxa",
+    "name": "As : Toxa",
+    "description": "Remporter une victoire avec Toxa.",
+    "metric": "charWin",
+    "key": "toxa",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-lyra",
+    "name": "As : Lyra",
+    "description": "Remporter une victoire avec Lyra.",
+    "metric": "charWin",
+    "key": "lyra",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-kael",
+    "name": "As : Kael",
+    "description": "Remporter une victoire avec Kael.",
+    "metric": "charWin",
+    "key": "kael",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-brakka",
+    "name": "As : Brakka",
+    "description": "Remporter une victoire avec Brakka.",
+    "metric": "charWin",
+    "key": "brakka",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-sable",
+    "name": "As : Sable",
+    "description": "Remporter une victoire avec Sable.",
+    "metric": "charWin",
+    "key": "sable",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-mira",
+    "name": "As : Mira",
+    "description": "Remporter une victoire avec Mira.",
+    "metric": "charWin",
+    "key": "mira",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-orin",
+    "name": "As : Orin",
+    "description": "Remporter une victoire avec Orin.",
+    "metric": "charWin",
+    "key": "orin",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-zeph",
+    "name": "As : Zeph",
+    "description": "Remporter une victoire avec Zeph.",
+    "metric": "charWin",
+    "key": "zeph",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "win-ysolde",
+    "name": "As : Ysolde",
+    "description": "Remporter une victoire avec Ysolde.",
+    "metric": "charWin",
+    "key": "ysolde",
+    "value": 1,
+    "reward": 150
+  },
+  {
+    "id": "react-vapor",
+    "name": "Découverte : Vapeur",
+    "description": "Déclencher la réaction Vapeur.",
+    "metric": "reaction",
+    "key": "vapor",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-overload",
+    "name": "Découverte : Surcharge",
+    "description": "Déclencher la réaction Surcharge.",
+    "metric": "reaction",
+    "key": "overload",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-superconduct",
+    "name": "Découverte : Supraconduction",
+    "description": "Déclencher la réaction Supraconduction.",
+    "metric": "reaction",
+    "key": "superconduct",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-deflagration",
+    "name": "Découverte : Déflagration",
+    "description": "Déclencher la réaction Déflagration.",
+    "metric": "reaction",
+    "key": "deflagration",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-nova",
+    "name": "Découverte : Nova",
+    "description": "Déclencher la réaction Nova.",
+    "metric": "reaction",
+    "key": "nova",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-blackflame",
+    "name": "Découverte : Flamme noire",
+    "description": "Déclencher la réaction Flamme noire.",
+    "metric": "reaction",
+    "key": "blackflame",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-necrocrystal",
+    "name": "Découverte : Cristaux nécrotiques",
+    "description": "Déclencher la réaction Cristaux nécrotiques.",
+    "metric": "reaction",
+    "key": "necrocrystal",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-prism",
+    "name": "Découverte : Prisme",
+    "description": "Déclencher la réaction Prisme.",
+    "metric": "reaction",
+    "key": "prism",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-absolutezero",
+    "name": "Découverte : Zéro absolu",
+    "description": "Déclencher la réaction Zéro absolu.",
+    "metric": "reaction",
+    "key": "absolutezero",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-toxicchain",
+    "name": "Découverte : Chaîne toxique",
+    "description": "Déclencher la réaction Chaîne toxique.",
+    "metric": "reaction",
+    "key": "toxicchain",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-surge",
+    "name": "Découverte : Surtension",
+    "description": "Déclencher la réaction Surtension.",
+    "metric": "reaction",
+    "key": "surge",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-rift",
+    "name": "Découverte : Faille",
+    "description": "Déclencher la réaction Faille.",
+    "metric": "reaction",
+    "key": "rift",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-plague",
+    "name": "Découverte : Fléau",
+    "description": "Déclencher la réaction Fléau.",
+    "metric": "reaction",
+    "key": "plague",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-corrosion",
+    "name": "Découverte : Corrosion",
+    "description": "Déclencher la réaction Corrosion.",
+    "metric": "reaction",
+    "key": "corrosion",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "react-implosion",
+    "name": "Découverte : Implosion",
+    "description": "Déclencher la réaction Implosion.",
+    "metric": "reaction",
+    "key": "implosion",
+    "value": 1,
+    "reward": 50
+  },
+  {
+    "id": "codex-enemies",
+    "name": "Encyclopédiste : Ennemis",
+    "description": "Compléter le codex : Ennemis.",
+    "metric": "codex",
+    "key": "enemies",
+    "value": 1,
+    "reward": 1000
+  },
+  {
+    "id": "codex-weapons",
+    "name": "Encyclopédiste : Armes",
+    "description": "Compléter le codex : Armes.",
+    "metric": "codex",
+    "key": "weapons",
+    "value": 1,
+    "reward": 1000
+  },
+  {
+    "id": "codex-evolutions",
+    "name": "Encyclopédiste : Évolutions",
+    "description": "Compléter le codex : Évolutions.",
+    "metric": "codex",
+    "key": "evolutions",
+    "value": 1,
+    "reward": 1000
+  },
+  {
+    "id": "codex-reactions",
+    "name": "Encyclopédiste : Réactions",
+    "description": "Compléter le codex : Réactions.",
+    "metric": "codex",
+    "key": "reactions",
+    "value": 1,
+    "reward": 1000
+  },
+  {
+    "id": "codex-bosses",
+    "name": "Encyclopédiste : Boss",
+    "description": "Compléter le codex : Boss.",
+    "metric": "codex",
+    "key": "bosses",
+    "value": 1,
+    "reward": 1000
+  },
+  {
+    "id": "evolutions-1",
+    "name": "Forgeron I",
+    "description": "Obtenir 1 évolutions différentes.",
+    "metric": "evolutions",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "evolutions-2",
+    "name": "Forgeron II",
+    "description": "Obtenir 5 évolutions différentes.",
+    "metric": "evolutions",
+    "key": "",
+    "value": 5,
+    "reward": 50
+  },
+  {
+    "id": "evolutions-3",
+    "name": "Forgeron III",
+    "description": "Obtenir 10 évolutions différentes.",
+    "metric": "evolutions",
+    "key": "",
+    "value": 10,
+    "reward": 100
+  },
+  {
+    "id": "evolutions-4",
+    "name": "Forgeron IV",
+    "description": "Obtenir 20 évolutions différentes.",
+    "metric": "evolutions",
+    "key": "",
+    "value": 20,
+    "reward": 200
+  },
+  {
+    "id": "evolutions-5",
+    "name": "Forgeron V",
+    "description": "Obtenir 30 évolutions différentes.",
+    "metric": "evolutions",
+    "key": "",
+    "value": 30,
+    "reward": 400
+  },
+  {
+    "id": "account-1",
+    "name": "Renommée I",
+    "description": "Atteindre le niveau de compte 5.",
+    "metric": "accountLevel",
+    "key": "",
+    "value": 5,
+    "reward": 25
+  },
+  {
+    "id": "account-2",
+    "name": "Renommée II",
+    "description": "Atteindre le niveau de compte 10.",
+    "metric": "accountLevel",
+    "key": "",
+    "value": 10,
+    "reward": 50
+  },
+  {
+    "id": "account-3",
+    "name": "Renommée III",
+    "description": "Atteindre le niveau de compte 20.",
+    "metric": "accountLevel",
+    "key": "",
+    "value": 20,
+    "reward": 100
+  },
+  {
+    "id": "account-4",
+    "name": "Renommée IV",
+    "description": "Atteindre le niveau de compte 30.",
+    "metric": "accountLevel",
+    "key": "",
+    "value": 30,
+    "reward": 200
+  },
+  {
+    "id": "account-5",
+    "name": "Renommée V",
+    "description": "Atteindre le niveau de compte 40.",
+    "metric": "accountLevel",
+    "key": "",
+    "value": 40,
+    "reward": 400
+  },
+  {
+    "id": "account-6",
+    "name": "Renommée VI",
+    "description": "Atteindre le niveau de compte 50.",
+    "metric": "accountLevel",
+    "key": "",
+    "value": 50,
+    "reward": 800
+  },
+  {
+    "id": "paragon-1",
+    "name": "Paragon I",
+    "description": "Atteindre le niveau Paragon 1.",
+    "metric": "paragon",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "paragon-2",
+    "name": "Paragon II",
+    "description": "Atteindre le niveau Paragon 10.",
+    "metric": "paragon",
+    "key": "",
+    "value": 10,
+    "reward": 50
+  },
+  {
+    "id": "paragon-3",
+    "name": "Paragon III",
+    "description": "Atteindre le niveau Paragon 25.",
+    "metric": "paragon",
+    "key": "",
+    "value": 25,
+    "reward": 100
+  },
+  {
+    "id": "paragon-4",
+    "name": "Paragon IV",
+    "description": "Atteindre le niveau Paragon 50.",
+    "metric": "paragon",
+    "key": "",
+    "value": 50,
+    "reward": 200
+  },
+  {
+    "id": "paragon-5",
+    "name": "Paragon V",
+    "description": "Atteindre le niveau Paragon 100.",
+    "metric": "paragon",
+    "key": "",
+    "value": 100,
+    "reward": 400
+  },
+  {
+    "id": "talents-1",
+    "name": "Érudit I",
+    "description": "Investir 10 rangs de talents.",
+    "metric": "talentRanks",
+    "key": "",
+    "value": 10,
+    "reward": 25
+  },
+  {
+    "id": "talents-2",
+    "name": "Érudit II",
+    "description": "Investir 50 rangs de talents.",
+    "metric": "talentRanks",
+    "key": "",
+    "value": 50,
+    "reward": 50
+  },
+  {
+    "id": "talents-3",
+    "name": "Érudit III",
+    "description": "Investir 100 rangs de talents.",
+    "metric": "talentRanks",
+    "key": "",
+    "value": 100,
+    "reward": 100
+  },
+  {
+    "id": "relics-1",
+    "name": "Antiquaire I",
+    "description": "Posséder 1 reliques.",
+    "metric": "relics",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "relics-2",
+    "name": "Antiquaire II",
+    "description": "Posséder 10 reliques.",
+    "metric": "relics",
+    "key": "",
+    "value": 10,
+    "reward": 50
+  },
+  {
+    "id": "relics-3",
+    "name": "Antiquaire III",
+    "description": "Posséder 25 reliques.",
+    "metric": "relics",
+    "key": "",
+    "value": 25,
+    "reward": 100
+  },
+  {
+    "id": "relic-legendary",
+    "name": "Trésor légendaire",
+    "description": "Posséder une relique légendaire.",
+    "metric": "relicLegendary",
+    "key": "",
+    "value": 1,
+    "reward": 500
+  },
+  {
+    "id": "relic-max",
+    "name": "Relique parfaite",
+    "description": "Porter une relique au niveau 10.",
+    "metric": "relicMaxLevel",
+    "key": "",
+    "value": 1,
+    "reward": 800
+  },
+  {
+    "id": "mastery3-1",
+    "name": "Apprenti armurier I",
+    "description": "Atteindre le rang 3 de maîtrise avec 1 arme(s).",
+    "metric": "mastery3",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "mastery3-2",
+    "name": "Apprenti armurier II",
+    "description": "Atteindre le rang 3 de maîtrise avec 10 arme(s).",
+    "metric": "mastery3",
+    "key": "",
+    "value": 10,
+    "reward": 50
+  },
+  {
+    "id": "mastery3-3",
+    "name": "Apprenti armurier III",
+    "description": "Atteindre le rang 3 de maîtrise avec 30 arme(s).",
+    "metric": "mastery3",
+    "key": "",
+    "value": 30,
+    "reward": 100
+  },
+  {
+    "id": "mastery10-1",
+    "name": "Maître armurier I",
+    "description": "Atteindre le rang 10 de maîtrise avec 1 arme(s).",
+    "metric": "mastery10",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "mastery10-2",
+    "name": "Maître armurier II",
+    "description": "Atteindre le rang 10 de maîtrise avec 5 arme(s).",
+    "metric": "mastery10",
+    "key": "",
+    "value": 5,
+    "reward": 50
+  },
+  {
+    "id": "mastery10-3",
+    "name": "Maître armurier III",
+    "description": "Atteindre le rang 10 de maîtrise avec 15 arme(s).",
+    "metric": "mastery10",
+    "key": "",
+    "value": 15,
+    "reward": 100
+  },
+  {
+    "id": "mastery10-4",
+    "name": "Maître armurier IV",
+    "description": "Atteindre le rang 10 de maîtrise avec 30 arme(s).",
+    "metric": "mastery10",
+    "key": "",
+    "value": 30,
+    "reward": 200
+  },
+  {
+    "id": "endless-1",
+    "name": "Endurant I",
+    "description": "Survivre 10 minutes en Infini.",
+    "metric": "endlessMinutes",
+    "key": "",
+    "value": 10,
+    "reward": 25
+  },
+  {
+    "id": "endless-2",
+    "name": "Endurant II",
+    "description": "Survivre 20 minutes en Infini.",
+    "metric": "endlessMinutes",
+    "key": "",
+    "value": 20,
+    "reward": 50
+  },
+  {
+    "id": "endless-3",
+    "name": "Endurant III",
+    "description": "Survivre 30 minutes en Infini.",
+    "metric": "endlessMinutes",
+    "key": "",
+    "value": 30,
+    "reward": 100
+  },
+  {
+    "id": "endless-4",
+    "name": "Endurant IV",
+    "description": "Survivre 45 minutes en Infini.",
+    "metric": "endlessMinutes",
+    "key": "",
+    "value": 45,
+    "reward": 200
+  },
+  {
+    "id": "endless-5",
+    "name": "Endurant V",
+    "description": "Survivre 60 minutes en Infini.",
+    "metric": "endlessMinutes",
+    "key": "",
+    "value": 60,
+    "reward": 400
+  },
+  {
+    "id": "daily-1",
+    "name": "Rituel I",
+    "description": "Jouer 1 défi(s) du jour.",
+    "metric": "daily",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "daily-2",
+    "name": "Rituel II",
+    "description": "Jouer 7 défi(s) du jour.",
+    "metric": "daily",
+    "key": "",
+    "value": 7,
+    "reward": 50
+  },
+  {
+    "id": "daily-3",
+    "name": "Rituel III",
+    "description": "Jouer 30 défi(s) du jour.",
+    "metric": "daily",
+    "key": "",
+    "value": 30,
+    "reward": 100
+  },
+  {
+    "id": "daily-4",
+    "name": "Rituel IV",
+    "description": "Jouer 100 défi(s) du jour.",
+    "metric": "daily",
+    "key": "",
+    "value": 100,
+    "reward": 200
+  },
+  {
+    "id": "weekly-1",
+    "name": "Habitué I",
+    "description": "Jouer 1 défi(s) de la semaine.",
+    "metric": "weekly",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "weekly-2",
+    "name": "Habitué II",
+    "description": "Jouer 4 défi(s) de la semaine.",
+    "metric": "weekly",
+    "key": "",
+    "value": 4,
+    "reward": 50
+  },
+  {
+    "id": "weekly-3",
+    "name": "Habitué III",
+    "description": "Jouer 12 défi(s) de la semaine.",
+    "metric": "weekly",
+    "key": "",
+    "value": 12,
+    "reward": 100
+  },
+  {
+    "id": "bossrush-win",
+    "name": "Marathon",
+    "description": "Remporter le Boss Rush.",
+    "metric": "bossRushWin",
+    "key": "",
+    "value": 1,
+    "reward": 1500
+  },
+  {
+    "id": "bossrush-half",
+    "name": "Mi-parcours",
+    "description": "Vaincre 8 boss d’affilée en Boss Rush.",
+    "metric": "bossRushBosses",
+    "key": "",
+    "value": 8,
+    "reward": 400
+  },
+  {
+    "id": "hardcore-1",
+    "name": "Sans filet I",
+    "description": "Remporter 1 victoire(s) en Hardcore.",
+    "metric": "hardcoreWins",
+    "key": "",
+    "value": 1,
+    "reward": 25
+  },
+  {
+    "id": "hardcore-2",
+    "name": "Sans filet II",
+    "description": "Remporter 5 victoire(s) en Hardcore.",
+    "metric": "hardcoreWins",
+    "key": "",
+    "value": 5,
+    "reward": 50
+  },
+  {
+    "id": "hardcore-3",
+    "name": "Sans filet III",
+    "description": "Remporter 10 victoire(s) en Hardcore.",
+    "metric": "hardcoreWins",
+    "key": "",
+    "value": 10,
+    "reward": 100
+  },
+  {
+    "id": "rank-s",
+    "name": "Rang S",
+    "description": "Gagner une partie au rang S.",
+    "metric": "bestRank",
+    "key": "",
+    "value": 3,
+    "reward": 300
+  },
+  {
+    "id": "rank-ss",
+    "name": "Rang SS",
+    "description": "Gagner une partie au rang SS.",
+    "metric": "bestRank",
+    "key": "",
+    "value": 4,
+    "reward": 800
+  },
+  {
+    "id": "rank-sss",
+    "name": "Rang SSS",
+    "description": "Gagner une partie au rang SSS.",
+    "metric": "bestRank",
+    "key": "",
+    "value": 5,
+    "reward": 2000
+  },
+  {
+    "id": "streak-1",
+    "name": "Fidèle I",
+    "description": "Atteindre une série de 3 jours.",
+    "metric": "bestStreak",
+    "key": "",
+    "value": 3,
+    "reward": 25
+  },
+  {
+    "id": "streak-2",
+    "name": "Fidèle II",
+    "description": "Atteindre une série de 7 jours.",
+    "metric": "bestStreak",
+    "key": "",
+    "value": 7,
+    "reward": 50
+  },
+  {
+    "id": "streak-3",
+    "name": "Fidèle III",
+    "description": "Atteindre une série de 30 jours.",
+    "metric": "bestStreak",
+    "key": "",
+    "value": 30,
+    "reward": 100
+  },
+  {
+    "id": "season-1",
+    "name": "Saisonnier I",
+    "description": "Atteindre le palier 10 d’un passe de saison.",
+    "metric": "seasonTier",
+    "key": "",
+    "value": 10,
+    "reward": 25
+  },
+  {
+    "id": "season-2",
+    "name": "Saisonnier II",
+    "description": "Atteindre le palier 25 d’un passe de saison.",
+    "metric": "seasonTier",
+    "key": "",
+    "value": 25,
+    "reward": 50
+  },
+  {
+    "id": "season-3",
+    "name": "Saisonnier III",
+    "description": "Atteindre le palier 50 d’un passe de saison.",
+    "metric": "seasonTier",
+    "key": "",
+    "value": 50,
+    "reward": 100
+  },
+  {
+    "id": "quests-1",
+    "name": "Mercenaire I",
+    "description": "Terminer 10 quêtes.",
+    "metric": "quests",
+    "key": "",
+    "value": 10,
+    "reward": 25
+  },
+  {
+    "id": "quests-2",
+    "name": "Mercenaire II",
+    "description": "Terminer 50 quêtes.",
+    "metric": "quests",
+    "key": "",
+    "value": 50,
+    "reward": 50
+  },
+  {
+    "id": "quests-3",
+    "name": "Mercenaire III",
+    "description": "Terminer 200 quêtes.",
+    "metric": "quests",
+    "key": "",
+    "value": 200,
+    "reward": 100
+  }
+]
