@@ -1,0 +1,170 @@
+{
+  "id": "desert",
+  "name": "Désert de verre",
+  "order": 2,
+  "biome": "desert",
+  "description": "Des tempêtes de verre font pleuvoir des éclats sur le sable.",
+  "duration": 900,
+  "bossAt": 900,
+  "boss": "glasscolossus",
+  "miniBoss": "prismscorpion",
+  "miniAt": [300, 600],
+  "mechanic": {
+    "kind": "glassStorm",
+    "every": 60,
+    "length": 14,
+    "count": 3,
+    "radius": 60,
+    "power": 18,
+    "description": "Tempêtes de verre : éclats annoncés au sol."
+  },
+  "palette": {
+    "base": "#140e08",
+    "grid": "#ffb347",
+    "accent": "#7ff5ff"
+  },
+  "density": [
+    [0, 22],
+    [60, 52],
+    [180, 119],
+    [300, 162],
+    [420, 216],
+    [600, 281],
+    [780, 346],
+    [900, 151],
+    [1000, 184]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "shardling": 1
+      }
+    ],
+    [
+      50,
+      {
+        "shardling": 0.8,
+        "prismsniper": 0.2
+      }
+    ],
+    [
+      140,
+      {
+        "shardling": 0.65,
+        "prismsniper": 0.15,
+        "glassgolem": 0.2
+      }
+    ],
+    [
+      240,
+      {
+        "shardling": 0.5,
+        "prismsniper": 0.15,
+        "glassgolem": 0.15,
+        "sandworm": 0.1,
+        "mirage": 0.1
+      }
+    ],
+    [
+      420,
+      {
+        "shardling": 0.42,
+        "prismsniper": 0.15,
+        "glassgolem": 0.15,
+        "sandworm": 0.14,
+        "mirage": 0.14
+      }
+    ],
+    [
+      660,
+      {
+        "shardling": 0.36,
+        "prismsniper": 0.16,
+        "glassgolem": 0.16,
+        "sandworm": 0.16,
+        "mirage": 0.16
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 1.3],
+    [300, 2.34],
+    [600, 4.16],
+    [900, 6.5],
+    [1200, 9.1]
+  ],
+  "waves": [
+    {
+      "at": 30,
+      "kind": "ring",
+      "enemy": "shardling",
+      "count": 20
+    },
+    {
+      "at": 95,
+      "kind": "line",
+      "enemy": "prismsniper",
+      "count": 8
+    },
+    {
+      "at": 160,
+      "kind": "pincer",
+      "enemy": "glassgolem",
+      "count": 12
+    },
+    {
+      "at": 225,
+      "kind": "swarm",
+      "enemy": "mirage",
+      "count": 10
+    },
+    {
+      "at": 270,
+      "kind": "escort",
+      "enemy": "sandworm",
+      "count": 10,
+      "minion": "shardling"
+    },
+    {
+      "at": 400,
+      "kind": "ring",
+      "enemy": "shardling",
+      "count": 40
+    },
+    {
+      "at": 470,
+      "kind": "escort",
+      "enemy": "sandworm",
+      "count": 12,
+      "minion": "prismsniper",
+      "elite": true
+    },
+    {
+      "at": 540,
+      "kind": "pincer",
+      "enemy": "mirage",
+      "count": 16
+    },
+    {
+      "at": 700,
+      "kind": "ring",
+      "enemy": "shardling",
+      "count": 56
+    },
+    {
+      "at": 760,
+      "kind": "escort",
+      "enemy": "glassgolem",
+      "count": 14,
+      "minion": "shardling",
+      "elite": true
+    },
+    {
+      "at": 840,
+      "kind": "line",
+      "enemy": "sandworm",
+      "count": 10
+    }
+  ]
+}

@@ -169,4 +169,28 @@ describe('données de /config', () => {
       expect(p.ranks[i][1]).toBeGreaterThan(p.ranks[i - 1][1]);
     expect(p.ranks.map((r) => r[0]).join(',')).toBe('C,B,A,S,SS,SSS');
   });
+
+  it('offrent 8 stages de 15 min : biome, mini-boss et boss final cohérents', () => {
+    const bosses = check(BossDef.array(), 'bosses.json');
+    const enemies = check(EnemyDef.array(), 'enemies.json');
+    const stages = readdirSync(path.join(dir, 'stages'))
+      .map((f) => check(StageDef, `stages/${f}`))
+      .filter((s) => s.order > 0)
+      .sort((a, b) => a.order - b.order);
+    expect(stages.map((s) => s.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(new Set(stages.map((s) => s.mechanic.kind)).size).toBe(8);
+    for (const s of stages) {
+      expect(s.duration).toBe(900);
+      expect(s.miniAt).toEqual([300, 600]);
+      const boss = bosses.find((b) => b.id === s.boss);
+      const mini = bosses.find((b) => b.id === s.miniBoss);
+      expect(boss?.kind, s.id).toBe('final');
+      expect(mini?.kind, s.id).toBe('mini');
+      expect(boss?.biome).toBe(s.biome);
+      // Ennemis du stage : ceux de son biome.
+      for (const [, mix] of s.mix)
+        for (const id of Object.keys(mix))
+          expect(enemies.find((e) => e.id === id)?.biome, `${s.id}:${id}`).toBe(s.biome);
+    }
+  });
 });

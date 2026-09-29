@@ -88,9 +88,16 @@ export function updatePlayer(sim: RunSim): void {
       Vel.y[eid] = 0;
     }
   } else {
-    const speed = p.stats.speed * (1 - p.slowAmt);
-    Vel.x[eid] = mx * speed;
-    Vel.y[eid] = my * speed;
+    const speed = p.stats.speed * (1 - p.slowAmt) * (1 - p.terrainSlow);
+    if (p.terrainInertia > 0) {
+      // Apesanteur, glace : la vitesse rejoint la commande progressivement (élan, glissade).
+      const k = Math.min(1, p.terrainInertia * DT);
+      Vel.x[eid] += (mx * speed - Vel.x[eid]) * k;
+      Vel.y[eid] += (my * speed - Vel.y[eid]) * k;
+    } else {
+      Vel.x[eid] = mx * speed;
+      Vel.y[eid] = my * speed;
+    }
   }
   Pos.x[eid] += Vel.x[eid] * DT;
   Pos.y[eid] += Vel.y[eid] * DT;

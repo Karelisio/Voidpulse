@@ -1,0 +1,170 @@
+{
+  "id": "volcano",
+  "name": "Volcan",
+  "order": 4,
+  "biome": "volcano",
+  "description": "Des coulées de lave traversent régulièrement le champ de bataille.",
+  "duration": 900,
+  "bossAt": 900,
+  "boss": "magmaheart",
+  "miniBoss": "ashsmith",
+  "miniAt": [300, 600],
+  "mechanic": {
+    "kind": "lavaFlow",
+    "every": 40,
+    "length": 7,
+    "count": 1,
+    "radius": 70,
+    "power": 14,
+    "description": "Coulées de lave : bandes annoncées, brûlantes."
+  },
+  "palette": {
+    "base": "#160806",
+    "grid": "#ff5a1f",
+    "accent": "#ffb13d"
+  },
+  "density": [
+    [0, 25],
+    [60, 60],
+    [180, 136],
+    [300, 186],
+    [420, 248],
+    [600, 322],
+    [780, 397],
+    [900, 174],
+    [1000, 211]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "emberbat": 1
+      }
+    ],
+    [
+      50,
+      {
+        "emberbat": 0.8,
+        "lavagolem": 0.2
+      }
+    ],
+    [
+      140,
+      {
+        "emberbat": 0.65,
+        "lavagolem": 0.15,
+        "firemortar": 0.2
+      }
+    ],
+    [
+      240,
+      {
+        "emberbat": 0.5,
+        "lavagolem": 0.15,
+        "firemortar": 0.15,
+        "magmaslug": 0.1,
+        "ashwraith": 0.1
+      }
+    ],
+    [
+      420,
+      {
+        "emberbat": 0.42,
+        "lavagolem": 0.15,
+        "firemortar": 0.15,
+        "magmaslug": 0.14,
+        "ashwraith": 0.14
+      }
+    ],
+    [
+      660,
+      {
+        "emberbat": 0.36,
+        "lavagolem": 0.16,
+        "firemortar": 0.16,
+        "magmaslug": 0.16,
+        "ashwraith": 0.16
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 1.9],
+    [300, 3.42],
+    [600, 6.08],
+    [900, 9.5],
+    [1200, 13.3]
+  ],
+  "waves": [
+    {
+      "at": 30,
+      "kind": "ring",
+      "enemy": "emberbat",
+      "count": 20
+    },
+    {
+      "at": 95,
+      "kind": "line",
+      "enemy": "lavagolem",
+      "count": 8
+    },
+    {
+      "at": 160,
+      "kind": "pincer",
+      "enemy": "firemortar",
+      "count": 12
+    },
+    {
+      "at": 225,
+      "kind": "swarm",
+      "enemy": "ashwraith",
+      "count": 10
+    },
+    {
+      "at": 270,
+      "kind": "escort",
+      "enemy": "magmaslug",
+      "count": 10,
+      "minion": "emberbat"
+    },
+    {
+      "at": 400,
+      "kind": "ring",
+      "enemy": "emberbat",
+      "count": 40
+    },
+    {
+      "at": 470,
+      "kind": "escort",
+      "enemy": "magmaslug",
+      "count": 12,
+      "minion": "lavagolem",
+      "elite": true
+    },
+    {
+      "at": 540,
+      "kind": "pincer",
+      "enemy": "ashwraith",
+      "count": 16
+    },
+    {
+      "at": 700,
+      "kind": "ring",
+      "enemy": "emberbat",
+      "count": 56
+    },
+    {
+      "at": 760,
+      "kind": "escort",
+      "enemy": "firemortar",
+      "count": 14,
+      "minion": "emberbat",
+      "elite": true
+    },
+    {
+      "at": 840,
+      "kind": "line",
+      "enemy": "magmaslug",
+      "count": 10
+    }
+  ]
+}

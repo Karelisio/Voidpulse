@@ -443,12 +443,29 @@ export const StatusDef = z.object({
 });
 export type StatusDef = z.infer<typeof StatusDef>;
 
-export const BossPattern = z.enum(['radial', 'spiral', 'summon', 'charge', 'mines']);
+export const BossPattern = z.enum([
+  'radial',
+  'spiral',
+  'summon',
+  'charge',
+  'mines',
+  'rain',
+  'wall',
+  'laser',
+  'fan',
+  'blink',
+  'hazard',
+]);
 export type BossPattern = z.infer<typeof BossPattern>;
 
 export const BossDef = z.object({
   id: z.string(),
   name: z.string(),
+  /** Mini-boss (5 et 10 min, lâche un coffre) ou boss final (victoire). */
+  kind: z.enum(['mini', 'final']),
+  biome: z.enum(BIOMES),
+  /** Élément des flaques et de la pluie (teinte, givre qui ralentit). */
+  element: Element.optional(),
   hp: positive,
   radius: positive,
   speed: positive,
@@ -473,12 +490,48 @@ export const BossDef = z.object({
 });
 export type BossDef = z.infer<typeof BossDef>;
 
+export const STAGE_MECHANICS = z.enum([
+  'none',
+  'fog',
+  'glassStorm',
+  'water',
+  'lavaFlow',
+  'zeroG',
+  'ice',
+  'bog',
+  'voidWell',
+]);
+
 export const StageDef = z.object({
   id: z.string(),
   name: z.string(),
+  /** Ordre de la campagne (1 à 8) ; 0 pour le stage prototype. */
+  order: z.number().int().nonnegative(),
+  biome: z.enum(BIOMES),
+  description: z.string(),
   duration: positive,
   bossAt: positive,
   boss: z.string(),
+  /** Mini-boss (apparaît à chaque instant de `miniAt`, plus solide la deuxième fois). */
+  miniBoss: z.string().optional(),
+  miniAt: z.array(positive).default([]),
+  /**
+   * Mécanique propre au biome : brume (vision réduite par vagues), tempête de verre (éclats
+   * télégraphiés), eaux lentes, coulées de lave, apesanteur (inertie), glace (glissade),
+   * marais toxique, puits du vide (attraction). `every`/`length` : cycle des vagues ;
+   * `count`/`radius`/`power` : réglages propres.
+   */
+  mechanic: z.object({
+    kind: STAGE_MECHANICS,
+    every: nonNegative,
+    length: nonNegative,
+    count: z.number().int().nonnegative(),
+    radius: nonNegative,
+    power: nonNegative,
+    description: z.string(),
+  }),
+  /** Couleurs du décor : fond, grille, reflets. */
+  palette: z.object({ base: hex, grid: hex, accent: hex }),
   /** Nombre d'ennemis visé au fil du temps [secondes, nombre], interpolé linéairement. */
   density: z.array(z.tuple([nonNegative, nonNegative])).min(2),
   /** Répartition des types au fil du temps [secondes, { type: poids }]. */

@@ -40,6 +40,15 @@ import resonanceJson from '../../config/resonance.json';
 import runEventsJson from '../../config/runevents.json';
 import statusJson from '../../config/status.json';
 import protoStageJson from '../../config/stages/proto.json';
+import forestStageJson from '../../config/stages/forest.json';
+import desertStageJson from '../../config/stages/desert.json';
+import sunkenStageJson from '../../config/stages/sunken.json';
+import volcanoStageJson from '../../config/stages/volcano.json';
+import stationStageJson from '../../config/stages/station.json';
+import tundraStageJson from '../../config/stages/tundra.json';
+import swampStageJson from '../../config/stages/swamp.json';
+import cathedralStageJson from '../../config/stages/cathedral.json';
+
 import weaponsJson from '../../config/weapons.json';
 
 export type {
@@ -85,7 +94,24 @@ export const RESONANCE = resonanceJson;
 export const STATUS: StatusDef = statusJson;
 export const BOSSES = bossesJson as BossDef[];
 export const PROGRESSION = progressionJson;
-export const STAGES: Partial<Record<string, StageDef>> = { proto: protoStageJson as StageDef };
+/** Stages de la campagne, dans l'ordre (le prototype sert aux tests et au banc de charge). */
+/** JSON des stages : validés par config.test.ts (tuples non inférés par TypeScript). */
+const stage = (json: unknown): StageDef => json as StageDef;
+
+export const CAMPAIGN: StageDef[] = [
+  stage(forestStageJson),
+  stage(desertStageJson),
+  stage(sunkenStageJson),
+  stage(volcanoStageJson),
+  stage(stationStageJson),
+  stage(tundraStageJson),
+  stage(swampStageJson),
+  stage(cathedralStageJson),
+];
+export const STAGES: Partial<Record<string, StageDef>> = Object.fromEntries([
+  ['proto', stage(protoStageJson)],
+  ...CAMPAIGN.map((s) => [s.id, s] as const),
+]);
 // Paramètres hétérogènes selon l'affixe : le JSON est validé par config.test.ts.
 export const CHARACTERS = charactersJson as CharacterDef[];
 export const PACTS = pactsJson as PactsDef;

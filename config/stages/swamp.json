@@ -1,0 +1,170 @@
+{
+  "id": "swamp",
+  "name": "Marais toxique",
+  "order": 7,
+  "biome": "swamp",
+  "description": "Les bourbiers empoisonnent et engluent.",
+  "duration": 900,
+  "bossAt": 900,
+  "boss": "bogqueen",
+  "miniBoss": "rothydra",
+  "miniAt": [300, 600],
+  "mechanic": {
+    "kind": "bog",
+    "every": 0,
+    "length": 0,
+    "count": 9,
+    "radius": 100,
+    "power": 4,
+    "description": "Bourbiers : poison et ralentissement."
+  },
+  "palette": {
+    "base": "#0a1006",
+    "grid": "#9cff3d",
+    "accent": "#b06bff"
+  },
+  "density": [
+    [0, 30],
+    [60, 71],
+    [180, 163],
+    [300, 222],
+    [420, 296],
+    [600, 385],
+    [780, 474],
+    [900, 207],
+    [1000, 252]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "mosquito": 1
+      }
+    ],
+    [
+      50,
+      {
+        "mosquito": 0.8,
+        "bloater": 0.2
+      }
+    ],
+    [
+      140,
+      {
+        "mosquito": 0.65,
+        "bloater": 0.15,
+        "broodmother": 0.2
+      }
+    ],
+    [
+      240,
+      {
+        "mosquito": 0.5,
+        "bloater": 0.15,
+        "broodmother": 0.15,
+        "toad": 0.1,
+        "hydra": 0.1
+      }
+    ],
+    [
+      420,
+      {
+        "mosquito": 0.42,
+        "bloater": 0.15,
+        "broodmother": 0.15,
+        "toad": 0.14,
+        "hydra": 0.14
+      }
+    ],
+    [
+      660,
+      {
+        "mosquito": 0.36,
+        "bloater": 0.16,
+        "broodmother": 0.16,
+        "toad": 0.16,
+        "hydra": 0.16
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 2.8],
+    [300, 5.04],
+    [600, 8.96],
+    [900, 14.0],
+    [1200, 19.6]
+  ],
+  "waves": [
+    {
+      "at": 30,
+      "kind": "ring",
+      "enemy": "mosquito",
+      "count": 20
+    },
+    {
+      "at": 95,
+      "kind": "line",
+      "enemy": "bloater",
+      "count": 8
+    },
+    {
+      "at": 160,
+      "kind": "pincer",
+      "enemy": "broodmother",
+      "count": 12
+    },
+    {
+      "at": 225,
+      "kind": "swarm",
+      "enemy": "hydra",
+      "count": 10
+    },
+    {
+      "at": 270,
+      "kind": "escort",
+      "enemy": "toad",
+      "count": 10,
+      "minion": "mosquito"
+    },
+    {
+      "at": 400,
+      "kind": "ring",
+      "enemy": "mosquito",
+      "count": 40
+    },
+    {
+      "at": 470,
+      "kind": "escort",
+      "enemy": "toad",
+      "count": 12,
+      "minion": "bloater",
+      "elite": true
+    },
+    {
+      "at": 540,
+      "kind": "pincer",
+      "enemy": "hydra",
+      "count": 16
+    },
+    {
+      "at": 700,
+      "kind": "ring",
+      "enemy": "mosquito",
+      "count": 56
+    },
+    {
+      "at": 760,
+      "kind": "escort",
+      "enemy": "broodmother",
+      "count": 14,
+      "minion": "mosquito",
+      "elite": true
+    },
+    {
+      "at": 840,
+      "kind": "line",
+      "enemy": "toad",
+      "count": 10
+    }
+  ]
+}

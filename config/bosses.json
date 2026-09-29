@@ -2,15 +2,17 @@
   {
     "id": "sentinel",
     "name": "Sentinelle de la brume",
+    "kind": "final",
+    "biome": "forest",
     "hp": 5200,
     "radius": 46,
     "speed": 58,
-    "contactDamage": 24,
+    "contactDamage": 26,
     "color": "#6ff7ff",
-    "bulletDamage": 11,
-    "bulletSpeed": 165,
+    "bulletDamage": 12,
+    "bulletSpeed": 170,
     "summon": "mite",
-    "patternGap": 1.3,
+    "patternGap": 1.25,
     "phases": [
       {
         "threshold": 0.66,
@@ -23,16 +25,537 @@
         "threshold": 0.25,
         "patterns": ["charge", "mines", "radial"],
         "speedMult": 1.1,
-        "cooldownMult": 0.9,
+        "cooldownMult": 0.85,
         "rage": false
       },
       {
         "threshold": 0,
         "patterns": ["charge", "spiral", "mines", "summon"],
-        "speedMult": 1.35,
+        "speedMult": 1.3,
         "cooldownMult": 0.65,
         "rage": true
       }
     ]
+  },
+  {
+    "id": "thornwalker",
+    "name": "Arpenteur des ronces",
+    "kind": "mini",
+    "biome": "forest",
+    "hp": 3200,
+    "radius": 38,
+    "speed": 62,
+    "contactDamage": 20,
+    "color": "#b8ff4d",
+    "bulletDamage": 10,
+    "bulletSpeed": 170,
+    "summon": "mite",
+    "patternGap": 1.4,
+    "phases": [
+      {
+        "threshold": 0.4,
+        "patterns": ["radial", "summon"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["fan", "charge", "summon"],
+        "speedMult": 1.25,
+        "cooldownMult": 0.75,
+        "rage": true
+      }
+    ]
+  },
+  {
+    "id": "prismscorpion",
+    "name": "Scorpion prisme",
+    "kind": "mini",
+    "biome": "desert",
+    "hp": 3600,
+    "radius": 38,
+    "speed": 62,
+    "contactDamage": 20,
+    "color": "#ff9cf7",
+    "bulletDamage": 10,
+    "bulletSpeed": 170,
+    "summon": "shardling",
+    "patternGap": 1.4,
+    "phases": [
+      {
+        "threshold": 0.4,
+        "patterns": ["fan", "charge"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["laser", "fan", "charge"],
+        "speedMult": 1.25,
+        "cooldownMult": 0.75,
+        "rage": true
+      }
+    ]
+  },
+  {
+    "id": "glasscolossus",
+    "name": "Colosse de verre",
+    "kind": "final",
+    "biome": "desert",
+    "hp": 26000,
+    "radius": 56,
+    "speed": 58,
+    "contactDamage": 26,
+    "color": "#9fe7ff",
+    "bulletDamage": 12,
+    "bulletSpeed": 170,
+    "summon": "shardling",
+    "patternGap": 1.25,
+    "phases": [
+      {
+        "threshold": 0.66,
+        "patterns": ["rain", "radial", "summon"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0.25,
+        "patterns": ["laser", "wall", "rain"],
+        "speedMult": 1.1,
+        "cooldownMult": 0.85,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["laser", "spiral", "rain", "summon"],
+        "speedMult": 1.3,
+        "cooldownMult": 0.65,
+        "rage": true
+      }
+    ]
+  },
+  {
+    "id": "crabking",
+    "name": "Roi crabe",
+    "kind": "mini",
+    "biome": "sunken",
+    "hp": 4200,
+    "radius": 40,
+    "speed": 62,
+    "contactDamage": 20,
+    "color": "#ff6b5a",
+    "bulletDamage": 10,
+    "bulletSpeed": 170,
+    "summon": "eel",
+    "patternGap": 1.4,
+    "phases": [
+      {
+        "threshold": 0.4,
+        "patterns": ["charge", "wall"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["charge", "radial", "summon"],
+        "speedMult": 1.25,
+        "cooldownMult": 0.75,
+        "rage": true
+      }
+    ]
+  },
+  {
+    "id": "leviathan",
+    "name": "Léviathan",
+    "kind": "final",
+    "biome": "sunken",
+    "hp": 30000,
+    "radius": 58,
+    "speed": 58,
+    "contactDamage": 26,
+    "color": "#3dffd2",
+    "bulletDamage": 12,
+    "bulletSpeed": 170,
+    "summon": "eel",
+    "patternGap": 1.25,
+    "phases": [
+      {
+        "threshold": 0.66,
+        "patterns": ["wall", "summon", "spiral"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0.25,
+        "patterns": ["charge", "wall", "fan"],
+        "speedMult": 1.1,
+        "cooldownMult": 0.85,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["spiral", "wall", "charge", "summon"],
+        "speedMult": 1.3,
+        "cooldownMult": 0.65,
+        "rage": true
+      }
+    ]
+  },
+  {
+    "id": "ashsmith",
+    "name": "Forgeron de cendre",
+    "kind": "mini",
+    "biome": "volcano",
+    "hp": 4800,
+    "radius": 40,
+    "speed": 62,
+    "contactDamage": 20,
+    "color": "#ffb13d",
+    "bulletDamage": 10,
+    "bulletSpeed": 170,
+    "summon": "emberbat",
+    "patternGap": 1.4,
+    "phases": [
+      {
+        "threshold": 0.4,
+        "patterns": ["mines", "fan"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["hazard", "mines", "charge"],
+        "speedMult": 1.25,
+        "cooldownMult": 0.75,
+        "rage": true
+      }
+    ],
+    "element": "fire"
+  },
+  {
+    "id": "magmaheart",
+    "name": "Cœur de magma",
+    "kind": "final",
+    "biome": "volcano",
+    "hp": 34000,
+    "radius": 58,
+    "speed": 58,
+    "contactDamage": 26,
+    "color": "#ff3d3d",
+    "bulletDamage": 12,
+    "bulletSpeed": 170,
+    "summon": "emberbat",
+    "patternGap": 1.25,
+    "phases": [
+      {
+        "threshold": 0.66,
+        "patterns": ["hazard", "radial", "rain"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0.25,
+        "patterns": ["mines", "hazard", "spiral"],
+        "speedMult": 1.1,
+        "cooldownMult": 0.85,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["rain", "hazard", "radial", "summon"],
+        "speedMult": 1.3,
+        "cooldownMult": 0.65,
+        "rage": true
+      }
+    ],
+    "element": "fire"
+  },
+  {
+    "id": "droneadmiral",
+    "name": "Drone amiral",
+    "kind": "mini",
+    "biome": "station",
+    "hp": 5200,
+    "radius": 38,
+    "speed": 62,
+    "contactDamage": 20,
+    "color": "#6ad1ff",
+    "bulletDamage": 10,
+    "bulletSpeed": 170,
+    "summon": "drone",
+    "patternGap": 1.4,
+    "phases": [
+      {
+        "threshold": 0.4,
+        "patterns": ["summon", "laser"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["fan", "laser", "summon"],
+        "speedMult": 1.25,
+        "cooldownMult": 0.75,
+        "rage": true
+      }
+    ]
+  },
+  {
+    "id": "guardianai",
+    "name": "IA gardienne",
+    "kind": "final",
+    "biome": "station",
+    "hp": 38000,
+    "radius": 54,
+    "speed": 58,
+    "contactDamage": 26,
+    "color": "#ff5ad7",
+    "bulletDamage": 12,
+    "bulletSpeed": 170,
+    "summon": "drone",
+    "patternGap": 1.25,
+    "phases": [
+      {
+        "threshold": 0.66,
+        "patterns": ["laser", "wall", "summon"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0.25,
+        "patterns": ["spiral", "laser", "blink"],
+        "speedMult": 1.1,
+        "cooldownMult": 0.85,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["laser", "spiral", "wall", "blink"],
+        "speedMult": 1.3,
+        "cooldownMult": 0.65,
+        "rage": true
+      }
+    ]
+  },
+  {
+    "id": "elderyeti",
+    "name": "Yéti ancien",
+    "kind": "mini",
+    "biome": "tundra",
+    "hp": 5800,
+    "radius": 42,
+    "speed": 62,
+    "contactDamage": 20,
+    "color": "#e8f6ff",
+    "bulletDamage": 10,
+    "bulletSpeed": 170,
+    "summon": "icewolf",
+    "patternGap": 1.4,
+    "phases": [
+      {
+        "threshold": 0.4,
+        "patterns": ["charge", "rain"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["charge", "rain", "summon"],
+        "speedMult": 1.25,
+        "cooldownMult": 0.75,
+        "rage": true
+      }
+    ],
+    "element": "frost"
+  },
+  {
+    "id": "frostwyrm",
+    "name": "Wyrm de givre",
+    "kind": "final",
+    "biome": "tundra",
+    "hp": 42000,
+    "radius": 58,
+    "speed": 58,
+    "contactDamage": 26,
+    "color": "#7fe8ff",
+    "bulletDamage": 12,
+    "bulletSpeed": 170,
+    "summon": "icewolf",
+    "patternGap": 1.25,
+    "phases": [
+      {
+        "threshold": 0.66,
+        "patterns": ["fan", "rain", "charge"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0.25,
+        "patterns": ["laser", "rain", "summon"],
+        "speedMult": 1.1,
+        "cooldownMult": 0.85,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["spiral", "rain", "charge", "laser"],
+        "speedMult": 1.3,
+        "cooldownMult": 0.65,
+        "rage": true
+      }
+    ],
+    "element": "frost"
+  },
+  {
+    "id": "rothydra",
+    "name": "Hydre putride",
+    "kind": "mini",
+    "biome": "swamp",
+    "hp": 6400,
+    "radius": 40,
+    "speed": 62,
+    "contactDamage": 20,
+    "color": "#7dff9a",
+    "bulletDamage": 10,
+    "bulletSpeed": 170,
+    "summon": "mosquito",
+    "patternGap": 1.4,
+    "phases": [
+      {
+        "threshold": 0.4,
+        "patterns": ["fan", "hazard"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["fan", "hazard", "summon"],
+        "speedMult": 1.25,
+        "cooldownMult": 0.75,
+        "rage": true
+      }
+    ],
+    "element": "poison"
+  },
+  {
+    "id": "bogqueen",
+    "name": "Reine des marais",
+    "kind": "final",
+    "biome": "swamp",
+    "hp": 46000,
+    "radius": 56,
+    "speed": 58,
+    "contactDamage": 26,
+    "color": "#b06bff",
+    "bulletDamage": 12,
+    "bulletSpeed": 170,
+    "summon": "mosquito",
+    "patternGap": 1.25,
+    "phases": [
+      {
+        "threshold": 0.66,
+        "patterns": ["summon", "hazard", "fan"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0.25,
+        "patterns": ["hazard", "spiral", "summon"],
+        "speedMult": 1.1,
+        "cooldownMult": 0.85,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["hazard", "radial", "summon", "blink"],
+        "speedMult": 1.3,
+        "cooldownMult": 0.65,
+        "rage": true
+      }
+    ],
+    "element": "poison"
+  },
+  {
+    "id": "seraphwarden",
+    "name": "Séraphin gardien",
+    "kind": "mini",
+    "biome": "cathedral",
+    "hp": 7000,
+    "radius": 40,
+    "speed": 62,
+    "contactDamage": 20,
+    "color": "#ffe7a8",
+    "bulletDamage": 10,
+    "bulletSpeed": 170,
+    "summon": "wisp",
+    "patternGap": 1.4,
+    "phases": [
+      {
+        "threshold": 0.4,
+        "patterns": ["spiral", "blink"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["radial", "blink", "laser"],
+        "speedMult": 1.25,
+        "cooldownMult": 0.75,
+        "rage": true
+      }
+    ]
+  },
+  {
+    "id": "voidarchon",
+    "name": "Archonte du vide",
+    "kind": "final",
+    "biome": "cathedral",
+    "hp": 52000,
+    "radius": 60,
+    "speed": 58,
+    "contactDamage": 26,
+    "color": "#9d5cff",
+    "bulletDamage": 12,
+    "bulletSpeed": 170,
+    "summon": "wisp",
+    "patternGap": 1.25,
+    "phases": [
+      {
+        "threshold": 0.66,
+        "patterns": ["blink", "radial", "laser"],
+        "speedMult": 1,
+        "cooldownMult": 1,
+        "rage": false
+      },
+      {
+        "threshold": 0.25,
+        "patterns": ["spiral", "wall", "summon", "blink"],
+        "speedMult": 1.1,
+        "cooldownMult": 0.85,
+        "rage": false
+      },
+      {
+        "threshold": 0,
+        "patterns": ["laser", "spiral", "rain", "blink", "summon"],
+        "speedMult": 1.3,
+        "cooldownMult": 0.65,
+        "rage": true
+      }
+    ],
+    "element": "void"
   }
 ]

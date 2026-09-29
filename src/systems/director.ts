@@ -13,7 +13,7 @@ import {
 } from '../content/data';
 import { Foe, Pos } from '../engine/components';
 import { DT } from '../engine/constants';
-import { spawnBoss } from './boss';
+import { bossAlive, spawnBoss } from './boss';
 import { affixesAt, makeElite } from './elites';
 import { BEHAVIOR, spawnEnemy } from './enemies';
 import { EV } from './events';
@@ -28,6 +28,8 @@ export interface StagePlan {
   waveEnemy: Int32Array;
   waveMinion: Int32Array;
   boss: number;
+  /** Mini-boss du stage (index de boss), -1 si aucun. */
+  mini: number;
   /** Essaim de base du stage (renforts des élites « Invocateur »). */
   swarm: number;
 }
@@ -52,6 +54,7 @@ export function planStage(stage: StageDef): StagePlan {
     waveEnemy: Int32Array.from(stage.waves.map((w) => enemyIndex(w.enemy))),
     waveMinion: Int32Array.from(stage.waves.map((w) => (w.minion ? enemyIndex(w.minion) : -1))),
     boss: bossIndex(stage.boss),
+    mini: stage.miniBoss ? bossIndex(stage.miniBoss) : -1,
     swarm,
   };
 }
@@ -94,7 +97,16 @@ export function updateDirector(sim: RunSim): void {
   const dir = st.director;
   const t = st.time;
 
-  if (!dir.bossSpawned && t >= stage.bossAt) {
+  // Mini-boss aux instants prévus, boss final à la fin ; un seul boss à la fois (le suivant
+  // attend la mort du précédent).
+  const busy = bossAlive(sim);
+  if (!busy && sim.plan.mini >= 0 && dir.miniIndex < stage.miniAt.length) {
+    if (t >= stage.miniAt[dir.miniIndex] && t < stage.bossAt) {
+      spawnBoss(sim, sim.plan.mini, dir.miniIndex);
+      dir.miniIndex++;
+    }
+  }
+  if (!busy && !dir.bossSpawned && t >= stage.bossAt) {
     dir.bossSpawned = true;
     spawnBoss(sim, sim.plan.boss);
   }
@@ -116,7 +128,9 @@ export function updateDirector(sim: RunSim): void {
   updateRunEvents(sim);
   updatePactMilestones(sim);
 
-  const target = curve(stage.density, t) * dir.densityMult * st.pacts.mods.density;
+  // Pendant un boss, la foule ordinaire se raréfie.
+  const bossFactor = bossAlive(sim) ? (st.boss.def?.kind === 'mini' ? 0.6 : 0.4) : 1;
+  const target = curve(stage.density, t) * dir.densityMult * st.pacts.mods.density * bossFactor;
   dir.target = target;
   let deficit = target - sim.world.enemies.count;
   let budget = SPAWNS_PER_TICK;

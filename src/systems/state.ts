@@ -100,6 +100,13 @@ export interface PlayerState {
   dash: DashDef;
   dashKind: number;
   dashCharges: number;
+  /**
+   * Terrain sous le joueur (calculé par la mécanique du stage, appliqué au tick suivant) :
+   * ralentissement, inertie (accélération, 0 = aucune), dégâts par seconde.
+   */
+  terrainSlow: number;
+  terrainInertia: number;
+  terrainDps: number;
   /** Départ du dash en cours (effets d'arrivée). */
   dashFromX: number;
   dashFromY: number;
@@ -156,6 +163,8 @@ export interface DirectorState {
   target: number;
   /** Multiplicateur de PV des ennemis ce tick (invocations, fissions). */
   hpScale: number;
+  /** Prochaine apparition de mini-boss (index dans stage.miniAt). */
+  miniIndex: number;
   bossSpawned: boolean;
   densityMult: number;
   /** Délai avant la prochaine élite (s). */
@@ -178,7 +187,12 @@ export interface BossState {
   angle: number;
   dirX: number;
   dirY: number;
+  /** Destination d'une téléportation. */
+  tx: number;
+  ty: number;
   invulnT: number;
+  /** Apparitions de ce boss dans la run (mini-boss : la deuxième est plus solide). */
+  appearances: number;
 }
 
 export type ChoiceKind = 'weapon-new' | 'weapon-up' | 'passive-new' | 'passive-up' | 'heal';
@@ -293,6 +307,7 @@ export interface RunStats {
   xpCollected: number;
   peakEnemies: number;
   bossKilled: boolean;
+  minibosses: number;
   elitesKilled: number;
   chests: number;
   evolutions: number;
@@ -318,6 +333,21 @@ export interface PactState {
   mods: RunMods;
 }
 
+/** Mécanique du stage : cycle des vagues (brume, tempête, blizzard, coulées, puits). */
+export interface MechanicState {
+  /** Temps avant la prochaine vague, durée restante de la vague en cours. */
+  cycleT: number;
+  activeT: number;
+  /** Minuterie secondaire (impacts de la tempête, coulée en attente). */
+  subT: number;
+  /** Coulée de lave annoncée : origine, angle, délai. */
+  flowX: number;
+  flowY: number;
+  flowA: number;
+  flowT: number;
+  dotT: number;
+}
+
 export interface RunState {
   tick: number;
   time: number;
@@ -337,6 +367,7 @@ export interface RunState {
   altar: AltarState | null;
   bonus: RunBonus;
   pacts: PactState;
+  mechanic: MechanicState;
   stats: RunStats;
   debug: { invincible: boolean };
 }

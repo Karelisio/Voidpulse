@@ -52,6 +52,8 @@ export const FRAME = {
   AURA: 39,
   /** Projectile ennemi blanc (teinté par la couleur du tireur). */
   BULLET_TINT: 40,
+  /** Terrain du stage (eau, glace, bourbier ; teinté). */
+  TERRAIN: 41,
   /** Vaisseaux des personnages : PLAYER_BASE + index de personnage (12). */
   PLAYER_BASE: 44,
   /** Ennemis : ENEMY_BASE + index de type. */

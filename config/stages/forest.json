@@ -1,0 +1,170 @@
+{
+  "id": "forest",
+  "name": "Forêt brumeuse",
+  "order": 1,
+  "biome": "forest",
+  "description": "La brume monte par vagues et masque les ennemis au-delà de quelques pas.",
+  "duration": 900,
+  "bossAt": 900,
+  "boss": "sentinel",
+  "miniBoss": "thornwalker",
+  "miniAt": [300, 600],
+  "mechanic": {
+    "kind": "fog",
+    "every": 80,
+    "length": 22,
+    "count": 0,
+    "radius": 230,
+    "power": 0,
+    "description": "Vagues de brume : la vision se réduit."
+  },
+  "palette": {
+    "base": "#0a0b16",
+    "grid": "#3ee6ff",
+    "accent": "#b04dff"
+  },
+  "density": [
+    [0, 20],
+    [60, 48],
+    [180, 110],
+    [300, 150],
+    [420, 200],
+    [600, 260],
+    [780, 320],
+    [900, 140],
+    [1000, 170]
+  ],
+  "mix": [
+    [
+      0,
+      {
+        "mite": 1
+      }
+    ],
+    [
+      50,
+      {
+        "mite": 0.8,
+        "spitter": 0.2
+      }
+    ],
+    [
+      140,
+      {
+        "mite": 0.65,
+        "spitter": 0.15,
+        "bomber": 0.2
+      }
+    ],
+    [
+      240,
+      {
+        "mite": 0.5,
+        "spitter": 0.15,
+        "bomber": 0.15,
+        "brute": 0.1,
+        "blinker": 0.1
+      }
+    ],
+    [
+      420,
+      {
+        "mite": 0.42,
+        "spitter": 0.15,
+        "bomber": 0.15,
+        "brute": 0.14,
+        "blinker": 0.14
+      }
+    ],
+    [
+      660,
+      {
+        "mite": 0.36,
+        "spitter": 0.16,
+        "bomber": 0.16,
+        "brute": 0.16,
+        "blinker": 0.16
+      }
+    ]
+  ],
+  "hpScale": [
+    [0, 1.0],
+    [300, 1.8],
+    [600, 3.2],
+    [900, 5.0],
+    [1200, 7.0]
+  ],
+  "waves": [
+    {
+      "at": 30,
+      "kind": "ring",
+      "enemy": "mite",
+      "count": 20
+    },
+    {
+      "at": 95,
+      "kind": "line",
+      "enemy": "spitter",
+      "count": 8
+    },
+    {
+      "at": 160,
+      "kind": "pincer",
+      "enemy": "bomber",
+      "count": 12
+    },
+    {
+      "at": 225,
+      "kind": "swarm",
+      "enemy": "blinker",
+      "count": 10
+    },
+    {
+      "at": 270,
+      "kind": "escort",
+      "enemy": "brute",
+      "count": 10,
+      "minion": "mite"
+    },
+    {
+      "at": 400,
+      "kind": "ring",
+      "enemy": "mite",
+      "count": 40
+    },
+    {
+      "at": 470,
+      "kind": "escort",
+      "enemy": "brute",
+      "count": 12,
+      "minion": "spitter",
+      "elite": true
+    },
+    {
+      "at": 540,
+      "kind": "pincer",
+      "enemy": "blinker",
+      "count": 16
+    },
+    {
+      "at": 700,
+      "kind": "ring",
+      "enemy": "mite",
+      "count": 56
+    },
+    {
+      "at": 760,
+      "kind": "escort",
+      "enemy": "bomber",
+      "count": 14,
+      "minion": "mite",
+      "elite": true
+    },
+    {
+      "at": 840,
+      "kind": "line",
+      "enemy": "brute",
+      "count": 10
+    }
+  ]
+}

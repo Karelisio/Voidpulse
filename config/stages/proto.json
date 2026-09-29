@@ -116,5 +116,23 @@
     [140, "horde"],
     [195, "rift"],
     [235, "altar"]
-  ]
+  ],
+  "order": 0,
+  "biome": "forest",
+  "description": "Stage de test court.",
+  "miniAt": [],
+  "mechanic": {
+    "kind": "none",
+    "every": 0,
+    "length": 0,
+    "count": 0,
+    "radius": 0,
+    "power": 0,
+    "description": ""
+  },
+  "palette": {
+    "base": "#0a0b16",
+    "grid": "#3ee6ff",
+    "accent": "#b04dff"
+  }
 }

@@ -67,6 +67,8 @@ export const Foe = {
   guard: f32(),
   /** Enfoui (fouisseur) : ni ciblable, ni collision, ni contact. */
   hidden: u8(),
+  /** Terrain du stage (eau, bourbier) : ralenti tant que ce minuteur court. */
+  envT: f32(),
   /** FOE_FLAG : invoqué, copie de fission, enragé, téléportation d'affixe en cours. */
   flags: u8(),
 };

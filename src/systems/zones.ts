@@ -25,6 +25,7 @@ import { MAX_ENEMY_RADIUS } from './enemies';
 import { EV, RUN_EVENT_KIND, RUN_EVENT_PHASE, SLOT_REACTION } from './events';
 import { damagePlayer, slowPlayer } from './player';
 import { enterRift, openAltar, openMerchant } from './runevents';
+import { voidWellPull } from './stagefx';
 import type { RunSim } from './sim';
 
 export const ZONE = {
@@ -56,6 +57,10 @@ export const ZONE = {
   MERCHANT: 15,
   ALTAR: 16,
   RIFT: 17,
+  /** Terrain du stage (param : TERRAIN), permanent, replacé par stagefx.ts. */
+  TERRAIN: 18,
+  /** Puits du vide : attire joueur et ennemis (param : force). */
+  PULL: 19,
 } as const;
 
 /** Zones ennemies : leur temps s'écoule au ralenti dans une faille temporelle. */
@@ -82,6 +87,8 @@ const FRAME_OF: Record<number, number> = {
   [ZONE.MERCHANT]: FRAME.MERCHANT,
   [ZONE.ALTAR]: FRAME.ALTAR,
   [ZONE.RIFT]: FRAME.RIFT,
+  [ZONE.TERRAIN]: FRAME.TERRAIN,
+  [ZONE.PULL]: FRAME.ZONE_WELL,
 };
 
 const SURGE = REACTIONS[reactionIndex('surge')];
@@ -670,6 +677,15 @@ export function updateZones(sim: RunSim): void {
           pool.despawn(z);
           continue;
         }
+        break;
+      case ZONE.TERRAIN:
+        Look.alpha[z] = Math.min(1, t * 2);
+        break;
+      case ZONE.PULL:
+        // Le puits s'ouvre (0,6 s), attire, puis se referme.
+        Look.alpha[z] = Math.min(1, t * 1.6, (dur - t) * 2);
+        Look.rot[z] -= 2.5 * DT;
+        if (t > 0.6) voidWellPull(sim, z, Zone.param[z]);
         break;
       default:
         Look.alpha[z] = 0.25 + 0.75 * life;

@@ -378,6 +378,9 @@ export function updateEnemies(sim: RunSim): void {
   const boss = st.boss.eid;
   const bossAlive = boss >= 0 && sim.world.boss.isActive(boss);
   const edt = st.events.riftT > 0 ? DT * RUN_EVENTS.rift.slow : DT;
+  // Terrain du stage : eaux lentes (réglage du stage) ou bourbier.
+  const mech = st.stage.mechanic;
+  const envSlow = 1 - (mech.kind === 'water' ? mech.power : 0.25);
 
   for (let i = pool.count - 1; i >= 0; i--) {
     const e = pool.active[i];
@@ -395,6 +398,10 @@ export function updateEnemies(sim: RunSim): void {
     const frozen = Status.freezeT[e] > 0 || Status.stunT[e] > 0;
     const slowed = 1 - 0.55 * Status.chill[e];
     let speed = Foe.speed[e] * slowed;
+    if (Foe.envT[e] > 0) {
+      Foe.envT[e] -= DT;
+      speed *= envSlow;
+    }
     const blind = Status.blindT[e] > 0;
     if (blind && beh !== BEHAVIOR.stampede) {
       // Aveuglé (vapeur) : erre dans une direction pseudo-aléatoire stable.

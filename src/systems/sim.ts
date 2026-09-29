@@ -49,6 +49,7 @@ import {
   sacrifice,
   startRunEvent,
 } from './runevents';
+import { createMechanic, updateStageMechanic } from './stagefx';
 import { createPacts, imposePacts, offerPacts, sealPacts } from './pacts';
 import type { AltarOfferKind, RunEventKind, RunState, SimInput } from './state';
 import { addWeapon, levelUpWeapon, maxWeaponLevel, updateWeapons } from './weapons';
@@ -132,6 +133,9 @@ export class RunSim {
         faceY: -1,
         slowT: 0,
         slowAmt: 0,
+        terrainSlow: 0,
+        terrainInertia: 0,
+        terrainDps: 0,
         dash: character.dash,
         dashKind: DASH_KINDS.indexOf(character.dash.kind),
         dashCharges: character.dash.charges,
@@ -146,6 +150,7 @@ export class RunSim {
         waveIndex: 0,
         target: 0,
         hpScale: 1,
+        miniIndex: 0,
         bossSpawned: false,
         densityMult: 1,
         eliteT: PROGRESSION.elite.first,
@@ -172,6 +177,7 @@ export class RunSim {
         xpCollected: 0,
         peakEnemies: 0,
         bossKilled: false,
+        minibosses: 0,
         elitesKilled: 0,
         chests: 0,
         evolutions: 0,
@@ -180,6 +186,7 @@ export class RunSim {
         runEvents: 0,
       },
       pacts: createPacts(opts.pactChoice ?? false),
+      mechanic: createMechanic(stage),
       debug: { invincible: false },
     };
     const p = this.state.player;
@@ -240,6 +247,7 @@ export class RunSim {
     this.storePrevious();
     updatePlayer(this);
     updateDirector(this);
+    updateStageMechanic(this);
     updateEnemies(this);
     updateBoss(this);
     this.rebuildGrid();
