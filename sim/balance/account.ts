@@ -95,7 +95,7 @@ function frontier(d: SaveData): string {
 
 export function simulateAccount(
   opts: AccountOptions,
-  onRun?: (r: RunRecordSim) => void,
+  onRun?: (r: RunRecordSim, save: SaveData) => void,
 ): RunRecordSim[] {
   const d = defaultSave(0);
   const out: RunRecordSim[] = [];
@@ -142,7 +142,7 @@ export function simulateAccount(
       cleared: after.stages,
     };
     out.push(rec);
-    onRun?.(rec);
+    onRun?.(rec, d);
   }
   return out;
 }

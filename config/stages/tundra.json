@@ -51,17 +51,17 @@
     [
       140,
       {
-        "icewolf": 0.65,
-        "crystalgolem": 0.15,
-        "yeti": 0.2
+        "icewolf": 0.85,
+        "crystalgolem": 0.08,
+        "yeti": 0.07
       }
     ],
     [
       240,
       {
-        "icewolf": 0.5,
-        "crystalgolem": 0.15,
-        "yeti": 0.15,
+        "icewolf": 0.65,
+        "crystalgolem": 0.08,
+        "yeti": 0.07,
         "frostspirit": 0.1,
         "frostbomb": 0.1
       }
@@ -69,9 +69,9 @@
     [
       420,
       {
-        "icewolf": 0.42,
-        "crystalgolem": 0.15,
-        "yeti": 0.15,
+        "icewolf": 0.57,
+        "crystalgolem": 0.08,
+        "yeti": 0.07,
         "frostspirit": 0.14,
         "frostbomb": 0.14
       }
@@ -79,9 +79,9 @@
     [
       660,
       {
-        "icewolf": 0.36,
-        "crystalgolem": 0.16,
-        "yeti": 0.16,
+        "icewolf": 0.53,
+        "crystalgolem": 0.08,
+        "yeti": 0.07,
         "frostspirit": 0.16,
         "frostbomb": 0.16
       }
@@ -111,7 +111,7 @@
       "at": 160,
       "kind": "pincer",
       "enemy": "yeti",
-      "count": 12
+      "count": 6
     },
     {
       "at": 225,
