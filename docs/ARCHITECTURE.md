@@ -194,7 +194,10 @@ Les versions calme et intense d'un stage partagent **BPM, durée et points de bo
 
 ### 11.4 `assets/audio/music/tracks.json`
 
-Seul contrat entre le moteur et la musique. Deux formes par piste : **stems** ou **fichier unique** (crossfade + effets seulement).
+Seul contrat entre le moteur et la musique. Chaque piste a un **layout** :
+
+- `split` (pistes composées, recommandé) : par stem, un fichier **boucle** (`file`, qui démarre au début de la boucle, sa queue repliée sur son début) et un fichier **intro** optionnel (`intro`, qui démarre à 0 et garde sa queue : il chevauche le début de la boucle lors de la première écoute). Aucune queue de l'intro ne pollue la boucle : jointure parfaite.
+- `single` : un fichier par stem (ou un seul fichier pour toute la piste) contenant intro + boucle ; la boucle est la zone `[loopStart, loopEnd)`. Sans stems, seuls crossfade et effets s'appliquent.
 
 ```jsonc
 {
@@ -202,22 +205,31 @@ Seul contrat entre le moteur et la musique. Deux formes par piste : **stems** ou
   "tracks": [
     {
       "id": "stage1-calm",
-      "title": "Forêt brumeuse (calme)",
+      "title": "Forêt brumeuse — calme",
+      "layout": "split",
       "bpm": 100,
       "timeSignature": [4, 4],
-      "key": "E dorien",
-      "gainDb": 0,
-      "loopStart": 9.6, // secondes : fin de l'intro = début de la boucle
-      "loopEnd": 86.4, // secondes
+      "key": "Mi dorien",
+      "gainDb": 0, // correction manuelle, conservée d'un rendu à l'autre
+      "loopStart": 9.6, // secondes : fin de l'intro = début de la boucle sur la grille
+      "loopEnd": 86.4, // secondes : loopEnd - loopStart = durée du fichier boucle
       "group": "stage1", // pistes jouées en phase (calme / intense)
       "stems": [
-        { "layer": "pads", "file": "stage1-calm/pads.ogg", "enterAt": 0 },
-        { "layer": "bass", "file": "stage1-calm/bass.ogg", "enterAt": 0 },
-        { "layer": "arp", "file": "stage1-calm/arp.ogg", "enterAt": 0 },
-        { "layer": "drums", "file": "stage1-calm/drums.ogg", "enterAt": 1 },
-        { "layer": "lead", "file": "stage1-calm/lead.ogg", "enterAt": 2 },
+        {
+          "layer": "pads",
+          "file": "stage1-calm/pads.ogg",
+          "intro": "stage1-calm/pads.intro.ogg",
+          "enterAt": 0,
+        },
+        { "layer": "drums", "file": "stage1-calm/drums.ogg", "enterAt": 1 }, // intro silencieuse : pas de fichier
+        {
+          "layer": "lead",
+          "file": "stage1-calm/lead.ogg",
+          "intro": "stage1-calm/lead.intro.ogg",
+          "enterAt": 2,
+        },
       ],
-      // ou : "file": "stage1-calm.ogg"
+      "loudness": { "integrated": -14.2, "truePeak": -1.8 }, // informatif
     },
   ],
   "bindings": {
@@ -230,7 +242,7 @@ Seul contrat entre le moteur et la musique. Deux formes par piste : **stems** ou
 }
 ```
 
-Remplacer une piste = déposer les fichiers et mettre à jour son entrée ; aucune modification de code.
+Remplacer une piste = déposer les fichiers et mettre à jour son entrée ; aucune modification de code. Une liaison (`bindings`) peut pointer vers n'importe quelle piste : les stages pas encore composés réutilisent le stage 1.
 
 ### 11.5 Effets sonores
 
@@ -241,10 +253,12 @@ Remplacer une piste = déposer les fichiers et mettre à jour son entrée ; aucu
 
 ### 11.6 Pipelines hors ligne
 
-- `scripts/render-music` : Playwright + Chromium → chaque couche rendue seule par `Tone.Offline` → WAV → ffmpeg. **Normalisation sur la somme des stems** (-14 LUFS intégrés, -1 dBTP) puis **même gain appliqué à chaque stem** (normaliser chaque stem séparément casserait le mix). Queues de réverb/delay repliées sur le début de boucle. Encodage Opus 128 kbps. Génère `tracks.json`.
-- Sidechain de la basse = automation de gain calée sur le kick (fonctionne en rendu solo). Pas de compression non linéaire sur le master au rendu : la somme des stems reste identique au mix.
+- `scripts/render-music` (`npm run music:render`) : Playwright + Chromium → chaque couche rendue seule par `Tone.Offline`, **en deux sections** (intro, boucle), chaque section ne jouant que ses propres notes et gardant sa queue. `Math.random` est seedé : rendus reproductibles à l'identique.
+- Post-traitement : queue de la boucle repliée sur son début ; **pré-roll** de 30 ms (notes humanisées posées sur la frontière) replié en fin de boucle et d'intro ; **mix automatique** (loudness cible de chaque stem, en LU relatifs au mix) ; **mastering sur la somme** : boucle normalisée à -14 LUFS avec un limiteur à anticipation dont l'enveloppe, **périodique** (continue au bouclage), est appliquée à l'identique à chaque stem — la somme des stems reste exactement le mix limité ; crête vraie ≤ -1 dBTP. Encodage Opus 128 kbps en VBR contraint.
+- Contrôles imprimés à chaque rendu : loudness et crête par stem, spectre par bandes d'octave, continuité de la jointure (ratio saut / pente locale ≤ 1).
+- Sidechain = automation de gain calée sur le kick (fonctionne en rendu solo). Batterie : bus compressé puis écrêté en douceur pour contenir le facteur de crête.
 - `scripts/render-sfx` : même chaîne pour les effets → `sfx.json`.
-- `scripts/prepare-track` (futures pistes FL Studio) : conversion Opus, normalisation -14 LUFS sur la somme, détection du BPM et suggestion des points de boucle, écriture de l'entrée `tracks.json`. Guide d'export dans le README.
+- `scripts/prepare-track` (futures pistes FL Studio) : conversion Opus, normalisation -14 LUFS sur la somme, détection du BPM et suggestion des points de boucle, écriture de l'entrée `tracks.json`. Guide d'export dans le README (plage intro et plage boucle exportées séparément, boucle en _Wrap remainder_).
 
 ## 12. Sauvegarde
 

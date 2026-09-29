@@ -1,0 +1,246 @@
+{
+  "version": 1,
+  "tracks": [
+    {
+      "id": "menu",
+      "title": "Menu — Nocturne néon",
+      "layout": "split",
+      "bpm": 96,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "La mineur",
+      "gainDb": 0,
+      "loopStart": 10,
+      "loopEnd": 90,
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "menu/pads.ogg",
+          "enterAt": 0,
+          "intro": "menu/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "menu/bass.ogg",
+          "enterAt": 0,
+          "intro": "menu/bass.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "menu/drums.ogg",
+          "enterAt": 0,
+          "intro": "menu/drums.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "menu/arp.ogg",
+          "enterAt": 0,
+          "intro": "menu/arp.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "menu/lead.ogg",
+          "enterAt": 0,
+          "intro": "menu/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.3,
+        "truePeak": -1.5
+      }
+    },
+    {
+      "id": "stage1-calm",
+      "title": "Forêt brumeuse — calme",
+      "layout": "split",
+      "bpm": 100,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Mi dorien",
+      "gainDb": 0,
+      "loopStart": 9.6,
+      "loopEnd": 86.4,
+      "group": "stage1",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage1-calm/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage1-calm/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage1-calm/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage1-calm/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage1-calm/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage1-calm/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage1-calm/drums.ogg",
+          "enterAt": 1
+        },
+        {
+          "layer": "lead",
+          "file": "stage1-calm/lead.ogg",
+          "enterAt": 2,
+          "intro": "stage1-calm/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.2,
+        "truePeak": -1.8
+      }
+    },
+    {
+      "id": "stage1-intense",
+      "title": "Forêt brumeuse — intense",
+      "layout": "split",
+      "bpm": 100,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Mi dorien",
+      "gainDb": 0,
+      "loopStart": 9.6,
+      "loopEnd": 86.4,
+      "group": "stage1",
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "stage1-intense/pads.ogg",
+          "enterAt": 0,
+          "intro": "stage1-intense/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "stage1-intense/bass.ogg",
+          "enterAt": 0,
+          "intro": "stage1-intense/bass.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "stage1-intense/arp.ogg",
+          "enterAt": 0,
+          "intro": "stage1-intense/arp.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "stage1-intense/drums.ogg",
+          "enterAt": 0,
+          "intro": "stage1-intense/drums.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "stage1-intense/lead.ogg",
+          "enterAt": 0,
+          "intro": "stage1-intense/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14.3,
+        "truePeak": -1.7
+      }
+    },
+    {
+      "id": "boss",
+      "title": "Boss",
+      "layout": "split",
+      "bpm": 140,
+      "timeSignature": [
+        4,
+        4
+      ],
+      "key": "Do mineur (♭2)",
+      "gainDb": 0,
+      "loopStart": 6.857146,
+      "loopEnd": 61.714292,
+      "stems": [
+        {
+          "layer": "pads",
+          "file": "boss/pads.ogg",
+          "enterAt": 0,
+          "intro": "boss/pads.intro.ogg"
+        },
+        {
+          "layer": "bass",
+          "file": "boss/bass.ogg",
+          "enterAt": 0,
+          "intro": "boss/bass.intro.ogg"
+        },
+        {
+          "layer": "drums",
+          "file": "boss/drums.ogg",
+          "enterAt": 0,
+          "intro": "boss/drums.intro.ogg"
+        },
+        {
+          "layer": "arp",
+          "file": "boss/arp.ogg",
+          "enterAt": 1,
+          "intro": "boss/arp.intro.ogg"
+        },
+        {
+          "layer": "lead",
+          "file": "boss/lead.ogg",
+          "enterAt": 2,
+          "intro": "boss/lead.intro.ogg"
+        }
+      ],
+      "loudness": {
+        "integrated": -14,
+        "truePeak": -1.4
+      }
+    }
+  ],
+  "bindings": {
+    "menu": "menu",
+    "stages": {
+      "1": {
+        "calm": "stage1-calm",
+        "intense": "stage1-intense"
+      },
+      "2": {
+        "calm": "stage1-calm",
+        "intense": "stage1-intense"
+      },
+      "3": {
+        "calm": "stage1-calm",
+        "intense": "stage1-intense"
+      },
+      "4": {
+        "calm": "stage1-calm",
+        "intense": "stage1-intense"
+      },
+      "5": {
+        "calm": "stage1-calm",
+        "intense": "stage1-intense"
+      },
+      "6": {
+        "calm": "stage1-calm",
+        "intense": "stage1-intense"
+      },
+      "7": {
+        "calm": "stage1-calm",
+        "intense": "stage1-intense"
+      },
+      "8": {
+        "calm": "stage1-calm",
+        "intense": "stage1-intense"
+      }
+    },
+    "boss": "boss",
+    "finalBoss": "boss",
+    "endOfRun": "menu"
+  }
+}
