@@ -9,9 +9,11 @@ const VERSION = import.meta.env.VITE_APP_VERSION ?? 'prototype';
 export function TitleScreen({
   onPlay,
   onProgression,
+  onGoals,
 }: {
   onPlay: (bench: boolean) => void;
   onProgression: () => void;
+  onGoals: () => void;
 }) {
   const debugUnlocked = useUi((s) => s.debugUnlocked);
   const unlockDebug = useUi((s) => s.unlockDebug);
@@ -55,6 +57,16 @@ export function TitleScreen({
           }}
         >
           Progression
+        </button>
+        <button
+          className="btn-ghost"
+          id="goals"
+          onClick={() => {
+            uiSound(audio(), 'ui.click');
+            onGoals();
+          }}
+        >
+          Objectifs
         </button>
         {debugUnlocked && (
           <button

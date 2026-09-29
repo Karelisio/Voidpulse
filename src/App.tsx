@@ -6,6 +6,7 @@ import { useUi } from './state/ui';
 import { BuildSelect } from './ui/BuildSelect';
 import { CharacterSelect } from './ui/CharacterSelect';
 import { ModeSelect } from './ui/ModeSelect';
+import { GoalsScreen } from './ui/goals/GoalsScreen';
 import { ProgressionScreen } from './ui/meta/ProgressionScreen';
 import { RunScreen } from './ui/RunScreen';
 import { StageSelect } from './ui/StageSelect';
@@ -92,6 +93,15 @@ export function App() {
       />
     );
   }
+  if (screen === 'goals') {
+    return (
+      <GoalsScreen
+        onBack={() => {
+          setScreen('title');
+        }}
+      />
+    );
+  }
   if (screen === 'progression') {
     return (
       <ProgressionScreen
@@ -109,6 +119,9 @@ export function App() {
       }}
       onProgression={() => {
         setScreen('progression');
+      }}
+      onGoals={() => {
+        setScreen('goals');
       }}
     />
   );

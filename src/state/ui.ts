@@ -6,7 +6,8 @@ import type { ChestView } from '../ui/ChestOverlay';
 import type { MerchantView, SacrificeView } from '../ui/events';
 import type { PactView } from '../ui/PactOverlay';
 
-export type Screen = 'title' | 'modes' | 'select' | 'stage' | 'build' | 'run' | 'progression';
+export type Screen =
+  'title' | 'modes' | 'select' | 'stage' | 'build' | 'run' | 'progression' | 'goals';
 export type Overlay = null | 'levelup' | 'chest' | 'merchant' | 'altar' | 'pact' | 'pause' | 'end';
 
 export interface AltarView {
