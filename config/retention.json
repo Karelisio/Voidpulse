@@ -1,0 +1,253 @@
+{
+  "clock": {
+    "rollbackToleranceMs": 300000
+  },
+  "quests": {
+    "daily": 3,
+    "weekly": 5,
+    "dailyRerolls": 1,
+    "rewards": {
+      "daily": {
+        "fragments": 60,
+        "seasonXp": 250
+      },
+      "weekly": {
+        "fragments": 250,
+        "seasonXp": 1000
+      }
+    },
+    "templates": [
+      {
+        "id": "kills",
+        "name": "Éliminer {n} ennemis",
+        "metric": "kills",
+        "kind": "sum",
+        "daily": 600,
+        "weekly": 5000
+      },
+      {
+        "id": "elites",
+        "name": "Abattre {n} élites",
+        "metric": "elites",
+        "kind": "sum",
+        "daily": 5,
+        "weekly": 30
+      },
+      {
+        "id": "bosses",
+        "name": "Vaincre {n} boss ou mini-boss",
+        "metric": "bosses",
+        "kind": "sum",
+        "daily": 2,
+        "weekly": 10
+      },
+      {
+        "id": "reactions",
+        "name": "Déclencher {n} réactions",
+        "metric": "reactions",
+        "kind": "sum",
+        "daily": 150,
+        "weekly": 1500
+      },
+      {
+        "id": "eveils",
+        "name": "Déclencher {n} Éveils",
+        "metric": "eveils",
+        "kind": "sum",
+        "daily": 2,
+        "weekly": 12
+      },
+      {
+        "id": "survive",
+        "name": "Survivre {n} minutes au total",
+        "metric": "minutes",
+        "kind": "sum",
+        "daily": 20,
+        "weekly": 120
+      },
+      {
+        "id": "runs",
+        "name": "Terminer {n} parties",
+        "metric": "runs",
+        "kind": "sum",
+        "daily": 3,
+        "weekly": 15
+      },
+      {
+        "id": "victories",
+        "name": "Remporter {n} victoires",
+        "metric": "victories",
+        "kind": "sum",
+        "daily": 1,
+        "weekly": 4
+      },
+      {
+        "id": "gold",
+        "name": "Ramasser {n} fragments en partie",
+        "metric": "gold",
+        "kind": "sum",
+        "daily": 300,
+        "weekly": 2500
+      },
+      {
+        "id": "chests",
+        "name": "Ouvrir {n} coffres",
+        "metric": "chests",
+        "kind": "sum",
+        "daily": 4,
+        "weekly": 25
+      },
+      {
+        "id": "level",
+        "name": "Atteindre le niveau {n} en une partie",
+        "metric": "level",
+        "kind": "max",
+        "daily": 25,
+        "weekly": 40
+      },
+      {
+        "id": "daily",
+        "name": "Jouer {n} défi(s) du jour",
+        "metric": "daily",
+        "kind": "sum",
+        "daily": 1,
+        "weekly": 3
+      },
+      {
+        "id": "endless",
+        "name": "Survivre {n} minutes d’affilée en Infini",
+        "metric": "endlessMinutes",
+        "kind": "max",
+        "daily": 10,
+        "weekly": 25
+      },
+      {
+        "id": "dmg-fire",
+        "name": "Infliger {n} dégâts de feu",
+        "metric": "elementDamage",
+        "kind": "sum",
+        "daily": 60000,
+        "weekly": 500000,
+        "element": "fire"
+      },
+      {
+        "id": "dmg-frost",
+        "name": "Infliger {n} dégâts de givre",
+        "metric": "elementDamage",
+        "kind": "sum",
+        "daily": 60000,
+        "weekly": 500000,
+        "element": "frost"
+      },
+      {
+        "id": "dmg-lightning",
+        "name": "Infliger {n} dégâts de foudre",
+        "metric": "elementDamage",
+        "kind": "sum",
+        "daily": 60000,
+        "weekly": 500000,
+        "element": "lightning"
+      },
+      {
+        "id": "dmg-poison",
+        "name": "Infliger {n} dégâts de poison",
+        "metric": "elementDamage",
+        "kind": "sum",
+        "daily": 60000,
+        "weekly": 500000,
+        "element": "poison"
+      },
+      {
+        "id": "dmg-arcane",
+        "name": "Infliger {n} dégâts de arcane",
+        "metric": "elementDamage",
+        "kind": "sum",
+        "daily": 60000,
+        "weekly": 500000,
+        "element": "arcane"
+      },
+      {
+        "id": "dmg-void",
+        "name": "Infliger {n} dégâts de vide",
+        "metric": "elementDamage",
+        "kind": "sum",
+        "daily": 60000,
+        "weekly": 500000,
+        "element": "void"
+      }
+    ]
+  },
+  "streak": {
+    "rewards": [50, 75, 100, 125, 150, 200, 400],
+    "weekBonus": 0.1,
+    "maxWeekBonus": 10
+  },
+  "season": {
+    "epoch": "2026-01-05",
+    "days": 42,
+    "tiers": 50,
+    "xpPerTier": 1000,
+    "scoreXp": 0.05,
+    "themes": [
+      {
+        "id": "neon-tide",
+        "name": "Marée néon",
+        "color": "#3ee6ff",
+        "description": "Les courants du vide charrient une lumière froide."
+      },
+      {
+        "id": "ember-crown",
+        "name": "Couronne de braise",
+        "color": "#ff7a2f",
+        "description": "Les forges du volcan rallument leurs foyers."
+      },
+      {
+        "id": "crystal-dawn",
+        "name": "Aube cristalline",
+        "color": "#bfefff",
+        "description": "La toundra se pare d’aurores fractales."
+      },
+      {
+        "id": "venom-bloom",
+        "name": "Floraison venimeuse",
+        "color": "#9cff3d",
+        "description": "Le marais éclot en corolles toxiques."
+      },
+      {
+        "id": "storm-choir",
+        "name": "Chœur d’orage",
+        "color": "#fff06a",
+        "description": "La station orbitale chante sous les éclairs."
+      },
+      {
+        "id": "void-eclipse",
+        "name": "Éclipse du vide",
+        "color": "#a88aff",
+        "description": "La cathédrale engloutit les étoiles."
+      }
+    ],
+    "rewards": {
+      "fragmentsBase": 80,
+      "fragmentsPerTier": 4,
+      "milestoneEvery": 5,
+      "milestoneFragments": 300,
+      "relicEvery": 10,
+      "relicRarity": {
+        "10": 1,
+        "20": 1,
+        "30": 2,
+        "40": 2,
+        "50": 3
+      }
+    }
+  },
+  "chest": {
+    "perHour": 25,
+    "levelBonus": 0.02,
+    "capHours": 12,
+    "minClaim": 1
+  },
+  "notifications": {
+    "hour": 9
+  }
+}

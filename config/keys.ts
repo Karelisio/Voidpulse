@@ -207,3 +207,64 @@ export type MetaExtra = (typeof META_EXTRAS)[number];
 
 /** Déblocages liés au niveau de compte. */
 export const ACCOUNT_UNLOCKS = ['forge', 'relicSlot', 'ascension'] as const;
+
+/** Mesures des quêtes (cumulées sur les parties, ou meilleure valeur d'une partie). */
+export const QUEST_METRICS = [
+  'kills',
+  'elites',
+  'bosses',
+  'reactions',
+  'eveils',
+  'minutes',
+  'runs',
+  'victories',
+  'gold',
+  'chests',
+  'level',
+  'daily',
+  'endlessMinutes',
+  'elementDamage',
+] as const;
+export type QuestMetric = (typeof QUEST_METRICS)[number];
+
+/** Mesures des succès (statistiques de carrière et progression). */
+export const ACHIEVEMENT_METRICS = [
+  'kills',
+  'runs',
+  'victories',
+  'elites',
+  'bosses',
+  'eveils',
+  'reactions',
+  'gold',
+  'chests',
+  'playHours',
+  'bestLevel',
+  'stageClear',
+  'ascension',
+  'boss',
+  'character',
+  'charWin',
+  'reaction',
+  'codex',
+  'evolutions',
+  'accountLevel',
+  'paragon',
+  'talentRanks',
+  'relics',
+  'relicLegendary',
+  'relicMaxLevel',
+  'mastery3',
+  'mastery10',
+  'endlessMinutes',
+  'daily',
+  'weekly',
+  'bossRushWin',
+  'bossRushBosses',
+  'hardcoreWins',
+  'bestRank',
+  'bestStreak',
+  'seasonTier',
+  'quests',
+] as const;
+export type AchievementMetric = (typeof ACHIEVEMENT_METRICS)[number];

@@ -59,6 +59,7 @@ export function selectAscension(d: SaveData, stage: string, tier: number): void 
 /** Victoire au palier `tier` : ouvre le suivant s'il s'agissait du plus haut. Renvoie le nouveau. */
 export function recordAscension(d: SaveData, stage: string, tier: number): number | null {
   const a = (d.meta.ascension[stage] ??= { unlocked: 0, selected: 0 });
+  a.won = Math.max(a.won ?? 0, tier);
   if (tier < a.unlocked || a.unlocked >= MAX_ASCENSION) return null;
   a.unlocked = tier + 1;
   return a.unlocked;

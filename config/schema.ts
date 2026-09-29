@@ -17,6 +17,8 @@ import {
   MODE_IDS,
   META_EXTRAS,
   ACCOUNT_UNLOCKS,
+  QUEST_METRICS,
+  ACHIEVEMENT_METRICS,
   type EnemyParam,
 } from './keys';
 
@@ -777,3 +779,77 @@ export const MetaDef = z.object({
   }),
 });
 export type MetaDef = z.infer<typeof MetaDef>;
+
+const QuestReward = z.object({ fragments: nonNegative, seasonXp: nonNegative });
+
+export const QuestTemplateDef = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  /** Intitulé ; « {n} » est remplacé par l'objectif. */
+  name: z.string(),
+  metric: z.enum(QUEST_METRICS),
+  /** Cumul sur les parties, ou meilleure valeur d'une seule partie. */
+  kind: z.enum(['sum', 'max']),
+  daily: positive,
+  weekly: positive,
+  element: Element.optional(),
+});
+export type QuestTemplateDef = z.infer<typeof QuestTemplateDef>;
+
+export const RetentionDef = z.object({
+  clock: z.object({ rollbackToleranceMs: nonNegative }),
+  quests: z.object({
+    daily: z.number().int().positive(),
+    weekly: z.number().int().positive(),
+    dailyRerolls: z.number().int().nonnegative(),
+    rewards: z.object({ daily: QuestReward, weekly: QuestReward }),
+    templates: z.array(QuestTemplateDef).min(8),
+  }),
+  streak: z.object({
+    /** Récompense (fragments) de chaque jour du cycle de 7 jours. */
+    rewards: z.array(nonNegative).length(7),
+    /** Bonus par semaine complète de série, plafonné. */
+    weekBonus: nonNegative,
+    maxWeekBonus: z.number().int().nonnegative(),
+  }),
+  season: z.object({
+    /** Premier jour de la saison 0 (AAAA-MM-JJ, heure locale). */
+    epoch: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    days: z.number().int().positive(),
+    tiers: z.number().int().positive(),
+    xpPerTier: positive,
+    scoreXp: nonNegative,
+    themes: z
+      .array(z.object({ id: z.string(), name: z.string(), color: hex, description: z.string() }))
+      .min(1),
+    rewards: z.object({
+      fragmentsBase: nonNegative,
+      fragmentsPerTier: nonNegative,
+      milestoneEvery: z.number().int().positive(),
+      milestoneFragments: nonNegative,
+      relicEvery: z.number().int().positive(),
+      /** Rareté minimale de la relique de chaque palier multiple de `relicEvery`. */
+      relicRarity: z.record(z.string(), z.number().int().nonnegative()),
+    }),
+  }),
+  chest: z.object({
+    perHour: positive,
+    levelBonus: nonNegative,
+    capHours: positive,
+    minClaim: nonNegative,
+  }),
+  notifications: z.object({ hour: z.number().int().min(0).max(23) }),
+});
+export type RetentionDef = z.infer<typeof RetentionDef>;
+
+export const AchievementDef = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  name: z.string(),
+  description: z.string(),
+  metric: z.enum(ACHIEVEMENT_METRICS),
+  /** Cible de la mesure (stage, boss, pilote, réaction, catégorie du codex), '' sinon. */
+  key: z.string(),
+  value: positive,
+  /** Fragments versés au déblocage. */
+  reward: nonNegative,
+});
+export type AchievementDef = z.infer<typeof AchievementDef>;

@@ -51,6 +51,17 @@ export interface LifetimeStats {
   playSeconds: number;
   /** Élites abattues (déblocages). */
   elites: number;
+  /** Boss et mini-boss vaincus, Éveils, réactions, fragments ramassés, coffres ouverts. */
+  bosses: number;
+  eveils: number;
+  reactions: number;
+  gold: number;
+  chests: number;
+  /** Parties du défi du jour et de la semaine. */
+  daily: number;
+  weekly: number;
+  /** Victoires par pilote. */
+  charWins: Record<string, number>;
 }
 
 /** Profil : personnage choisi, personnages débloqués, meilleurs rang et score. */
@@ -121,8 +132,8 @@ export interface MetaData {
   talents: Record<string, number>;
   /** Niveau de compte, XP dans le niveau en cours, niveaux Paragon, points Paragon placés. */
   account: { level: number; xp: number; paragon: number; spent: Record<string, number> };
-  /** Ascension par stage : palier le plus haut ouvert, palier choisi. */
-  ascension: Record<string, { unlocked: number; selected: number }>;
+  /** Ascension par stage : palier le plus haut ouvert, palier choisi, plus haut palier gagné. */
+  ascension: Record<string, { unlocked: number; selected: number; won?: number }>;
   /** Reliques : inventaire, uid équipés par emplacement (0 : vide), prochain uid. */
   relics: { items: RelicItem[]; equipped: number[]; nextUid: number };
   /** XP de maîtrise par arme, apparence choisie (index de skin, -1 : d'origine). */
@@ -139,6 +150,39 @@ export interface MetaData {
   };
 }
 
+/** Quête en cours : modèle, objectif, progression, récompense réclamée. */
+export interface QuestSlot {
+  id: string;
+  target: number;
+  progress: number;
+  claimed: boolean;
+}
+
+/** Rétention : horloge protégée, quêtes, série, saison, coffre hors ligne, succès. */
+export interface RetentionData {
+  /** Plus grand instant vu (ms) : un retour en arrière de l'horloge ne fait rien gagner. */
+  clock: { max: number };
+  quests: {
+    day: string;
+    daily: QuestSlot[];
+    rerolls: number;
+    week: string;
+    weekly: QuestSlot[];
+    /** Quêtes terminées et réclamées (succès). */
+    done: number;
+  };
+  /** Série de connexion : dernier jour, jours en cours, meilleure série. */
+  streak: { last: string; count: number; best: number };
+  /** Passe de saison : index de saison, XP, paliers réclamés, meilleur palier atteint. */
+  season: { id: number; xp: number; claimed: number[]; best: number };
+  /** Coffre hors ligne : dernier relevé (ms, 0 : pas encore commencé). */
+  chest: { last: number };
+  /** Succès débloqués. */
+  achievements: string[];
+  /** Notifications locales (facultatives, désactivées par défaut). */
+  notifications: { enabled: boolean; quests: boolean; chest: boolean; challenge: boolean };
+}
+
 export interface SaveData {
   version: number;
   /** Horodatage (ms) de création et de dernière écriture. */
@@ -153,6 +197,7 @@ export interface SaveData {
   /** Monnaies de méta (fragments ramenés des parties). */
   wallet: { fragments: number };
   meta: MetaData;
+  retention: RetentionData;
 }
 
 export function defaultSave(now = Date.now()): SaveData {
@@ -192,6 +237,14 @@ export function defaultSave(now = Date.now()): SaveData {
       bestLevel: 0,
       playSeconds: 0,
       elites: 0,
+      bosses: 0,
+      eveils: 0,
+      reactions: 0,
+      gold: 0,
+      chests: 0,
+      daily: 0,
+      weekly: 0,
+      charWins: {},
     },
     profile: {
       character: 'vex',
@@ -221,6 +274,15 @@ export function defaultSave(now = Date.now()): SaveData {
       mastery: {},
       skins: {},
       codex: { enemies: [], weapons: [], evolutions: [], reactions: [], bosses: [], claimed: {} },
+    },
+    retention: {
+      clock: { max: 0 },
+      quests: { day: '', daily: [], rerolls: 0, week: '', weekly: [], done: 0 },
+      streak: { last: '', count: 0, best: 0 },
+      season: { id: -1, xp: 0, claimed: [], best: 0 },
+      chest: { last: 0 },
+      achievements: [],
+      notifications: { enabled: false, quests: true, chest: true, challenge: true },
     },
   };
 }

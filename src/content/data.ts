@@ -19,8 +19,10 @@ import type {
   BossDef,
   CharacterDef,
   EnemyDef,
+  AchievementDef,
   MetaDef,
   ModesDef,
+  RetentionDef,
   PactsDef,
   TalentsDef,
   PassiveDef,
@@ -34,7 +36,9 @@ import affixesJson from '../../config/affixes.json';
 import bossesJson from '../../config/bosses.json';
 import charactersJson from '../../config/characters.json';
 import enemiesJson from '../../config/enemies.json';
+import achievementsJson from '../../config/achievements.json';
 import metaJson from '../../config/meta.json';
+import retentionJson from '../../config/retention.json';
 import modesJson from '../../config/modes.json';
 import talentsJson from '../../config/talents.json';
 import pactsJson from '../../config/pacts.json';
@@ -230,3 +234,9 @@ export type {
   TalentNodeDef,
   TalentsDef,
 } from '../../config/schema';
+
+/** Rétention : horloge, quêtes, série de connexion, passe de saison, coffre hors ligne, succès. */
+export const RETENTION = retentionJson as RetentionDef;
+export const ACHIEVEMENTS = achievementsJson as AchievementDef[];
+export type { AchievementDef, QuestTemplateDef, RetentionDef } from '../../config/schema';
+export type { AchievementMetric, QuestMetric } from '../../config/keys';

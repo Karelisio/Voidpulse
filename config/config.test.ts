@@ -13,8 +13,10 @@ import {
   type EnemyParam,
   PassiveDef,
   PlayerDef,
+  AchievementDef,
   MetaDef,
   ModesDef,
+  RetentionDef,
   PactsDef,
   TalentsDef,
   ProgressionDef,
@@ -52,6 +54,8 @@ describe('données de /config', () => {
     check(ModesDef, 'modes.json');
     check(MetaDef, 'meta.json');
     check(TalentsDef, 'talents.json');
+    check(RetentionDef, 'retention.json');
+    check(AchievementDef.array().length(200), 'achievements.json');
     for (const f of readdirSync(path.join(dir, 'stages'))) check(StageDef, `stages/${f}`);
   });
 
@@ -239,5 +243,34 @@ describe('méta', () => {
     for (let i = 1; i < m.mastery.ranks.length; i++)
       expect(m.mastery.ranks[i]).toBeGreaterThan(m.mastery.ranks[i - 1]);
     expect(m.codex.fragments).toHaveLength(m.codex.thresholds.length);
+  });
+});
+
+describe('rétention', () => {
+  it('200 succès uniques, cibles existantes', () => {
+    const a = check(AchievementDef.array(), 'achievements.json');
+    expect(new Set(a.map((x) => x.id)).size).toBe(200);
+    const bosses = new Set(check(BossDef.array(), 'bosses.json').map((b) => b.id));
+    const chars = new Set(check(CharacterDef.array(), 'characters.json').map((c) => c.id));
+    const reactions = new Set(check(ReactionDef.array(), 'reactions.json').map((r) => r.id));
+    const stages = new Set(
+      readdirSync(path.join(dir, 'stages')).map((f) => f.replace('.json', '')),
+    );
+    for (const x of a) {
+      if (x.metric === 'boss') expect(bosses.has(x.key), x.id).toBe(true);
+      if (x.metric === 'character' || x.metric === 'charWin')
+        expect(chars.has(x.key), x.id).toBe(true);
+      if (x.metric === 'reaction') expect(reactions.has(x.key), x.id).toBe(true);
+      if (x.metric === 'stageClear' || x.metric === 'ascension')
+        expect(stages.has(x.key), x.id).toBe(true);
+    }
+  });
+
+  it('quêtes : identifiants uniques, dégâts élémentaires avec élément', () => {
+    const r = check(RetentionDef, 'retention.json');
+    const t = r.quests.templates;
+    expect(new Set(t.map((x) => x.id)).size).toBe(t.length);
+    for (const x of t) expect(x.metric === 'elementDamage').toBe(x.element !== undefined);
+    expect(t.length).toBeGreaterThanOrEqual(r.quests.weekly + r.quests.daily);
   });
 });
