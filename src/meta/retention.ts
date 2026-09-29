@@ -30,7 +30,10 @@ export function openApp(d: SaveData, device = Date.now()): OpenResult {
   return { now, streak, seasonGranted, questsRenewed: renewed.daily || renewed.weekly };
 }
 
-/** Bilan de rétention d'une partie ; à appeler après le bilan de méta (succès à jour). */
+/**
+ * Bilan de rétention d'une partie : carrière, quêtes, XP de saison. À appeler avant les
+ * déblocages (ils lisent la carrière) ; les succès se relèvent ensuite (`achievementLines`).
+ */
 export function applyRunRetention(
   d: SaveData,
   tally: RunTally,
@@ -49,8 +52,10 @@ export function applyRunRetention(
     const after = seasonTier(d);
     if (after > before) lines.push(`Passe de saison : palier ${String(after)}`);
   }
-  for (const a of evaluateAchievements(d)) {
-    lines.push(`Succès : ${a.name} (+${String(a.reward)} fragments)`);
-  }
   return lines;
+}
+
+/** Succès atteints (à relever en dernier, sur la progression à jour). */
+export function achievementLines(d: SaveData): string[] {
+  return evaluateAchievements(d).map((a) => `Succès : ${a.name} (+${String(a.reward)} fragments)`);
 }

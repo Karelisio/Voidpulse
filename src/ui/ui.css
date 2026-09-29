@@ -377,7 +377,7 @@ button:focus-visible {
 
 .end-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   width: min(460px, 100%);
   margin: 0;
@@ -1509,4 +1509,197 @@ button:focus-visible {
   overflow-y: auto;
   font-size: 12px;
   color: var(--vp-muted);
+}
+
+/* --- Accueil : série de connexion, coffre hors ligne ------------------------------------------ */
+
+.welcome {
+  display: grid;
+  gap: 8px;
+  width: min(360px, 100%);
+}
+
+.welcome-streak {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--vp-gold) 60%, var(--vp-line));
+  background: var(--vp-panel);
+  color: var(--vp-fg);
+  font: 600 13px var(--vp-font);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--vp-gold) 30%, transparent);
+  animation: fade-in 0.3s ease-out;
+  cursor: pointer;
+}
+
+.welcome-streak b {
+  font-size: 16px;
+  color: var(--vp-gold);
+}
+
+.welcome-streak small {
+  color: var(--vp-muted);
+}
+
+.welcome-chest {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel);
+  font-size: 13px;
+}
+
+.welcome-chest > div {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.welcome-chest small {
+  color: var(--vp-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.welcome-chest .btn-ghost {
+  padding: 8px 12px;
+  min-height: 0;
+}
+
+.welcome-bar {
+  display: block;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--vp-panel-2);
+  overflow: hidden;
+}
+
+.welcome-bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--vp-accent), var(--vp-gold));
+}
+
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--vp-gold);
+  color: #1a1030;
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+/* --- Fin de partie : graphique, DPS, actions collantes ------------------------------------ */
+
+.run-chart {
+  width: min(460px, 100%);
+  margin: 0;
+}
+
+.run-chart-plot {
+  position: relative;
+}
+
+.run-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+}
+
+.rc-title {
+  fill: var(--vp-fg);
+  font: 600 11px var(--vp-font);
+}
+
+.rc-tick {
+  fill: var(--vp-muted);
+  font: 500 10px var(--vp-font);
+  font-variant-numeric: tabular-nums;
+}
+
+.rc-grid {
+  stroke: var(--vp-line);
+  stroke-width: 1;
+}
+
+.rc-cross {
+  stroke: var(--vp-muted);
+  stroke-width: 1;
+}
+
+.rc-dot {
+  stroke: var(--vp-bg);
+  stroke-width: 2;
+}
+
+.rc-tip {
+  position: absolute;
+  top: 18px;
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel-2);
+  color: var(--vp-fg);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.rc-tip span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rc-tip i {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.rc-table {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--vp-muted);
+}
+
+.rc-table table {
+  display: block;
+  max-height: 160px;
+  overflow-y: auto;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.rc-table th,
+.rc-table td {
+  padding: 2px 10px 2px 0;
+  text-align: right;
+}
+
+.dmg-val small {
+  display: block;
+  color: var(--vp-muted);
+  font-size: 11px;
+}
+
+.end-sticky {
+  position: sticky;
+  bottom: 0;
+  padding: 10px 0 4px;
+  background: linear-gradient(transparent, rgba(5, 1, 13, 0.92) 30%);
 }

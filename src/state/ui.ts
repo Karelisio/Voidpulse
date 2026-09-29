@@ -40,6 +40,8 @@ export interface RunSummary {
   score: number;
   bestScore: boolean;
   unlocked: string[];
+  /** Chronologie (graphique de fin) : pas (s), dégâts par seconde, PV (0 → 1). */
+  timeline: { step: number; dps: number[]; hp: number[] };
   newStages: string[];
   newBosses: string[];
 }

@@ -64,6 +64,11 @@ export function buildSummary(
     score: runScore(st),
     bestScore: record.bestScore,
     unlocked: record.unlocked,
+    timeline: {
+      step: st.timeline.step,
+      dps: Array.from(st.timeline.dps.subarray(0, st.timeline.n)),
+      hp: Array.from(st.timeline.hp.subarray(0, st.timeline.n)),
+    },
     newStages: record.stages,
     newBosses: record.bosses,
   };

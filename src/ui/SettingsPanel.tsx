@@ -4,14 +4,17 @@
  */
 import { useState, type ReactNode } from 'react';
 import { QUALITY_PRESETS, type SaveData } from '../save/schema';
+import { notificationsAvailable, requestNotifications } from '../platform/notify';
 import { useSave } from '../state/save';
+import { syncNotifications } from '../state/session';
 
-type Tab = 'audio' | 'controls' | 'display' | 'save';
+type Tab = 'audio' | 'controls' | 'display' | 'alerts' | 'save';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'audio', label: 'Audio' },
   { id: 'controls', label: 'Contrôles' },
   { id: 'display', label: 'Affichage' },
+  { id: 'alerts', label: 'Alertes' },
   { id: 'save', label: 'Sauvegarde' },
 ];
 
@@ -356,6 +359,64 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
   );
 }
 
+/** Notifications locales facultatives (désactivées par défaut). */
+function AlertsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) => void }) {
+  const n = d.retention.notifications;
+  const [denied, setDenied] = useState(false);
+  const toggle = (key: 'quests' | 'chest' | 'challenge', label: string, id: string) => (
+    <Row label={label}>
+      <Toggle
+        id={id}
+        value={n[key]}
+        onChange={(v) => {
+          set((s) => {
+            s.retention.notifications[key] = v;
+          });
+          syncNotifications();
+        }}
+      />
+    </Row>
+  );
+  return (
+    <>
+      <p className="set-note">
+        Rappels locaux, sans connexion : rien ne quitte l’appareil.
+        {!notificationsAvailable() && ' Disponibles dans l’application Android.'}
+      </p>
+      <Row label="Notifications">
+        <Toggle
+          id="notify-enabled"
+          value={n.enabled}
+          onChange={(v) => {
+            const apply = (on: boolean): void => {
+              set((s) => {
+                s.retention.notifications.enabled = on;
+              });
+              syncNotifications();
+            };
+            if (!v || !notificationsAvailable()) {
+              apply(v);
+              return;
+            }
+            void requestNotifications().then((ok) => {
+              setDenied(!ok);
+              apply(ok);
+            });
+          }}
+        />
+      </Row>
+      {denied && <p className="set-note">Autorisation refusée dans les réglages d’Android.</p>}
+      {n.enabled && (
+        <>
+          {toggle('quests', 'Nouvelles quêtes', 'notify-quests')}
+          {toggle('challenge', 'Nouveau défi du jour', 'notify-challenge')}
+          {toggle('chest', 'Coffre hors ligne plein', 'notify-chest')}
+        </>
+      )}
+    </>
+  );
+}
+
 function SaveTab() {
   const exportText = useSave((s) => s.exportText);
   const importText = useSave((s) => s.importText);
@@ -492,6 +553,7 @@ export function SettingsPanel({ onClose }: { onClose: () => void }) {
           {tab === 'audio' && <AudioTab d={d} set={update} />}
           {tab === 'controls' && <ControlsTab d={d} set={update} />}
           {tab === 'display' && <DisplayTab d={d} set={update} />}
+          {tab === 'alerts' && <AlertsTab d={d} set={update} />}
           {tab === 'save' && <SaveTab />}
         </div>
       </div>

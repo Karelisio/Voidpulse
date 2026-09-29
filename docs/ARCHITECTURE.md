@@ -195,7 +195,17 @@ Modules purs (entrée : profil + événements de run ; sortie : nouveau profil),
 - **Codex** (`codex.ts`) : ennemis tués, armes et évolutions utilisées, réactions déclenchées, boss vaincus ; fragments à 25, 50, 75 et 100 % de chaque catégorie.
 - **En partie** (`bonus.ts` → `RunOptions.meta`) : statistiques cumulées (talents + Paragon + reliques) appliquées comme un passif de personnage, résurrections (mi-PV, 2,5 s d'invulnérabilité), dégâts et teintes par arme. **Fin de partie** (`progress.ts`) : codex, maîtrise, reliques, Ascension, XP de compte, lignes de l'écran de fin. L'entraînement ne rapporte rien.
 
-À venir (4.9) : quêtes (3 quotidiennes, 5 hebdomadaires), série de connexion, passe de saison (50 paliers, cycle de 6 semaines calculé depuis une époque fixe), 200 succès, coffre hors ligne plafonné. Horloge : temps local de l'appareil, protégé contre les retours en arrière.
+**Rétention** (`src/meta/`, `config/retention.json`, `config/achievements.json`) :
+
+- **Horloge** (`clock.ts`) : temps local de l'appareil, protégé contre les retours en arrière (au-delà de 5 min, le plus grand instant déjà vu fait foi : reculer l'heure ne recharge ni le coffre ni les quêtes).
+- **Ouverture** (`retention.ts`, `state/session.ts`) : au lancement et à chaque retour au premier plan, quêtes renouvelées, saison synchronisée, coffre démarré, série de connexion comptée (bandeau à l'accueil).
+- **Quêtes** (`quests.ts`) : 3 du jour et 5 de la semaine, tirées d'une graine datée parmi 19 modèles (cumul sur les parties ou meilleure valeur d'une partie), renouvelées à minuit et le lundi ; une relance par jour ; récompenses à réclamer (fragments + XP de saison).
+- **Série de connexion** (`streak.ts`) : cycle de 7 jours à récompenses croissantes (+10 % par semaine complète, plafonné) ; un jour manqué fait reculer la série d'un jour au lieu de la remettre à zéro.
+- **Passe de saison** (`season.ts`) : 50 paliers de 1 000 XP (score × 0,05 par partie, quêtes), saisons de 6 semaines depuis le 5 janvier 2026 (heure locale), 6 thèmes en rotation ; fragments à chaque palier, relique tous les 10 (rareté croissante) ; les paliers atteints non réclamés sont versés à la fin de la saison.
+- **Succès** (`achievements.ts`) : 200, chacun une mesure de la carrière ou de la progression et une valeur ; fragments au déblocage, relevés en fin de partie et sur l'écran Objectifs.
+- **Coffre hors ligne** (`chest.ts`) : 25 fragments/h (+2 % par niveau de compte), plafonné à 12 h.
+- **Notifications** (`notify-plan.ts`, `platform/notify.ts`) : facultatives, désactivées par défaut (réglages → Alertes) ; nouvelles quêtes et défi du jour à 9 h, coffre plein ; plan recalculé au passage en arrière-plan, envoyé au plugin Capacitor LocalNotifications quand il est présent.
+- **Fin de partie** : chronologie des dégâts par seconde et des PV (`systems/timeline.ts`, 240 relevés préalloués, pas doublé quand ils sont pleins) tracée en deux petits graphiques à axe du temps commun, avec réticule et tableau ; DPS par arme, dégâts reçus, bilan (codex, maîtrise, reliques, compte, quêtes, saison, succès) ; « Encore une partie » toujours visible.
 
 ## 11. Audio
 

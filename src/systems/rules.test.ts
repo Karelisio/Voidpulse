@@ -4,6 +4,7 @@ import { Life } from '../engine/components';
 import { endlessBoss } from './director';
 import { damagePlayer } from './player';
 import { neutralMeta, RunSim, type RunOptions } from './sim';
+import { TIMELINE_CAP } from './timeline';
 
 function step(sim: RunSim, seconds: number): void {
   for (let t = 0; t < seconds * 60; t++) {
@@ -184,5 +185,21 @@ describe('bonus de méta', () => {
     st.player.iFrames = 0;
     damagePlayer(sim, 1e6);
     expect(st.status).toBe('dead');
+  });
+});
+
+describe('chronologie', () => {
+  it('relevés à pas fixe, fusion quand le tableau est plein', () => {
+    const sim = make({ stage: 'forest' });
+    step(sim, 12);
+    const t = sim.state.timeline;
+    expect(t.n).toBe(2);
+    expect(t.hp[0]).toBeGreaterThan(0);
+    sim.state.stats.damageBySlot[0] += 5000;
+    t.n = TIMELINE_CAP;
+    step(sim, 10.1);
+    expect(t.step).toBe(10);
+    expect(t.n).toBe(TIMELINE_CAP / 2 + 1);
+    expect(t.dps[t.n - 1]).toBeGreaterThan(400);
   });
 });

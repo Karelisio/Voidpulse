@@ -1,4 +1,5 @@
 import type { RunSummary } from '../state/ui';
+import { RunChart } from './RunChart';
 import { formatTime } from './summary';
 
 interface Props {
@@ -73,7 +74,16 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
           <dt>Éveils</dt>
           <dd>{summary.eveils}</dd>
         </div>
+        <div>
+          <dt>Dégâts reçus</dt>
+          <dd>{Math.round(summary.damageTaken).toLocaleString('fr-FR')}</dd>
+        </div>
+        <div>
+          <dt>Dégâts/s moyens</dt>
+          <dd>{Math.round(total / Math.max(1, summary.time)).toLocaleString('fr-FR')}</dd>
+        </div>
       </dl>
+      <RunChart data={summary.timeline} />
       <h3>Dégâts</h3>
       <ul className="dmg">
         {rows.map((r) => (
@@ -85,7 +95,12 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
             <span className="dmg-bar">
               <i className={r.cls} style={{ width: `${Math.max(2, (r.damage / total) * 100)}%` }} />
             </span>
-            <span className="dmg-val">{Math.round(r.damage).toLocaleString('fr-FR')}</span>
+            <span className="dmg-val">
+              {Math.round(r.damage).toLocaleString('fr-FR')}
+              <small>
+                {Math.round(r.damage / Math.max(1, summary.time)).toLocaleString('fr-FR')}/s
+              </small>
+            </span>
           </li>
         ))}
       </ul>
@@ -101,7 +116,7 @@ export function EndOverlay({ summary, onAgain, onMenu }: Props) {
           </ul>
         </>
       )}
-      <div className="end-actions">
+      <div className="end-actions end-sticky">
         <button className="btn-primary" id="again" onClick={onAgain}>
           Encore une partie
         </button>

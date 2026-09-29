@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { SettingsPanel } from './SettingsPanel';
 import { audio, initAudio } from '../audio';
 import { uiSound } from '../audio/bridge';
+import { questsReady } from '../meta/quests';
+import { seasonTier } from '../meta/season';
+import { useSave } from '../state/save';
 import { useUi } from '../state/ui';
+import { TitleWelcome } from './TitleWelcome';
 
 const VERSION = import.meta.env.VITE_APP_VERSION ?? 'prototype';
 
@@ -19,6 +23,12 @@ export function TitleScreen({
   const unlockDebug = useUi((s) => s.unlockDebug);
   const taps = useRef(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // Récompenses en attente : quêtes terminées et paliers de saison atteints.
+  const ready = useSave((s) => {
+    const d = s.data;
+    const tiers = seasonTier(d) - d.retention.season.claimed.length;
+    return questsReady(d) + Math.max(0, tiers);
+  });
 
   useEffect(() => {
     void initAudio().then((engine) => {
@@ -37,6 +47,7 @@ export function TitleScreen({
       </div>
       <h1 className="wordmark">VOIDPULSE</h1>
       <p className="tagline">Survis. Combine les éléments. Éveille la Résonance.</p>
+      <TitleWelcome />
       <div className="title-actions">
         <button
           className="btn-primary"
@@ -67,6 +78,7 @@ export function TitleScreen({
           }}
         >
           Objectifs
+          {ready > 0 && <span className="badge">{ready}</span>}
         </button>
         {debugUnlocked && (
           <button

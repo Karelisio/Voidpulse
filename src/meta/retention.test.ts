@@ -6,7 +6,7 @@ import { chestAmount, chestCapacity, claimChest } from './chest';
 import { dayNumber, localDay, nextLocalHour, readNow, safeNow } from './clock';
 import { notificationPlan, NOTIFY_ID } from './notify-plan';
 import { applyTally, claimQuest, questsReady, refreshQuests, rerollQuest } from './quests';
-import { applyRunRetention, openApp } from './retention';
+import { achievementLines, applyRunRetention, openApp } from './retention';
 import {
   addSeasonXp,
   claimAllSeason,
@@ -208,7 +208,8 @@ describe('notifications et entrées', () => {
     expect(open.streak?.count).toBe(1);
     expect(open.questsRenewed).toBe(true);
     expect(openApp(d, T0 + H).streak).toBeNull();
-    const lines = applyRunRetention(d, tally({ victory: true }), 20000, T0 + 2 * H);
+    applyRunRetention(d, tally({ victory: true }), 20000, T0 + 2 * H);
+    const lines = achievementLines(d);
     expect(d.stats.runs).toBe(1);
     expect(d.stats.charWins.vex).toBe(1);
     expect(d.retention.season.xp).toBe(Math.floor(20000 * RETENTION.season.scoreXp));

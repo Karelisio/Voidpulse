@@ -4,6 +4,8 @@ import { ascensionOpen } from '../meta/account';
 import { ascensionReward, ascensionSelected } from '../meta/ascension';
 import { metaBonus, type MetaBonus } from '../meta/bonus';
 import { applyRunMeta } from '../meta/progress';
+import { achievementLines, applyRunRetention } from '../meta/retention';
+import { tallyOf } from '../meta/tally';
 import { audio, initAudio } from '../audio';
 import { GameAudio, uiSound } from '../audio/bridge';
 import { GameHost } from '../game/host';
@@ -157,14 +159,8 @@ function recordRun(host: GameHost, active: ActiveRun): RunRecord {
       xpMult: active.meta.xpMult,
     });
     out.modeLines.push(...progress.lines);
-    const s = d.stats;
-    s.runs++;
-    if (st.status === 'victory') s.victories++;
-    s.kills += st.stats.kills;
-    s.elites += st.stats.elitesKilled;
-    s.bestTime = Math.max(s.bestTime, st.time);
-    s.bestLevel = Math.max(s.bestLevel, st.player.level);
-    s.playSeconds += st.time;
+    // Carrière, quêtes et passe de saison, avant les déblocages qui lisent la carrière.
+    out.modeLines.push(...applyRunRetention(d, tallyOf(st, mode), score));
     d.profile.bestScore = Math.max(d.profile.bestScore, score);
     // Le rang ne compte qu'en cas de victoire (sinon, des pactes suivis d'une défaite suffiraient).
     if (st.status === 'victory') d.profile.bestRank = Math.max(d.profile.bestRank, rank);
@@ -181,6 +177,7 @@ function recordRun(host: GameHost, active: ActiveRun): RunRecord {
     out.stages = stageProgress.stages.map((x) => x.name);
     out.bosses = stageProgress.bosses;
     out.unlocked = applyUnlocks(d).map((c) => c.name);
+    out.modeLines.push(...achievementLines(d));
   });
   return out;
 }

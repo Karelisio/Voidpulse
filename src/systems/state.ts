@@ -15,6 +15,7 @@ import type {
   WeaponDef,
   WeaponStats,
 } from '../content/data';
+import type { Timeline } from './timeline';
 
 export type RunStatus =
   'running' | 'levelup' | 'chest' | 'merchant' | 'altar' | 'pact' | 'dead' | 'victory';
@@ -437,6 +438,8 @@ export interface RunState {
   pacts: PactState;
   mechanic: MechanicState;
   rules: RunRules;
+  /** Chronologie (graphique de fin). */
+  timeline: Timeline;
   /** Bonus permanents de la méta. */
   meta: MetaRunBonus;
   stats: RunStats;

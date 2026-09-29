@@ -63,6 +63,7 @@ import type {
   SimInput,
 } from './state';
 import { addWeapon, levelUpWeapon, maxWeaponLevel, updateWeapons } from './weapons';
+import { createTimeline, updateTimeline } from './timeline';
 import { updateZones } from './zones';
 
 export interface RunOptions {
@@ -248,6 +249,7 @@ export class RunSim {
       pacts: createPacts(opts.pactChoice ?? false, rules.mods),
       mechanic: createMechanic(stage),
       rules,
+      timeline: createTimeline(),
       meta,
       debug: { invincible: rules.sandbox },
     };
@@ -343,6 +345,7 @@ export class RunSim {
     updateResonance(this);
     processDeaths(this);
     updatePickups(this);
+    updateTimeline(this);
   }
 
   private readonly allPools: readonly EntityPool[] = [
