@@ -22,7 +22,8 @@
     "music:render": "tsx scripts/render-music/index.ts",
     "sfx:render": "tsx scripts/render-sfx/index.ts",
     "assets:render": "tsx scripts/render-assets/index.ts",
-    "android:sync": "vite build --mode android && cap sync android"
+    "android:sync": "vite build --mode android && cap sync android",
+    "track:prepare": "tsx scripts/prepare-track/index.ts"
   },
   "dependencies": {
     "@capacitor-community/keep-awake": "^8.0.1",
@@ -48,10 +49,12 @@
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",
     "@eslint/js": "10.0.1",
+    "@semantic-release/exec": "^7.1.0",
     "@types/node": "22.20.4",
     "@types/react": "18.3.31",
     "@types/react-dom": "18.3.7",
     "@vitejs/plugin-react": "6.1.1",
+    "conventional-changelog-conventionalcommits": "^10.4.0",
     "eslint": "10.11.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-react-hooks": "7.1.1",
@@ -60,6 +63,7 @@
     "husky": "9.1.7",
     "playwright-core": "1.63.0",
     "prettier": "3.9.9",
+    "semantic-release": "^25.0.9",
     "tone": "15.1.22",
     "tsx": "4.23.15",
     "typescript": "6.0.3",

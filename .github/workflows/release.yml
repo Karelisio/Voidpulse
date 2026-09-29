@@ -1,0 +1,67 @@
+name: Release
+
+# Sur chaque push sur main (canal stable) ou beta (préversions) : semantic-release calcule la
+# version depuis les commits conventionnels (feat → mineure, fix/perf → patch, BREAKING → majeure)
+# et ne publie rien si aucun commit ne le justifie. Sinon : APK (github) et AAB (play) signés,
+# empreinte SHA-256, tag vX.Y.Z et GitHub Release avec les notes générées.
+on:
+  push:
+    branches: [main, beta]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # tag et release
+  issues: write # issue ouverte par semantic-release en cas d'échec
+  pull-requests: write
+
+jobs:
+  release:
+    name: Version, build signé, publication
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # historique et tags pour calculer la version
+          lfs: false # stems OGG dans git ; LFS réservé aux sources lourdes
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Capacitor 8 / Android Gradle Plugin 8.13 exigent le JDK 21.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools platforms;android-36 build-tools;36.0.0
+
+      - run: npm ci
+
+      - name: Vérifications
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+
+      - name: semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: npx semantic-release

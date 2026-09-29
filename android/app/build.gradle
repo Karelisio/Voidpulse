@@ -7,7 +7,7 @@ android {
         applicationId "com.karelisio.voidpulse"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // Injectés par la CI depuis la version calculée (release-please) : -PversionCode=… -PversionName=…
+        // Injectés par la CI depuis la version calculée (semantic-release) : -PversionCode=… -PversionName=…
         versionCode((project.findProperty('versionCode') ?: '1') as int)
         versionName((project.findProperty('versionName') ?: '0.0.0-dev') as String)
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

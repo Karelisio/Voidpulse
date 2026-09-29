@@ -17,3 +17,6 @@ android/local.properties
 *.jks
 *.keystore
 keystore.b64
+
+# Binaires de publication (scripts/release/build-android.sh)
+/release/

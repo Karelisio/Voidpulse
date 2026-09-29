@@ -52,7 +52,7 @@ src/
   state/      stores Zustand
 config/       données JSON + schémas zod (et JSON Schema générés pour l'autocomplétion)
 sim/          runner headless, bot, rapports d'équilibrage
-scripts/      render-music, render-sfx, prepare-track (ffmpeg), build-atlas, ci/
+scripts/      render-music, render-sfx, render-assets, prepare-track (ffmpeg), release/
 assets/       sources art et icône, audio/music (stems + tracks.json), audio/sfx (+ sfx.json), CREDITS.md
 android/      projet Capacitor + plugin natif VoidpulseNative
 docs/         ce document, guides (export FL Studio, etc.)
@@ -306,7 +306,7 @@ Remplacer une piste = déposer les fichiers et mettre à jour son entrée ; aucu
 - Contrôles imprimés à chaque rendu : loudness et crête par stem, spectre par bandes d'octave, continuité de la jointure (ratio saut / pente locale ≤ 1).
 - Sidechain = automation de gain calée sur le kick (fonctionne en rendu solo). Batterie : bus compressé puis écrêté en douceur pour contenir le facteur de crête.
 - `scripts/render-sfx` : même chaîne pour les effets → `sfx.json`.
-- `scripts/prepare-track` (futures pistes FL Studio) : conversion Opus, normalisation -14 LUFS sur la somme, détection du BPM et suggestion des points de boucle, écriture de l'entrée `tracks.json`. Guide d'export dans le README (plage intro et plage boucle exportées séparément, boucle en _Wrap remainder_).
+- `scripts/prepare-track` (pistes FL Studio ou autres) : décodage ffmpeg, conversion Opus, gain commun visant -14 LUFS sur la somme (crête vraie ≤ -1 dBTP), tempo détecté par autocorrélation des attaques puis recalé sur un nombre entier de mesures, points de boucle (intro en mesures fournie ; suggérés sur la grille pour un fichier complet), écriture de l'entrée `tracks.json` validée par `parseManifest`. Guide d'export dans le README (plage intro et plage boucle exportées séparément, boucle en _Wrap remainder_).
 
 ## 12. Sauvegarde
 
@@ -344,8 +344,8 @@ Remplacer une piste = déposer les fichiers et mettre à jour son entrée ; aucu
 ## 16. CI/CD et conventions
 
 - **Commits conventionnels** obligatoires (`feat:`, `fix:`, `perf:`, `refactor:`, `test:`, `docs:`, `chore:`, `ci:`, `build:`), vérifiés par un hook husky local et par la CI (titre de PR + commits).
-- `ci.yml` (PR) : commitlint, lint, format, typecheck, tests, build.
-- `release.yml` (push sur `main`) : semantic-release calcule la version (feat → mineure, fix/perf → patch, BREAKING → majeure ; rien si aucun commit pertinent) ; l'étape `prepare` compile APK et AAB signés (`versionName` = version, `versionCode` = MAJEURE×1 000 000 + MINEURE×1 000 + PATCH) ; publication du tag et de la release (`voidpulse-vX.Y.Z.apk`, `.sha256`, AAB, notes générées). Toujours le même keystore.
+- `ci.yml` (PR) : commitlint (commits et titre de la PR), lint, format, typecheck, tests, build web, compilation Android debug des deux flavors avec contrôle des permissions (`REQUEST_INSTALL_PACKAGES` absente du flavor `play`).
+- `release.yml` (push sur `main`, préversions sur `beta`) : Node 22, JDK 21 (exigé par Capacitor 8 / AGP 8.13), cache Gradle, SDK 36 ; lint, typecheck, tests ; puis semantic-release (`.releaserc.json`) calcule la version (feat → mineure, fix/perf → patch, BREAKING → majeure ; rien si aucun commit pertinent). Son étape `prepare` exécute `scripts/release/build-android.sh` : build web (`VITE_APP_VERSION`), `cap sync`, APK `github` et AAB `play` signés (keystore décodé de `ANDROID_KEYSTORE_BASE64` dans un fichier temporaire), vérification de la signature (`apksigner`) et de la version (`aapt2`), empreinte `.sha256`. `versionCode` = MAJEURE×1 000 000 + MINEURE×10 000 + PATCH×100 + rang (99 pour une version finale, numéro de préversion sinon ; `scripts/release/version-code.ts`, testé). Publication du tag `vX.Y.Z` et de la release (`voidpulse-vX.Y.Z.apk`, `.sha256`, `.aab`, notes en français). Toujours le même keystore.
 - Stems OGG commités ; Git LFS pour les sources lourdes (WAV, MP3, FLAC, AIFF, FLP).
 - Code : fichiers de modules en camelCase, composants React en PascalCase, tests co-localisés `*.test.ts`, commentaires en français, concis.
 
