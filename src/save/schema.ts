@@ -68,6 +68,9 @@ export interface ProfileData {
   bosses: string[];
   /** Records par stage. */
   stageBest: Record<string, StageRecord>;
+  /** Dernier mode joué, dernier build du Boss Rush. */
+  mode: string;
+  loadout: { weapons: string[]; passives: string[] };
 }
 
 export interface StageRecord {
@@ -165,6 +168,8 @@ export function defaultSave(now = Date.now()): SaveData {
       cleared: [],
       bosses: [],
       stageBest: {},
+      mode: 'campaign',
+      loadout: { weapons: [], passives: [] },
     },
     modes: {
       endless: { board: [] },

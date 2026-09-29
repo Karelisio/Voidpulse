@@ -283,8 +283,15 @@ export function dispatchEvents(
         renderer.screenFlash(color, b ? 0.2 : 0.35);
         renderer.ring(x, y, b ? 160 : 220, color, 0.9);
         cam.shake(b ? 0.45 : 0.7);
-        if (def.id !== 'sentinel')
-          renderer.hud.banner(b ? 'MINI-BOSS' : 'BOSS FINAL', def.name, color, 2.2);
+        // File de boss (Boss Rush) : rang dans la file.
+        const queue = sim.state.rules.bossQueue.length;
+        const title =
+          queue > 0
+            ? `BOSS ${String(sim.state.director.bossCount)} / ${String(queue)}`
+            : b
+              ? 'MINI-BOSS'
+              : 'BOSS FINAL';
+        if (def.id !== 'sentinel' || queue > 0) renderer.hud.banner(title, def.name, color, 2.2);
         haptics.boss();
         break;
       }

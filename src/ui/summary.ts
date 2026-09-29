@@ -12,12 +12,24 @@ export interface RunRecord {
   /** Stages ouverts, boss vaincus pour la première fois (noms). */
   stages: string[];
   bosses: string[];
+  /** Mode : libellé, détail, lignes (classement, essai compté, fragments…). */
+  mode: string;
+  modeDetail: string;
+  modeLines: string[];
 }
 
 export function buildSummary(
   sim: RunSim,
   iconUrls: Readonly<Partial<Record<string, string>>>,
-  record: RunRecord = { bestScore: false, unlocked: [], stages: [], bosses: [] },
+  record: RunRecord = {
+    bestScore: false,
+    unlocked: [],
+    stages: [],
+    bosses: [],
+    mode: '',
+    modeDetail: '',
+    modeLines: [],
+  },
 ): RunSummary {
   const st = sim.state;
   return {
@@ -42,6 +54,9 @@ export function buildSummary(
       color: r.color,
     })).filter((r) => r.count > 0),
     dashDamage: st.stats.damageBySlot[SLOT_DASH],
+    mode: record.mode,
+    modeDetail: record.modeDetail,
+    modeLines: record.modeLines,
     stage: st.stage.name,
     character: st.character.name,
     pacts: st.pacts.taken.map((p) => p.name),

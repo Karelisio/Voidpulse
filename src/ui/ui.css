@@ -1278,3 +1278,164 @@ button:focus-visible {
   color: var(--vp-accent-2);
   font-weight: 700;
 }
+
+/* --- Modes de jeu ---------------------------------------------------------------------------- */
+
+.wallet {
+  margin: -6px 0 0;
+  color: var(--vp-accent-2);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.mode-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: min(460px, 100%);
+}
+
+.mode-cell {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-line);
+  border-left: 3px solid var(--mode);
+  background: var(--vp-panel);
+  color: var(--vp-fg);
+  font: 600 12px var(--vp-font);
+  text-align: left;
+  cursor: pointer;
+}
+
+.mode-cell b {
+  font-size: 16px;
+  color: var(--mode);
+}
+
+.mode-cell span {
+  color: var(--vp-muted);
+}
+
+.mode-cell.on {
+  border-color: var(--mode);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--mode) 40%, transparent);
+}
+
+.mode-sheet {
+  display: grid;
+  gap: 8px;
+  width: min(460px, 100%);
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--mode) 55%, var(--vp-line));
+  background: var(--vp-panel);
+}
+
+.mode-sheet h3 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--mode);
+}
+
+.mode-sheet p {
+  margin: 0;
+}
+
+.mode-stat {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mode-board {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mode-board small {
+  color: var(--vp-muted);
+}
+
+.mode-daily {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mode-daily > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.build-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 6px;
+  width: min(560px, 100%);
+}
+
+.build-cell {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  border: 1px solid var(--vp-line);
+  background: var(--vp-panel);
+  color: var(--vp-fg);
+  font: 600 11px var(--vp-font);
+  cursor: pointer;
+}
+
+.build-cell.on {
+  border-color: var(--vp-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--vp-accent) 40%, transparent);
+}
+
+.build-cell i {
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  font-style: normal;
+  color: var(--vp-accent);
+}
+
+.end-mode {
+  margin: 0;
+  color: var(--vp-accent);
+  font-weight: 700;
+}
+
+.debug.training {
+  left: auto;
+  right: 8px;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  max-width: min(330px, calc(100% - 16px));
+}
+
+.training .debug-body {
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+.dps {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.dps td,
+.dps th {
+  padding: 1px 6px;
+  text-align: left;
+}
+
+.dps td:last-child,
+.dps th:last-child {
+  text-align: right;
+}

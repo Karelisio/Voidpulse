@@ -1,11 +1,12 @@
 /** État de l'interface (Zustand) : écran courant, surcouches, réglages de debug. */
 import { create } from 'zustand';
+import type { ModeId } from '../content/data';
 import type { CardView } from '../ui/cards';
 import type { ChestView } from '../ui/ChestOverlay';
 import type { MerchantView, SacrificeView } from '../ui/events';
 import type { PactView } from '../ui/PactOverlay';
 
-export type Screen = 'title' | 'select' | 'stage' | 'run';
+export type Screen = 'title' | 'modes' | 'select' | 'stage' | 'build' | 'run';
 export type Overlay = null | 'levelup' | 'chest' | 'merchant' | 'altar' | 'pact' | 'pause' | 'end';
 
 export interface AltarView {
@@ -27,6 +28,10 @@ export interface RunSummary {
   reactions: { name: string; count: number; color: string }[];
   dashDamage: number;
   /** Personnage, pactes scellés, rang, score, personnages débloqués par cette partie. */
+  /** Mode (libellé), détail (secteur, règle du défi), lignes propres au mode. */
+  mode: string;
+  modeDetail: string;
+  modeLines: string[];
   stage: string;
   character: string;
   pacts: string[];
@@ -59,6 +64,11 @@ interface UiState {
   debugUnlocked: boolean;
   debugPanel: boolean;
   runId: number;
+  /** Mode de la prochaine partie. */
+  mode: ModeId;
+  /** Défi du jour : la prochaine partie est l'essai compté (pris au clic sur le mode). */
+  dailyCounted: boolean;
+  setMode: (mode: ModeId, dailyCounted?: boolean) => void;
   setScreen: (screen: Screen) => void;
   setOverlay: (overlay: Overlay) => void;
   showLevelUp: (view: LevelUpView) => void;
@@ -84,6 +94,11 @@ export const useUi = create<UiState>((set) => ({
   debugUnlocked: new URLSearchParams(location.search).has('debug'),
   debugPanel: false,
   runId: 0,
+  mode: 'campaign',
+  dailyCounted: false,
+  setMode: (mode, dailyCounted = false) => {
+    set({ mode, dailyCounted });
+  },
   setScreen: (screen) => {
     set({ screen, overlay: null });
   },

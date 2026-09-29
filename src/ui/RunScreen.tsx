@@ -12,12 +12,16 @@ import { ChestOverlay } from './ChestOverlay';
 import { PactOverlay, type PactView } from './PactOverlay';
 import { recordStage } from '../meta/stages';
 import { applyUnlocks } from '../meta/unlocks';
+import { buildRun, MODE_INFO, type ModeRun } from '../modes/modes';
+import { recordMode } from '../modes/records';
+import { colorOf, type ModeId } from '../content/data';
 import { heat, rankIndex, runScore } from '../systems/pacts';
 import { AltarOverlay, MerchantOverlay } from './EventOverlays';
 import { altarResultText, altarView, merchantView } from './events';
 import { EndOverlay } from './EndOverlay';
 import { LevelUpOverlay } from './LevelUpOverlay';
 import { MusicViz } from './MusicViz';
+import { TrainingPanel } from './TrainingPanel';
 import { buildSummary, type RunRecord } from './summary';
 
 declare global {
@@ -60,18 +64,69 @@ function levelUpView(host: GameHost): LevelUpView {
   };
 }
 
+/** Partie en cours : ce que le mode a construit, et si l'essai du jour est compté. */
+interface ActiveRun {
+  mode: ModeId;
+  run: ModeRun;
+  counted: boolean;
+}
+
+/** Construit la partie du mode choisi ; le défi du jour marque son essai dès le départ. */
+function setupRun(bench: boolean, again = false): ActiveRun {
+  const prefs = useSave.getState().data;
+  const mode = bench ? 'campaign' : useUi.getState().mode;
+  const run = buildRun({
+    mode,
+    character: prefs.profile.character,
+    stage: bench ? 'proto' : prefs.profile.stage,
+    loadout: prefs.profile.loadout,
+    now: new Date(),
+    nonce: `run-${String(Date.now())}`,
+  });
+  if (bench) run.options.pactChoice = false;
+  // Essai du jour : seule la première partie lancée depuis le choix du mode compte.
+  const ui = useUi.getState();
+  const counted = mode === 'daily' && !again && ui.dailyCounted;
+  return { mode, run, counted };
+}
+
 /**
- * Statistiques de toute la carrière, écrites tout de suite en fin de run : meilleurs rang et
- * score, personnages débloqués (renvoyés pour l'écran de fin).
+ * Fin de partie, écrite tout de suite : statistiques de carrière (hors entraînement), meilleurs
+ * rang et score, progression de campagne, records du mode, fragments, déblocages.
  */
-function recordRun(host: GameHost): RunRecord {
+function recordRun(host: GameHost, active: ActiveRun): RunRecord {
   const st = host.sim.state;
   const score = runScore(st);
   const rank = rankIndex(heat(st));
-  const out: RunRecord = { bestScore: false, unlocked: [], stages: [], bosses: [] };
+  const { mode, run } = active;
+  const out: RunRecord = {
+    bestScore: false,
+    unlocked: [],
+    stages: [],
+    bosses: [],
+    mode: MODE_INFO[mode].name,
+    modeDetail: run.detail,
+    modeLines: [],
+  };
   const before = useSave.getState().data;
-  out.bestScore = score > before.profile.bestScore;
+  const counts = mode !== 'training';
+  out.bestScore = counts && score > before.profile.bestScore;
   void useSave.getState().commit((d) => {
+    const result = recordMode(d, {
+      mode,
+      stage: st.stage.name,
+      character: st.character.name,
+      victory: st.status === 'victory',
+      score,
+      time: st.time,
+      bosses: st.stats.bossesDefeated.length,
+      fragments: st.stats.fragments,
+      period: run.period,
+      counted: active.counted,
+      at: Date.now(),
+    });
+    out.modeLines = result.lines;
+    if (!counts) return;
     const s = d.stats;
     s.runs++;
     if (st.status === 'victory') s.victories++;
@@ -83,19 +138,32 @@ function recordRun(host: GameHost): RunRecord {
     d.profile.bestScore = Math.max(d.profile.bestScore, score);
     // Le rang ne compte qu'en cas de victoire (sinon, des pactes suivis d'une défaite suffiraient).
     if (st.status === 'victory') d.profile.bestRank = Math.max(d.profile.bestRank, rank);
+    // La campagne n'avance qu'en Campagne et en Hardcore ; les boss vaincus comptent partout.
+    const campaign = mode === 'campaign' || mode === 'hardcore';
     const progress = recordStage(d, {
-      stage: st.stage.id,
+      stage: campaign ? st.stage.id : '',
       victory: st.status === 'victory',
       score,
       time: st.time,
       rank,
       bosses: st.stats.bossesDefeated,
     });
-    out.stages = progress.stages.map((s) => s.name);
+    out.stages = progress.stages.map((x) => x.name);
     out.bosses = progress.bosses;
     out.unlocked = applyUnlocks(d).map((c) => c.name);
   });
   return out;
+}
+
+/** Bandeau d'ouverture des modes autres que la campagne. */
+function announce(host: GameHost, active: ActiveRun): void {
+  if (active.mode === 'campaign') return;
+  const info = MODE_INFO[active.mode];
+  const detail =
+    active.mode === 'daily' && !active.counted
+      ? `${active.run.detail} · hors classement`
+      : active.run.detail;
+  host.renderer.hud.banner(info.name.toUpperCase(), detail, colorOf(info.color), 3);
 }
 
 function pactView(host: GameHost): PactView {
@@ -122,6 +190,8 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
   const altar = useUi((s) => s.altar);
   const pact = useUi((s) => s.pact);
   const [host, setHost] = useState<GameHost | null>(null);
+  const activeRef = useRef<ActiveRun | null>(null);
+  const training = useUi((s) => s.mode) === 'training' && !bench;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [debugWeapon, setDebugWeapon] = useState(0);
   const [debugEnemy, setDebugEnemy] = useState(0);
@@ -140,7 +210,9 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       else if (status === 'merchant') showMerchantOf(host);
       else if (status === 'altar') showAltarOf(host);
       else if (status === 'dead' || status === 'victory') {
-        const record = recordRun(host);
+        const active = activeRef.current;
+        if (!active) return;
+        const record = recordRun(host, active);
         window.setTimeout(() => {
           showEnd(buildSummary(host.sim, host.renderer.atlas.iconUrls, record));
         }, 900);
@@ -154,6 +226,8 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
     const el = mount.current;
     if (!el) return;
     const prefs = useSave.getState().data;
+    const active = setupRun(bench);
+    activeRef.current = active;
     const quality = {
       resolution: prefs.display.resolution,
       particles: prefs.display.particles,
@@ -167,11 +241,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       aim: prefs.controls.aim,
     };
     void Promise.all([
-      GameHost.create(el, `run-${Date.now()}`, quality, inputSettings, {
-        character: prefs.profile.character,
-        stage: bench ? 'proto' : prefs.profile.stage,
-        pactChoice: !bench,
-      }),
+      GameHost.create(el, active.run.seed, quality, inputSettings, active.run.options),
       initAudio(),
     ]).then(([host, engine]) => {
       if (disposed) {
@@ -193,6 +263,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
       };
       if (bench) host.startBench({ enemies: 650, shots: 1100 });
       host.start();
+      announce(host, active);
       setHost(host);
     });
     const onHide = (): void => {
@@ -361,7 +432,10 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           onAgain={() => {
             uiSound(audio(), 'ui.confirm');
             setOverlay(null);
-            host.newRun(`run-${Date.now()}`);
+            const next = setupRun(bench, true);
+            activeRef.current = next;
+            host.newRun(next.run.seed);
+            announce(host, next);
           }}
           onMenu={() => {
             uiSound(audio(), 'ui.back');
@@ -377,6 +451,7 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
           }}
         />
       )}
+      {host && training && <TrainingPanel host={host} />}
       {debugUnlocked && host && (
         <div className={`debug ${debugPanel ? 'open' : ''}`}>
           <button className="debug-toggle" onClick={toggleDebugPanel}>
