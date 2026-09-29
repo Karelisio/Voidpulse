@@ -1,6 +1,18 @@
 {
   "version": 1,
   "sounds": {
+    "altar.sacrifice": {
+      "files": [
+        "altar.sacrifice/0.ogg"
+      ],
+      "bus": "ui",
+      "gainDb": -8,
+      "pitchVar": 0.01,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 3,
+      "cooldownMs": 0
+    },
     "blink": {
       "files": [
         "blink/0.ogg",
@@ -90,6 +102,34 @@
       "priority": 5,
       "cooldownMs": 0
     },
+    "burrow.dig": {
+      "files": [
+        "burrow.dig/0.ogg",
+        "burrow.dig/1.ogg",
+        "burrow.dig/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -17,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 1,
+      "cooldownMs": 250
+    },
+    "burrow.emerge": {
+      "files": [
+        "burrow.emerge/0.ogg",
+        "burrow.emerge/1.ogg",
+        "burrow.emerge/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -13,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 200
+    },
     "chest.drop": {
       "files": [
         "chest.drop/0.ogg",
@@ -129,6 +169,21 @@
       "priority": 3,
       "cooldownMs": 150
     },
+    "coin": {
+      "files": [
+        "coin/0.ogg",
+        "coin/1.ogg",
+        "coin/2.ogg",
+        "coin/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -18,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 3,
+      "priority": 0,
+      "cooldownMs": 35
+    },
     "dash": {
       "files": [
         "dash/0.ogg",
@@ -143,6 +198,19 @@
       "priority": 2,
       "cooldownMs": 80
     },
+    "elite.enrage": {
+      "files": [
+        "elite.enrage/0.ogg",
+        "elite.enrage/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -12,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 3,
+      "cooldownMs": 300
+    },
     "elite.spawn": {
       "files": [
         "elite.spawn/0.ogg",
@@ -155,6 +223,73 @@
       "maxVoices": 2,
       "priority": 3,
       "cooldownMs": 250
+    },
+    "elite.volatile": {
+      "files": [
+        "elite.volatile/0.ogg",
+        "elite.volatile/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -16,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 3,
+      "cooldownMs": 300
+    },
+    "enemy.aim": {
+      "files": [
+        "enemy.aim/0.ogg",
+        "enemy.aim/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -21,
+      "pitchVar": 0.02,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 250
+    },
+    "enemy.charge": {
+      "files": [
+        "enemy.charge/0.ogg",
+        "enemy.charge/1.ogg",
+        "enemy.charge/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -17,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 120
+    },
+    "enemy.dash": {
+      "files": [
+        "enemy.dash/0.ogg",
+        "enemy.dash/1.ogg",
+        "enemy.dash/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -16,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 1,
+      "cooldownMs": 120
+    },
+    "enemy.heal": {
+      "files": [
+        "enemy.heal/0.ogg",
+        "enemy.heal/1.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -18,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 1,
+      "cooldownMs": 300
     },
     "enemy.shot": {
       "files": [
@@ -169,6 +304,62 @@
       "maxVoices": 3,
       "priority": 0,
       "cooldownMs": 60
+    },
+    "enemy.snipe": {
+      "files": [
+        "enemy.snipe/0.ogg",
+        "enemy.snipe/1.ogg",
+        "enemy.snipe/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -16,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 120
+    },
+    "enemy.split": {
+      "files": [
+        "enemy.split/0.ogg",
+        "enemy.split/1.ogg",
+        "enemy.split/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -16,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 1,
+      "cooldownMs": 120
+    },
+    "enemy.summon": {
+      "files": [
+        "enemy.summon/0.ogg",
+        "enemy.summon/1.ogg",
+        "enemy.summon/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -14,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 250
+    },
+    "enemy.volley": {
+      "files": [
+        "enemy.volley/0.ogg",
+        "enemy.volley/1.ogg",
+        "enemy.volley/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -15,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 1,
+      "cooldownMs": 150
     },
     "eveil.end": {
       "files": [
@@ -218,6 +409,54 @@
       "volVar": 0.08,
       "maxVoices": 1,
       "priority": 5,
+      "cooldownMs": 0
+    },
+    "event.altar": {
+      "files": [
+        "event.altar/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -7,
+      "pitchVar": 0.02,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 4,
+      "cooldownMs": 0
+    },
+    "event.horde": {
+      "files": [
+        "event.horde/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -4,
+      "pitchVar": 0.01,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 4,
+      "cooldownMs": 0
+    },
+    "event.merchant": {
+      "files": [
+        "event.merchant/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -12,
+      "pitchVar": 0.01,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 3,
+      "cooldownMs": 0
+    },
+    "event.rift": {
+      "files": [
+        "event.rift/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -8,
+      "pitchVar": 0.02,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 4,
       "cooldownMs": 0
     },
     "evolution": {
@@ -863,6 +1102,34 @@
       "priority": 3,
       "cooldownMs": 60
     },
+    "mortar.impact": {
+      "files": [
+        "mortar.impact/0.ogg",
+        "mortar.impact/1.ogg",
+        "mortar.impact/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -11,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 120
+    },
+    "mortar.launch": {
+      "files": [
+        "mortar.launch/0.ogg",
+        "mortar.launch/1.ogg",
+        "mortar.launch/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -14,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 1,
+      "cooldownMs": 150
+    },
     "player.death": {
       "files": [
         "player.death/0.ogg"
@@ -888,6 +1155,20 @@
       "maxVoices": 1,
       "priority": 3,
       "cooldownMs": 120
+    },
+    "player.slowed": {
+      "files": [
+        "player.slowed/0.ogg",
+        "player.slowed/1.ogg",
+        "player.slowed/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -18,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 2,
+      "cooldownMs": 400
     },
     "reaction": {
       "files": [
@@ -1112,6 +1393,30 @@
       "priority": 2,
       "cooldownMs": 90
     },
+    "rift.enter": {
+      "files": [
+        "rift.enter/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -11,
+      "pitchVar": 0.02,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 4,
+      "cooldownMs": 0
+    },
+    "rift.exit": {
+      "files": [
+        "rift.exit/0.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -13,
+      "pitchVar": 0.02,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 3,
+      "cooldownMs": 0
+    },
     "run.defeat": {
       "files": [
         "run.defeat/0.ogg"
@@ -1135,6 +1440,48 @@
       "maxVoices": 1,
       "priority": 5,
       "cooldownMs": 0
+    },
+    "shield.block": {
+      "files": [
+        "shield.block/0.ogg",
+        "shield.block/1.ogg",
+        "shield.block/2.ogg",
+        "shield.block/3.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -24,
+      "pitchVar": 0.04,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 0,
+      "cooldownMs": 50
+    },
+    "shield.break": {
+      "files": [
+        "shield.break/0.ogg",
+        "shield.break/1.ogg",
+        "shield.break/2.ogg"
+      ],
+      "bus": "sfx",
+      "gainDb": -16,
+      "pitchVar": 0.05,
+      "volVar": 0.08,
+      "maxVoices": 2,
+      "priority": 2,
+      "cooldownMs": 200
+    },
+    "shop.buy": {
+      "files": [
+        "shop.buy/0.ogg",
+        "shop.buy/1.ogg"
+      ],
+      "bus": "ui",
+      "gainDb": -14,
+      "pitchVar": 0.03,
+      "volVar": 0.08,
+      "maxVoices": 1,
+      "priority": 3,
+      "cooldownMs": 80
     },
     "telegraph.boss": {
       "files": [

@@ -3,6 +3,7 @@
  * Identifiants = ceux joués par src/audio/bridge.ts (et src/ui/ChestOverlay.tsx pour les coffres).
  * Rendu : `npm run sfx:render`.
  */
+import * as Tone from 'tone';
 import {
   crackle,
   drive,
@@ -100,6 +101,30 @@ function bell(
   to?: Out,
 ): void {
   fm(c, { t, f0: f, harmonicity: ratio, index, index1: 0.2, dur, gain, to });
+}
+
+/**
+ * « Tink » : choc sec sur du métal dur — trois partiels de barre libre (1 ; 2,76 ; 5,40) qui
+ * s'éteignent d'autant plus vite qu'ils sont aigus (les partiels au-delà de la bande utile
+ * d'un haut-parleur de téléphone sont omis).
+ */
+function tink(c: SfxCtx, t: number, f: number, dur: number, gain: number, to?: Out): void {
+  osc(c, { t, f0: f, dur, a: 0.001, gain, to });
+  if (f * 2.76 < 9000) osc(c, { t, f0: f * 2.76, dur: dur * 0.55, a: 0.001, gain: gain * 0.5, to });
+  if (f * 5.4 < 11000) osc(c, { t, f0: f * 5.4, dur: dur * 0.3, a: 0.001, gain: gain * 0.22, to });
+}
+
+/**
+ * Contexte dont la sortie passe par un écrêteur doux : `level` amène la crête brute du son vers
+ * 0,7 (là où la saturation agit ; à recalibrer si les gains du son changent) et `amount` règle
+ * celle-ci. La crête des transitoires baisse de 2 à 4 dB pour une saturation discrète :
+ * la normalisation peut alors monter le niveau moyen (utile sur haut-parleur de téléphone) et
+ * l'encodage Opus garde de la marge de crête.
+ */
+function soft(c: SfxCtx, level: number, amount = 0.03): SfxCtx {
+  const pre = new Tone.Gain(level);
+  pre.connect(drive(amount, c.out));
+  return { ...c, out: pre };
 }
 
 export const SOUNDS: Record<string, SfxDesign> = {
@@ -1340,6 +1365,38 @@ export const SOUNDS: Record<string, SfxDesign> = {
       const f = mtof(c.rng.pick([88, 90, 92]));
       osc(c, { f0: f, dur: 0.07, gain: 0.5 });
       osc(c, { f0: f * 2, dur: 0.04, gain: 0.15 });
+    },
+  },
+  coin: {
+    duration: 0.22,
+    variants: 4,
+    gainDb: -18,
+    pitchVar: 0.04,
+    maxVoices: 3,
+    cooldownMs: 35,
+    build(ctx) {
+      const c = soft(ctx, 1.6, 0.03);
+      // Pièce d'or : « bling » en deux notes montantes, la seconde s'attarde et brille
+      // (partiels de métal).
+      const [m1, m2] = [
+        [86, 91],
+        [88, 93],
+        [90, 95],
+        [91, 98],
+      ][c.v];
+      osc(c, { type: 'triangle', f0: mtof(m1), dur: 0.05, a: 0.001, gain: 0.3 });
+      osc(c, { t: 0.045, f0: mtof(m2), dur: 0.12, a: 0.001, gain: 0.34 });
+      osc(c, { t: 0.045, f0: mtof(m2) * 2, dur: 0.06, a: 0.001, gain: 0.1 });
+      fm(c, {
+        t: 0.045,
+        f0: mtof(m2),
+        harmonicity: 2.76,
+        index: 2,
+        index1: 0,
+        dur: 0.1,
+        gain: 0.08,
+      });
+      air(c, { dur: 0.006, a: 0.0005, gain: 0.15, filter: 'bandpass', q0: 4500, Q: 2 });
     },
   },
   levelup: {
@@ -2830,6 +2887,1389 @@ export const SOUNDS: Record<string, SfxDesign> = {
         to: d,
       });
       thump(c, 0.55, 100 * k, 35, 0.3, 0.2, drive(0.4, c.out));
+    },
+  },
+  'elite.volatile': {
+    duration: 1.3,
+    variants: 2,
+    gainDb: -16,
+    pitchVar: 0.03,
+    maxVoices: 2,
+    cooldownMs: 300,
+    priority: 3,
+    build(ctx) {
+      const c = soft(ctx, 0.54, 0.05);
+      const k = vary(c, 0.04);
+      const growl = lowpass(900, c.out);
+      // Mèche : sifflement qui monte et se resserre, crépitements de plus en plus denses, tension
+      // qui grimpe jusqu'au bord de l'explosion (qui suit, avec `explosion`).
+      air(c, {
+        a: 1,
+        hold: 0.12,
+        dur: 1.2,
+        gain: 0.3,
+        filter: 'bandpass',
+        q0: 1500,
+        q1: 3800,
+        Q: 1.1,
+        sweep: 1.1,
+      });
+      air(c, {
+        a: 0.95,
+        hold: 0.12,
+        dur: 1.2,
+        gain: 0.2,
+        filter: 'bandpass',
+        q0: 800 * k,
+        q1: 3000 * k,
+        Q: 4,
+        sweep: 1.1,
+      });
+      osc(c, {
+        f0: 480 * k,
+        f1: 2700 * k,
+        sweep: 1.1,
+        a: 0.9,
+        hold: 0.16,
+        dur: 1.2,
+        gain: 0.2,
+        vibrato: [7, 0.5],
+      });
+      osc(c, { f0: 720 * k, f1: 3800 * k, sweep: 1.1, a: 0.95, hold: 0.12, dur: 1.2, gain: 0.04 });
+      osc(c, {
+        type: 'sawtooth',
+        f0: 80 * k,
+        f1: 240 * k,
+        sweep: 1.1,
+        a: 1,
+        hold: 0.1,
+        dur: 1.2,
+        gain: 0.12,
+        to: growl,
+      });
+      // Crépitements de plus en plus denses.
+      const crackle = drive(0.6, c.out);
+      sparks(c, { dur: 0.4, count: 6, freq: 2800, gain: 0.3, to: crackle });
+      sparks(c, { t: 0.4, dur: 0.4, count: 14, freq: 3200, gain: 0.4, to: crackle });
+      sparks(c, { t: 0.8, dur: 0.38, count: 30, freq: 3600, gain: 0.5, to: crackle });
+    },
+  },
+  'elite.enrage': {
+    duration: 1,
+    variants: 2,
+    gainDb: -12,
+    pitchVar: 0.04,
+    maxVoices: 2,
+    cooldownMs: 300,
+    priority: 3,
+    build(c) {
+      const k = vary(c, 0.04);
+      const roar = drive(0.8, lowpass(2600, c.out, 0.9));
+      // Rugissement : attaque qui bondit puis voix éraillée (vibrato rapide) qui retombe, bouche
+      // qui s'ouvre et se referme (formants), crachement rauque et choc de poitrine.
+      osc(c, {
+        type: 'sawtooth',
+        f0: 95 * k,
+        f1: 230 * k,
+        sweep: 0.12,
+        a: 0.01,
+        dur: 0.3,
+        gain: 0.28,
+        vibrato: [32, 2],
+        to: roar,
+      });
+      osc(c, {
+        type: 'sawtooth',
+        t: 0.1,
+        f0: 230 * k,
+        f1: 120 * k,
+        sweep: 0.6,
+        a: 0.03,
+        hold: 0.25,
+        dur: 0.78,
+        gain: 0.28,
+        vibrato: [34, 2.4],
+        to: roar,
+      });
+      osc(c, {
+        type: 'sawtooth',
+        t: 0.1,
+        f0: 236 * k,
+        f1: 123 * k,
+        sweep: 0.6,
+        a: 0.03,
+        hold: 0.25,
+        dur: 0.78,
+        gain: 0.18,
+        detune: 18,
+        vibrato: [27, 2.8],
+        to: roar,
+      });
+      air(c, {
+        a: 0.03,
+        dur: 0.4,
+        gain: 0.3,
+        filter: 'bandpass',
+        q0: 700,
+        q1: 1600,
+        Q: 3,
+        sweep: 0.3,
+        to: roar,
+      });
+      air(c, {
+        t: 0.3,
+        a: 0.05,
+        dur: 0.6,
+        gain: 0.26,
+        filter: 'bandpass',
+        q0: 1600,
+        q1: 750,
+        Q: 2.5,
+        sweep: 0.5,
+        to: roar,
+      });
+      air(c, { a: 0.02, dur: 0.6, gain: 0.1, filter: 'bandpass', q0: 2800, Q: 1.2 });
+      const grit = drive(0.6, c.out);
+      sparks(c, { t: 0.05, dur: 0.7, count: 26, freq: 900, gain: 0.4, to: grit });
+      sparks(c, { t: 0.05, dur: 0.6, count: 14, freq: 2600, gain: 0.25, to: grit });
+      thump(c, 0, 140 * k, 50, 0.3, 0.3);
+    },
+  },
+
+  // ─── Ennemis : comportements ───────────────────────────────────────────────────────────
+  'enemy.charge': {
+    duration: 0.55,
+    variants: 3,
+    gainDb: -17,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 120,
+    priority: 2,
+    build(c) {
+      const k = vary(c, 0.08);
+      const w = c.rng.range(0.85, 1.2);
+      const growl = drive(0.45, lowpass(1300, c.out, 0.8));
+      // Ruée préparée : la bête se fige et se ramasse — halètement de grondements de plus en
+      // plus rapprochés, souffle qui se tend en sifflement, puis un déclic de verrouillage juste
+      // avant le départ.
+      [0, 0.12, 0.22, 0.3, 0.37, 0.43].forEach((t, i) => {
+        const f = (92 + i * 20) * k;
+        osc(c, {
+          type: 'sawtooth',
+          t,
+          f0: f,
+          f1: f * 0.85,
+          a: 0.004,
+          dur: 0.08,
+          gain: 0.3 + i * 0.05,
+          vibrato: [16 * w, 1],
+          to: growl,
+        });
+        air(c, { t, dur: 0.02, a: 0.001, gain: 0.14, filter: 'bandpass', q0: 900 * k, Q: 2 });
+      });
+      osc(c, {
+        type: 'sawtooth',
+        f0: 85 * k,
+        f1: 190 * k,
+        sweep: 0.44,
+        a: 0.3,
+        hold: 0.1,
+        dur: 0.5,
+        gain: 0.09,
+        vibrato: [15 * w, 1.2],
+        to: growl,
+      });
+      air(c, {
+        a: 0.34,
+        hold: 0.06,
+        dur: 0.5,
+        gain: 0.22,
+        filter: 'bandpass',
+        q0: 500 * k,
+        q1: 3200 * k,
+        Q: 3,
+        sweep: 0.44,
+      });
+      osc(c, {
+        f0: 500 * k,
+        f1: 1900 * k,
+        sweep: 0.45,
+        a: 0.35,
+        hold: 0.08,
+        dur: 0.5,
+        gain: 0.07,
+        vibrato: [8 * w, 0.5],
+      });
+      air(c, { t: 0.47, dur: 0.02, a: 0.0005, gain: 0.35, filter: 'bandpass', q0: 2600, Q: 2 });
+    },
+  },
+  'enemy.dash': {
+    duration: 0.4,
+    variants: 3,
+    gainDb: -16,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 120,
+    priority: 1,
+    build(ctx) {
+      const c = soft(ctx, 1.1, 0.03);
+      const k = vary(c, 0.08);
+      const growl = drive(0.4, lowpass(1800, c.out));
+      // Ruée : détente brusque (choc sourd), souffle rauque qui file puis retombe, grognement
+      // qui glisse vers le grave, un peu d'air vif au-dessus.
+      thump(c, 0, 240 * k, 70, 0.12, 0.3);
+      air(c, {
+        a: 0.02,
+        dur: 0.24,
+        gain: 0.34,
+        filter: 'bandpass',
+        q0: 450 * k,
+        q1: 2400 * k,
+        Q: 1.6,
+        sweep: 0.12,
+      });
+      air(c, {
+        t: 0.09,
+        a: 0.02,
+        dur: 0.28,
+        gain: 0.22,
+        filter: 'bandpass',
+        q0: 2400 * k,
+        q1: 650,
+        Q: 1.4,
+      });
+      air(c, {
+        a: 0.01,
+        dur: 0.16,
+        gain: 0.12,
+        filter: 'bandpass',
+        q0: 3500,
+        q1: 6000,
+        Q: 0.9,
+        sweep: 0.1,
+      });
+      osc(c, {
+        type: 'sawtooth',
+        f0: 230 * k,
+        f1: 120 * k,
+        sweep: 0.28,
+        a: 0.01,
+        dur: 0.34,
+        gain: 0.2,
+        vibrato: [24, 1.5],
+        to: growl,
+      });
+      air(c, { dur: 0.02, a: 0.0005, gain: 0.3, filter: 'bandpass', q0: 3200, Q: 0.8 });
+    },
+  },
+  'enemy.aim': {
+    duration: 0.95,
+    variants: 2,
+    gainDb: -21,
+    pitchVar: 0.02,
+    maxVoices: 2,
+    cooldownMs: 250,
+    priority: 2,
+    build(c) {
+      const k = vary(c, 0.04);
+      // Visée : un fil de lumière se tend — deux sinus légèrement désaccordés montent ensemble
+      // (le battement s'accélère, d'où le malaise), scintillement ténu au-dessus.
+      osc(c, {
+        f0: 1300 * k,
+        f1: 3000 * k,
+        sweep: 0.85,
+        a: 0.6,
+        hold: 0.2,
+        dur: 0.92,
+        gain: 0.2,
+        vibrato: [6, 0.2],
+      });
+      osc(c, {
+        f0: 1300 * k * 1.045,
+        f1: 3000 * k * 1.045,
+        sweep: 0.85,
+        a: 0.6,
+        hold: 0.2,
+        dur: 0.92,
+        gain: 0.14,
+      });
+      fm(c, {
+        f0: 2600 * k,
+        f1: 5600 * k,
+        sweep: 0.85,
+        harmonicity: 1.5,
+        index: 2.5,
+        index1: 0.4,
+        a: 0.7,
+        hold: 0.1,
+        dur: 0.92,
+        gain: 0.05,
+      });
+      air(c, {
+        a: 0.75,
+        dur: 0.92,
+        gain: 0.05,
+        filter: 'bandpass',
+        q0: 5000,
+        q1: 8000,
+        Q: 0.8,
+        sweep: 0.85,
+      });
+    },
+  },
+  'enemy.snipe': {
+    duration: 0.42,
+    variants: 3,
+    gainDb: -16,
+    pitchVar: 0.04,
+    maxVoices: 2,
+    cooldownMs: 120,
+    priority: 2,
+    build(ctx) {
+      const c = soft(ctx, 1.3, 0.03);
+      const k = vary(c, 0.06);
+      const zap = drive(0.45, lowpass(9000, c.out));
+      const sweep = c.rng.range(0.05, 0.08);
+      // Tir de précision : claquement sec, trait laser hostile (dent de scie qui plonge d'un
+      // coup), anneau métallique inharmonique et grésillement électrique qui s'attardent.
+      air(c, { dur: 0.02, a: 0.0005, gain: 0.5, filter: 'bandpass', q0: 4800, Q: 0.8, to: zap });
+      osc(c, {
+        type: 'sawtooth',
+        f0: 6500 * k,
+        f1: 900,
+        sweep,
+        a: 0.001,
+        dur: 0.14,
+        gain: 0.28,
+        to: zap,
+      });
+      osc(c, {
+        type: 'square',
+        f0: 3250 * k,
+        f1: 450,
+        sweep: sweep * 1.1,
+        a: 0.001,
+        dur: 0.12,
+        gain: 0.12,
+        to: zap,
+      });
+      fm(c, {
+        t: 0.01,
+        f0: 2400 * k,
+        harmonicity: c.rng.pick([1.41, 1.5, 1.73]),
+        index: 4,
+        index1: 0.3,
+        dur: 0.36,
+        gain: 0.11,
+      });
+      thump(c, 0, 420 * k, 160, 0.07, 0.16);
+      sparks(c, { t: 0.015, dur: 0.18, count: 12, freq: 3800, gain: 0.16, to: zap });
+    },
+  },
+  'enemy.volley': {
+    duration: 0.45,
+    variants: 3,
+    gainDb: -15,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 150,
+    priority: 1,
+    build(ctx) {
+      const c = soft(ctx, 1.65, 0.03);
+      const k = vary(c, 0.06);
+      // Salve en étoile : le souffle de la tourelle s'ouvre en éventail, puis une rafale de
+      // petits pops crépite (dense au départ, plus clairsemée à la fin).
+      thump(c, 0, 210 * k, 80, 0.1, 0.25);
+      air(c, {
+        a: 0.02,
+        dur: 0.26,
+        gain: 0.2,
+        filter: 'bandpass',
+        q0: 700 * k,
+        q1: 4200 * k,
+        Q: 1.3,
+        sweep: 0.18,
+      });
+      const n = 13;
+      for (let i = 0; i < n; i++) {
+        const t = 0.01 + 0.31 * (i / (n - 1)) ** 1.35 + c.rng.range(0, 0.01);
+        const f = c.rng.range(500, 1100) * k;
+        osc(c, {
+          type: i % 3 === 0 ? 'triangle' : 'sine',
+          t,
+          f0: f * 1.35,
+          f1: f * 0.8,
+          sweep: 0.02,
+          a: 0.002,
+          dur: 0.05,
+          gain: c.rng.range(0.2, 0.34) * (1 - (0.35 * i) / n),
+        });
+        air(c, { t, dur: 0.008, a: 0.0005, gain: 0.14, filter: 'bandpass', q0: 2400 * k, Q: 1.5 });
+      }
+    },
+  },
+  'enemy.summon': {
+    duration: 0.7,
+    variants: 3,
+    gainDb: -14,
+    pitchVar: 0.04,
+    maxVoices: 2,
+    cooldownMs: 250,
+    priority: 2,
+    build(c) {
+      const k = vary(c, 0.06);
+      // Invocation : un portail s'ouvre (spirale FM qui monte, souffle qui gonfle), puis les
+      // créatures éclosent en cascade de bulles.
+      fm(c, {
+        f0: 180 * k,
+        f1: 760 * k,
+        sweep: 0.4,
+        harmonicity: 2,
+        index: 3.5,
+        index1: 0.6,
+        a: 0.12,
+        hold: 0.14,
+        dur: 0.5,
+        gain: 0.2,
+      });
+      air(c, {
+        a: 0.22,
+        dur: 0.42,
+        gain: 0.22,
+        filter: 'bandpass',
+        q0: 300,
+        q1: 2600,
+        Q: 1.6,
+        sweep: 0.36,
+      });
+      thump(c, 0.32, 210 * k, 70, 0.16, 0.3);
+      for (let i = 0; i < 5; i++) {
+        bubble(c, 0.3 + i * 0.045 + c.rng.range(0, 0.015), 300 * k * 1.14 ** i, 0.32);
+      }
+      air(c, { t: 0.3, a: 0.01, dur: 0.3, gain: 0.14, filter: 'bandpass', q0: 5500, Q: 0.8 });
+    },
+  },
+  'enemy.heal': {
+    duration: 0.7,
+    variants: 2,
+    gainDb: -18,
+    pitchVar: 0.03,
+    maxVoices: 2,
+    cooldownMs: 300,
+    priority: 1,
+    async build(ctx) {
+      const c = soft(ctx, 1.7, 0.03);
+      const rv = await reverb(c, 0.5, 0.3);
+      const k = vary(c, 0.03);
+      // Soin ennemi : onde de cloches en arpège diminué (sinistre), nappe dissonante qui gonfle,
+      // poussière scintillante.
+      [88, 91, 94, 97].forEach((m, i) => {
+        bell(c, i * 0.07, mtof(m) * k, 0.32, 0.14, 3.01, 3, rv);
+      });
+      osc(c, {
+        type: 'triangle',
+        f0: 440 * k,
+        a: 0.25,
+        dur: 0.5,
+        gain: 0.1,
+        vibrato: [5, 0.3],
+        to: rv,
+      });
+      osc(c, {
+        type: 'triangle',
+        f0: 466 * k,
+        a: 0.25,
+        dur: 0.5,
+        gain: 0.08,
+        vibrato: [4.4, 0.3],
+        to: rv,
+      });
+      air(c, {
+        a: 0.2,
+        dur: 0.4,
+        gain: 0.12,
+        filter: 'bandpass',
+        q0: 1500,
+        q1: 5000,
+        Q: 1.5,
+        sweep: 0.36,
+        to: rv,
+      });
+      sparks(c, { t: 0.05, dur: 0.35, count: 10, freq: 5000, gain: 0.25, to: drive(0.6, rv) });
+    },
+  },
+  'enemy.split': {
+    duration: 0.6,
+    variants: 3,
+    gainDb: -16,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 120,
+    priority: 1,
+    build(ctx) {
+      const c = soft(ctx, 1.1, 0.03);
+      const k = vary(c, 0.07);
+      const crunch = drive(0.6, c.out);
+      // Éclatement : craquements en rafale (la carapace cède), choc sourd, gravats, pluie
+      // d'éclats vifs, puis deux ou trois petits cris — les créatures s'échappent.
+      [0, 0.012, 0.03, 0.05].forEach((t, i) => {
+        air(c, {
+          t,
+          dur: 0.02,
+          a: 0.0005,
+          gain: 0.34 - i * 0.05,
+          filter: 'bandpass',
+          q0: (2600 - i * 350) * k,
+          Q: 2.5,
+          to: crunch,
+        });
+      });
+      thump(c, 0, 210 * k, 65, 0.16, 0.36);
+      air(c, {
+        a: 0.003,
+        dur: 0.16,
+        gain: 0.3,
+        filter: 'bandpass',
+        q0: 1100 * k,
+        q1: 500,
+        Q: 1,
+        to: crunch,
+      });
+      sparks(c, { t: 0.02, dur: 0.22, count: 12, freq: 1500, gain: 0.3, to: crunch });
+      for (let i = 0; i < 8; i++) {
+        tink(
+          c,
+          0.04 + 0.3 * c.rng.next() ** 1.6,
+          c.rng.range(2200, 5400) * k,
+          c.rng.range(0.06, 0.14),
+          c.rng.range(0.06, 0.1),
+        );
+      }
+      [0.24, 0.3, 0.36].forEach((t, i) => {
+        osc(c, {
+          t,
+          f0: (1400 + i * 250) * k,
+          f1: (2500 + i * 300) * k,
+          sweep: 0.03,
+          a: 0.003,
+          dur: 0.07,
+          gain: 0.1,
+        });
+      });
+    },
+  },
+  'mortar.launch': {
+    duration: 0.4,
+    variants: 3,
+    gainDb: -14,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 150,
+    priority: 1,
+    build(ctx) {
+      const c = soft(ctx, 1.4, 0.03);
+      const k = vary(c, 0.08);
+      const q = c.rng.range(0.85, 1.2);
+      // Départ d'obus : « thunk » creux de tube (souffle résonant, note qui plonge), claquement
+      // métallique, sifflement ténu de l'obus qui s'élève.
+      air(c, { a: 0.002, dur: 0.18, gain: 0.45, filter: 'bandpass', q0: 480 * k * q, Q: 5 });
+      osc(c, { f0: 620 * k, f1: 250 * k * q, sweep: 0.1, a: 0.002, dur: 0.24, gain: 0.3 });
+      osc(c, { type: 'triangle', f0: 310 * k, f1: 125 * k, sweep: 0.1, dur: 0.2, gain: 0.16 });
+      thump(c, 0, 150 * k, 60, 0.1, 0.16);
+      air(c, { dur: 0.012, a: 0.0005, gain: 0.35, filter: 'bandpass', q0: 1900 * k, Q: 3 });
+      air(c, {
+        t: c.rng.range(0.014, 0.024),
+        dur: 0.01,
+        a: 0.0005,
+        gain: 0.22,
+        filter: 'bandpass',
+        q0: 3100 * k * q,
+        Q: 3,
+      });
+      osc(c, {
+        t: 0.05,
+        f0: 800 * k * q,
+        f1: 1800 * k,
+        sweep: 0.35,
+        a: 0.1,
+        dur: 0.4,
+        gain: 0.06,
+      });
+    },
+  },
+  'mortar.impact': {
+    duration: 0.8,
+    variants: 3,
+    gainDb: -11,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 120,
+    priority: 2,
+    build(ctx) {
+      const c = soft(ctx, 0.75, 0.03);
+      const k = vary(c, 0.07);
+      const d = drive(0.45, c.out);
+      // Impact d'obus : choc lourd qui écrase le sol, souffle de terre, débris qui retombent
+      // en grêle.
+      thump(c, 0, 170 * k, 42, 0.42, 0.5, d);
+      air(c, {
+        color: 'pink',
+        a: 0.003,
+        dur: 0.5,
+        gain: 0.5,
+        filter: 'lowpass',
+        q0: 4200,
+        q1: 220,
+        sweep: 0.42,
+        to: d,
+      });
+      air(c, { dur: 0.07, a: 0.001, gain: 0.45, filter: 'bandpass', q0: 950 * k, Q: 1.1 });
+      air(c, { dur: 0.025, a: 0.0005, gain: 0.3, filter: 'bandpass', q0: 3500, Q: 0.8 });
+      sparks(c, { t: 0.04, dur: 0.5, count: 18, freq: 1500, gain: 0.4, to: d });
+      [0.26, 0.37, 0.5].forEach((t) => {
+        thump(c, t + c.rng.range(0, 0.03), 300 * k * c.rng.range(0.8, 1.2), 110, 0.06, 0.1);
+      });
+    },
+  },
+  'shield.block': {
+    duration: 0.13,
+    variants: 4,
+    gainDb: -24,
+    pitchVar: 0.04,
+    maxVoices: 2,
+    cooldownMs: 50,
+    build(ctx) {
+      const c = soft(ctx, 1.4, 0.06);
+      const f = [2100, 2500, 2900, 3400][c.v] * vary(c, 0.02);
+      // « Tink » d'armure : claquement sec, corps mat de la garde, puis résonance métallique
+      // (variantes paires) ou cristalline (impaires) qui s'éteint presque aussitôt.
+      air(c, { dur: 0.008, a: 0.0005, gain: 0.1, filter: 'bandpass', q0: 4800, Q: 1.5 });
+      air(c, { dur: 0.02, a: 0.0005, gain: 0.06, filter: 'bandpass', q0: 1500, Q: 2 });
+      osc(c, { f0: 900, f1: 560, dur: 0.05, a: 0.001, gain: 0.25 });
+      if (c.v % 2 === 0) {
+        osc(c, { f0: f, dur: 0.12, a: 0.001, gain: 0.4 });
+        osc(c, { f0: f * 2.76, dur: 0.07, a: 0.001, gain: 0.22 });
+        osc(c, { f0: f * 5.4, dur: 0.04, a: 0.001, gain: 0.08 });
+      } else bell(c, 0, f, 0.1, 0.34, 2.76, 2.5);
+    },
+  },
+  'shield.break': {
+    duration: 0.8,
+    variants: 3,
+    gainDb: -16,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 200,
+    priority: 2,
+    build(ctx) {
+      const c = soft(ctx, 1.15, 0.03);
+      const k = vary(c, 0.05);
+      const crunch = drive(0.6, c.out);
+      // Bris de garde : craquement de verre, choc qui cède, froissement de débris, cascade
+      // d'éclats cristallins (dense au départ), résonance qui s'éteint.
+      air(c, { dur: 0.05, a: 0.0005, gain: 0.5, filter: 'bandpass', q0: 2800, Q: 0.8, to: crunch });
+      air(c, {
+        a: 0.002,
+        dur: 0.18,
+        gain: 0.4,
+        filter: 'bandpass',
+        q0: 1500 * k,
+        q1: 700,
+        Q: 1,
+        to: crunch,
+      });
+      air(c, {
+        a: 0.002,
+        dur: 0.1,
+        gain: 0.3,
+        filter: 'bandpass',
+        q0: 700 * k,
+        Q: 1.2,
+        to: crunch,
+      });
+      sparks(c, { dur: 0.35, count: 30, freq: 4200, gain: 0.4, to: crunch });
+      thump(c, 0, 280 * k, 90, 0.14, 0.28);
+      for (let i = 0; i < 20; i++) {
+        const u = c.rng.next();
+        tink(
+          c,
+          0.008 + 0.5 * u ** 1.7,
+          c.rng.range(2200, 5500) * k,
+          c.rng.range(0.1, 0.28),
+          c.rng.range(0.04, 0.12) * (1 - 0.5 * u),
+        );
+      }
+      bell(c, 0.02, 1600 * k, 0.8, 0.12, 3.01, 3);
+      air(c, { a: 0.01, dur: 0.55, gain: 0.08, filter: 'bandpass', q0: 6500, q1: 3500, Q: 0.8 });
+    },
+  },
+  'burrow.dig': {
+    duration: 0.65,
+    variants: 3,
+    gainDb: -17,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 250,
+    priority: 1,
+    build(c) {
+      const k = vary(c, 0.07);
+      const w = c.rng.range(0.85, 1.2);
+      const grind = drive(0.45, lowpass(1200, c.out));
+      // Enfouissement : la bête plonge dans la terre — grondement qui s'enfonce (hauteur qui
+      // chute), sable qui gratte, poussière qui retombe.
+      osc(c, {
+        type: 'sawtooth',
+        f0: 230 * k,
+        f1: 50,
+        sweep: 0.5,
+        a: 0.06,
+        hold: 0.04,
+        dur: 0.55,
+        gain: 0.3,
+        vibrato: [19 * w, 1.6],
+        to: grind,
+      });
+      osc(c, {
+        type: 'sawtooth',
+        f0: 236 * k,
+        f1: 51,
+        sweep: 0.5,
+        a: 0.06,
+        hold: 0.04,
+        dur: 0.55,
+        gain: 0.16,
+        detune: 16,
+        vibrato: [24 * w, 1.3],
+        to: grind,
+      });
+      air(c, {
+        color: 'pink',
+        a: 0.05,
+        dur: 0.55,
+        gain: 0.32,
+        filter: 'bandpass',
+        q0: 1400 * k,
+        q1: 220,
+        Q: 0.9,
+        sweep: 0.5,
+      });
+      air(c, {
+        color: 'brown',
+        a: 0.04,
+        dur: 0.5,
+        gain: 0.22,
+        filter: 'lowpass',
+        q0: 1500,
+        q1: 130,
+        sweep: 0.45,
+      });
+      sparks(c, { t: 0.02, dur: 0.42, count: 16, freq: 1300, gain: 0.35, to: drive(0.6, c.out) });
+    },
+  },
+  'burrow.emerge': {
+    duration: 0.75,
+    variants: 3,
+    gainDb: -13,
+    pitchVar: 0.05,
+    maxVoices: 2,
+    cooldownMs: 200,
+    priority: 2,
+    build(ctx) {
+      const c = soft(ctx, 0.6, 0.03);
+      const k = vary(c, 0.07);
+      const d = drive(0.4, c.out);
+      // Éruption : le sol gonfle, explose en gerbe de sable, les grains retombent.
+      air(c, { color: 'brown', a: 0.07, dur: 0.1, gain: 0.3, filter: 'lowpass', q0: 500 });
+      air(c, {
+        t: 0.06,
+        a: 0.004,
+        dur: 0.5,
+        gain: 0.4,
+        filter: 'bandpass',
+        q0: 3000 * k,
+        q1: 650,
+        Q: 0.9,
+        sweep: 0.4,
+      });
+      air(c, { t: 0.06, a: 0.003, dur: 0.35, gain: 0.16, filter: 'bandpass', q0: 5000, Q: 0.7 });
+      thump(c, 0.06, 170 * k, 45, 0.38, 0.5, d);
+      sparks(c, { t: 0.08, dur: 0.3, count: 22, freq: 2600, gain: 0.4, to: d });
+      sparks(c, { t: 0.3, dur: 0.3, count: 9, freq: 2200, gain: 0.22, to: d });
+      osc(c, {
+        type: 'sawtooth',
+        t: 0.06,
+        f0: 240 * k,
+        f1: 110,
+        sweep: 0.3,
+        a: 0.01,
+        dur: 0.35,
+        gain: 0.14,
+        vibrato: [28, 2],
+        to: lowpass(1400, c.out),
+      });
+    },
+  },
+  'player.slowed': {
+    duration: 0.45,
+    variants: 3,
+    gainDb: -18,
+    pitchVar: 0.04,
+    maxVoices: 1,
+    cooldownMs: 400,
+    priority: 2,
+    build(ctx) {
+      const c = soft(ctx, 1.3, 0.03);
+      const k = vary(c, 0.06);
+      const frost = drive(0.6, c.out);
+      // Givre qui saisit : crépitement de glace, note de cristal qui s'affaisse (le temps
+      // s'alourdit).
+      sparks(c, { dur: 0.22, count: 12, freq: 4500, gain: 0.5, to: frost });
+      air(c, { a: 0.001, dur: 0.14, gain: 0.14, filter: 'bandpass', q0: 5500, Q: 0.8, to: frost });
+      fm(c, {
+        f0: 2500 * k,
+        f1: 750 * k,
+        sweep: 0.3,
+        harmonicity: 3.01,
+        index: 3,
+        index1: 0.3,
+        a: 0.003,
+        dur: 0.38,
+        gain: 0.2,
+      });
+      osc(c, {
+        type: 'triangle',
+        f0: 520 * k,
+        f1: 190,
+        sweep: 0.3,
+        a: 0.01,
+        dur: 0.36,
+        gain: 0.14,
+      });
+    },
+  },
+
+  // ─── Événements de run ─────────────────────────────────────────────────────────────────
+  'event.horde': {
+    duration: 1.7,
+    variants: 1,
+    stereo: true,
+    gainDb: -4,
+    pitchVar: 0.01,
+    maxVoices: 1,
+    priority: 4,
+    async build(ctx) {
+      const c = soft(ctx, 0.92, 0.03);
+      const rv = await reverb(c, 0.5, 0.25);
+      const e = echo(0.11, 0.3, 0.2, rv);
+      // Horde dorée : fanfare de cuivres (arpège de la majeur, dernière note tenue) sur un
+      // roulement de galop qui enfle, pluie d'or scintillante au sommet.
+      const chords: [number, number[], number, number][] = [
+        [0, [64, 69, 76], 0.15, 0.02],
+        [0.13, [69, 76, 81], 0.15, 0.02],
+        [0.26, [73, 81, 85], 0.15, 0.02],
+        [0.39, [57, 64, 69, 73, 76, 81, 88], 0.8, 0.3],
+      ];
+      chords.forEach(([t, notes, dur, hold]) => {
+        const brass = lowpass(700, rv, 1.4);
+        brass.frequency.setValueAtTime(700, t);
+        brass.frequency.exponentialRampToValueAtTime(5200, t + 0.04);
+        brass.frequency.exponentialRampToValueAtTime(1600, t + dur);
+        notes.forEach((m, i) => {
+          osc(c, {
+            type: 'sawtooth',
+            t,
+            f0: mtof(m),
+            a: 0.012,
+            hold,
+            dur,
+            gain: dur > 0.5 ? 0.12 : 0.16,
+            pan: (i - (notes.length - 1) / 2) * 0.22,
+            detune: (i % 2 === 0 ? 1 : -1) * 7,
+            to: brass,
+          });
+        });
+      });
+      // Galop : quatre groupes de trois sabots (deux brefs, un plus lourd, puis un temps de
+      // silence) sur un grondement de sabots qui enfle, de plus en plus forts.
+      air(c, {
+        color: 'brown',
+        a: 0.7,
+        hold: 0.3,
+        dur: 1.3,
+        gain: 0.14,
+        filter: 'lowpass',
+        q0: 500,
+      });
+      const hoof = drive(0.5, c.out);
+      for (let g = 0; g < 4; g++) {
+        [0, 0.075, 0.15].forEach((dt, j) => {
+          const t = 0.03 + g * 0.3 + dt;
+          const gain = (0.22 + 0.07 * g) * (j === 2 ? 1.25 : 1);
+          const pan = (g * 3 + j) % 2 === 0 ? -0.35 : 0.35;
+          const f = c.rng.range(0.92, 1.08);
+          osc(c, {
+            t,
+            f0: 300 * f,
+            f1: 130 * f,
+            sweep: 0.04,
+            dur: 0.08,
+            a: 0.002,
+            gain,
+            pan,
+            to: hoof,
+          });
+          osc(c, {
+            t,
+            f0: 170,
+            f1: 80,
+            sweep: 0.06,
+            dur: 0.1,
+            a: 0.002,
+            gain: gain * 0.35,
+            pan,
+            to: hoof,
+          });
+          air(c, {
+            t,
+            dur: 0.03,
+            a: 0.0005,
+            gain: gain * 0.7,
+            filter: 'bandpass',
+            q0: 1500 * f,
+            Q: 2,
+            pan,
+            to: hoof,
+          });
+        });
+      }
+      air(c, {
+        t: 0.39,
+        a: 0.01,
+        dur: 0.8,
+        gain: 0.11,
+        filter: 'bandpass',
+        q0: 5500,
+        Q: 0.9,
+        to: rv,
+      });
+      sparks(c, { t: 0.4, dur: 0.8, count: 22, freq: 4800, gain: 0.25, to: e });
+      [93, 97, 100, 105].forEach((m, i) => {
+        bell(c, 0.42 + i * 0.06, mtof(m), 0.5, 0.1, 3.01, 3, e);
+      });
+    },
+  },
+  'event.merchant': {
+    duration: 1.4,
+    variants: 1,
+    stereo: true,
+    gainDb: -12,
+    pitchVar: 0.01,
+    maxVoices: 1,
+    priority: 3,
+    async build(ctx) {
+      const c = soft(ctx, 1.5, 0.03);
+      const rv = await reverb(c, 0.9, 0.25);
+      // Marchand : clochette de porte qui tinte en sautillant (pentatonique de la : mi - la -
+      // fa# - si - mi), grelots secoués, dernière note haute qui s'attarde.
+      [
+        [88, 0, 0.3],
+        [93, 0.085, 0.3],
+        [90, 0.17, 0.3],
+        [95, 0.255, 0.35],
+        [100, 0.34, 0.75],
+      ].forEach(([m, t, dur], i) => {
+        const last = i === 4;
+        const pan = i % 2 === 0 ? -0.35 : 0.35;
+        fm(c, {
+          t,
+          f0: mtof(m),
+          harmonicity: 3.5,
+          index: 2.5,
+          index1: 0.2,
+          dur,
+          gain: last ? 0.2 : 0.17,
+          pan: last ? 0 : pan,
+          to: rv,
+        });
+        osc(c, { type: 'triangle', t, f0: mtof(m - 12), dur: 0.2, gain: 0.1, pan, to: rv });
+      });
+      sparks(c, { t: 0.02, dur: 0.6, count: 20, freq: 5500, gain: 0.22, to: drive(0.6, rv) });
+    },
+  },
+  'event.altar': {
+    duration: 1.7,
+    variants: 1,
+    stereo: true,
+    gainDb: -7,
+    pitchVar: 0.02,
+    maxVoices: 1,
+    priority: 4,
+    async build(ctx) {
+      const c = soft(ctx, 0.97, 0.02);
+      const rv = await reverb(c, 0.7, 0.3);
+      const body = lowpass(500, rv, 1.2);
+      body.frequency.setValueAtTime(500, 0);
+      body.frequency.exponentialRampToValueAtTime(2400, 0.78);
+      body.frequency.exponentialRampToValueAtTime(900, 1.3);
+      // Voyelle « a » sombre : trois formants (filtres passe-bande résonants, `lowpass` renvoyant
+      // un Tone.Filter dont on change le type) qui s'ouvrent avec le crescendo.
+      const formants = (
+        [
+          [380, 700, 5],
+          [760, 1150, 6],
+          [2300, 2600, 9],
+        ] as const
+      ).map(([f0, f1, q]) => {
+        const f = lowpass(f0, rv, q);
+        f.type = 'bandpass';
+        f.frequency.setValueAtTime(f0, 0);
+        f.frequency.exponentialRampToValueAtTime(f1, 0.88);
+        return f;
+      });
+      // Point d'entrée commun : chaque voix alimente les trois formants en parallèle.
+      const hub = lowpass(6000, formants[0]);
+      hub.connect(formants[1]);
+      hub.connect(formants[2]);
+      // Autel : chœur qui enfle (accord de la mineur dont le si bémol frotte), voile de souffle,
+      // houle de fond, puis un glas creux au sommet.
+      (
+        [
+          [57, -0.3],
+          [64, 0.3],
+          [69, -0.55],
+          [70, 0.55],
+          [72, -0.2],
+          [76, 0.2],
+        ] as const
+      ).forEach(([m, pan], i) => {
+        for (const [gain, to] of [
+          [0.09, body],
+          [0.16, hub],
+        ] as const) {
+          osc(c, {
+            type: 'sawtooth',
+            f0: mtof(m),
+            a: 0.78,
+            hold: 0.12,
+            dur: 1.3,
+            gain,
+            pan,
+            detune: (i % 2 === 0 ? 1 : -1) * 6,
+            vibrato: [5 + i * 0.35, 0.22],
+            to,
+          });
+        }
+      });
+      air(c, {
+        a: 0.78,
+        hold: 0.1,
+        dur: 1.3,
+        gain: 0.12,
+        filter: 'bandpass',
+        q0: 600,
+        q1: 1100,
+        Q: 3,
+        sweep: 0.88,
+        to: rv,
+      });
+      osc(c, { f0: 55, f1: 50, a: 0.66, hold: 0.2, dur: 1.3, gain: 0.08 });
+      osc(c, { type: 'triangle', f0: 110, f1: 100, a: 0.66, hold: 0.2, dur: 1.3, gain: 0.07 });
+      bell(c, 0.78, mtof(57), 0.66, 0.24, 1.41, 5, rv);
+      bell(c, 0.78, mtof(45), 0.76, 0.14, 1.41, 4, rv);
+    },
+  },
+  'event.rift': {
+    duration: 1.4,
+    variants: 1,
+    stereo: true,
+    gainDb: -8,
+    pitchVar: 0.02,
+    maxVoices: 1,
+    priority: 4,
+    async build(c) {
+      const rv = await reverb(c, 0.4, 0.3);
+      const e = echo(0.09, 0.35, 0.3, rv);
+      const lp = lowpass(600, rv, 1.5);
+      lp.frequency.setValueAtTime(600, 0);
+      lp.frequency.exponentialRampToValueAtTime(3200, 0.85);
+      const warp = drive(0.7, lp);
+      // Faille temporelle : l'air miroite (grappe de sinus désaccordés, chacun avec son vibrato,
+      // qui battent en montant), éclats de cloches en gamme par tons entiers qui se répètent en
+      // écho, distorsion sourde qui gonfle, puis la déchirure s'ouvre d'un choc.
+      [-30, -18, -7, 0, 9, 21, 33].forEach((cents, i) => {
+        osc(c, {
+          vibrato: [6 + i * 1.9, 0.45],
+          f0: 1000,
+          f1: 1650,
+          sweep: 0.8,
+          a: 0.3,
+          hold: 0.2,
+          dur: 0.85,
+          gain: 0.055,
+          detune: cents,
+          pan: (i - 3) * 0.2,
+          to: rv,
+        });
+      });
+      fm(c, {
+        f0: 440,
+        f1: 700,
+        sweep: 0.8,
+        harmonicity: 1.5,
+        index: 6,
+        index1: 1,
+        a: 0.35,
+        hold: 0.15,
+        dur: 0.85,
+        gain: 0.1,
+        pan: -0.45,
+        to: rv,
+      });
+      fm(c, {
+        f0: 446,
+        f1: 707,
+        sweep: 0.8,
+        harmonicity: 1.5,
+        index: 6,
+        index1: 1,
+        a: 0.35,
+        hold: 0.15,
+        dur: 0.85,
+        gain: 0.1,
+        pan: 0.45,
+        to: rv,
+      });
+      for (let i = 0; i < 14; i++) {
+        fm(c, {
+          t: c.rng.range(0, 0.7),
+          f0: mtof(c.rng.pick([84, 86, 88, 90, 92, 94, 96])),
+          harmonicity: 3.01,
+          index: 2.5,
+          index1: 0,
+          dur: 0.14,
+          gain: 0.1,
+          pan: c.rng.range(-0.8, 0.8),
+          to: e,
+        });
+      }
+      osc(c, {
+        type: 'sawtooth',
+        f0: 70,
+        f1: 200,
+        sweep: 0.8,
+        a: 0.45,
+        hold: 0.15,
+        dur: 0.85,
+        gain: 0.13,
+        to: warp,
+      });
+      air(c, {
+        a: 0.6,
+        dur: 0.85,
+        gain: 0.14,
+        filter: 'bandpass',
+        q0: 400,
+        q1: 5500,
+        Q: 2,
+        sweep: 0.8,
+        to: rv,
+      });
+      thump(c, 0.64, 150, 55, 0.36, 0.25);
+      bell(c, 0.64, mtof(100), 0.4, 0.1, 3.01, 3, e);
+    },
+  },
+  'rift.enter': {
+    duration: 1.5,
+    variants: 1,
+    stereo: true,
+    gainDb: -11,
+    pitchVar: 0.02,
+    maxVoices: 1,
+    priority: 4,
+    async build(ctx) {
+      const c = soft(ctx, 0.36, 0.03);
+      const rv = await reverb(c, 0.7, 0.18);
+      const lp = lowpass(4500, rv, 1.2);
+      lp.frequency.setValueAtTime(4500, 0);
+      lp.frequency.exponentialRampToValueAtTime(250, 1.1);
+      // Entrée dans la faille : le temps s'épaissit — souffle et note qui descendent en hauteur
+      // comme une bande qui ralentit, filtre qui se ferme, pulsations qui s'espacent.
+      air(c, {
+        a: 0.05,
+        dur: 1.15,
+        gain: 0.35,
+        filter: 'bandpass',
+        q0: 4000,
+        q1: 220,
+        Q: 2.5,
+        sweep: 1.05,
+        to: rv,
+      });
+      osc(c, {
+        type: 'sawtooth',
+        f0: 1200,
+        f1: 90,
+        sweep: 1.05,
+        a: 0.03,
+        dur: 1.15,
+        gain: 0.2,
+        vibrato: [4, 1.5],
+        to: lp,
+      });
+      fm(c, {
+        f0: 600,
+        f1: 60,
+        sweep: 1.05,
+        harmonicity: 1.41,
+        index: 5,
+        index1: 0.5,
+        a: 0.03,
+        dur: 1.15,
+        gain: 0.12,
+        to: lp,
+      });
+      [0, 0.11, 0.24, 0.42, 0.66, 0.97].forEach((t, i) => {
+        thump(c, t, 210 - i * 15, 70, 0.14 + i * 0.03, 0.38 - i * 0.04, rv);
+      });
+    },
+  },
+  'rift.exit': {
+    duration: 1,
+    variants: 1,
+    stereo: true,
+    gainDb: -13,
+    pitchVar: 0.02,
+    maxVoices: 1,
+    priority: 3,
+    async build(ctx) {
+      const c = soft(ctx, 0.39, 0.03);
+      const rv = await reverb(c, 0.35, 0.15);
+      const lp = lowpass(250, rv, 1.2);
+      lp.frequency.setValueAtTime(250, 0);
+      lp.frequency.exponentialRampToValueAtTime(6000, 0.6);
+      // Sortie de la faille : le temps reprend — souffle et note qui remontent, pulsations qui
+      // se resserrent, claquement de retour à la normale.
+      air(c, {
+        a: 0.45,
+        hold: 0.05,
+        dur: 0.6,
+        gain: 0.32,
+        filter: 'bandpass',
+        q0: 200,
+        q1: 5000,
+        Q: 2.5,
+        sweep: 0.55,
+        to: rv,
+      });
+      osc(c, {
+        type: 'sawtooth',
+        f0: 90,
+        f1: 1400,
+        sweep: 0.58,
+        a: 0.4,
+        hold: 0.05,
+        dur: 0.62,
+        gain: 0.18,
+        to: lp,
+      });
+      [0, 0.2, 0.34, 0.44, 0.52, 0.58].forEach((t, i) => {
+        osc(c, { t, f0: 500 + i * 220, dur: 0.05, a: 0.002, gain: 0.12, to: rv });
+      });
+      air(c, { t: 0.62, dur: 0.03, a: 0.0005, gain: 0.4, filter: 'bandpass', q0: 3500, Q: 0.8 });
+      thump(c, 0.62, 260, 90, 0.1, 0.3);
+      bell(c, 0.62, mtof(100), 0.28, 0.14, 3.01, 3, rv);
+    },
+  },
+
+  // ─── Interface : marchand et autel ─────────────────────────────────────────────────────
+  'shop.buy': {
+    duration: 0.6,
+    variants: 2,
+    bus: 'ui',
+    gainDb: -14,
+    pitchVar: 0.03,
+    maxVoices: 1,
+    cooldownMs: 80,
+    priority: 3,
+    build(ctx) {
+      const c = soft(ctx, 1.4, 0.03);
+      const k = vary(c, 0.03);
+      // Achat : tiroir-caisse qui claque (déclic, choc, glissière), cliquetis de pièces qui
+      // s'entrechoquent, puis « ching » de cloche.
+      air(c, { dur: 0.012, a: 0.0005, gain: 0.35, filter: 'bandpass', q0: 1500, Q: 1.5 });
+      thump(c, 0, 200, 80, 0.08, 0.3);
+      air(c, {
+        t: 0.02,
+        a: 0.005,
+        dur: 0.06,
+        gain: 0.12,
+        filter: 'bandpass',
+        q0: 900,
+        q1: 2500,
+        Q: 2,
+        sweep: 0.05,
+      });
+      [0.03, 0.065, 0.1, 0.13, 0.165, 0.2].forEach((t, i) => {
+        tink(c, t + c.rng.range(0, 0.01), c.rng.range(2000, 4200) * k, 0.12, 0.14 + (i % 2) * 0.04);
+      });
+      bell(c, 0.14, 2650 * k, 0.5, 0.22, 3.5, 2.5);
+      bell(c, 0.14, 3980 * k, 0.34, 0.1, 3.5, 2);
+    },
+  },
+  'altar.sacrifice': {
+    duration: 1.5,
+    variants: 1,
+    stereo: true,
+    bus: 'ui',
+    gainDb: -8,
+    pitchVar: 0.01,
+    maxVoices: 1,
+    priority: 3,
+    async build(ctx) {
+      const c = soft(ctx, 0.67, 0.03);
+      const rv = await reverb(c, 0.8, 0.3);
+      const pad = lowpass(1800, rv, 1);
+      pad.frequency.setValueAtTime(1800, 0.1);
+      pad.frequency.exponentialRampToValueAtTime(400, 1.2);
+      const body = drive(0.45, lowpass(1800, c.out));
+      // Sacrifice accepté : deux battements de cœur graves (chacun un « toum-tac »), nappe sombre
+      // qui s'affaisse, puis un tintement clair qui scelle le pacte.
+      (
+        [
+          [0, 1],
+          [0.15, 0.7],
+          [0.64, 0.8],
+          [0.79, 0.5],
+        ] as const
+      ).forEach(([t, g]) => {
+        thump(c, t, 120, 50, 0.2, 0.22 * g);
+        osc(c, {
+          type: 'triangle',
+          t,
+          f0: 260,
+          f1: 130,
+          sweep: 0.1,
+          dur: 0.17,
+          gain: 0.4 * g,
+          to: body,
+        });
+        air(c, { t, dur: 0.07, a: 0.002, gain: 0.4 * g, filter: 'bandpass', q0: 500, Q: 0.8 });
+      });
+      [57, 64, 69, 70].forEach((m, i) => {
+        osc(c, {
+          type: 'sawtooth',
+          t: 0.1,
+          f0: mtof(m),
+          a: 0.25,
+          hold: 0.35,
+          dur: 1.1,
+          gain: 0.16,
+          pan: (i - 1.5) * 0.3,
+          to: pad,
+        });
+      });
+      bell(c, 0.64, mtof(88), 0.6, 0.3, 3.01, 3, rv);
+      bell(c, 0.68, mtof(100), 0.5, 0.16, 3.01, 3, rv);
     },
   },
 
