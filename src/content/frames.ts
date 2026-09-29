@@ -33,6 +33,25 @@ export const FRAME = {
   ZONE_SURGE: 24,
   ZONE_WELL: 25,
   CHEST: 26,
+  /** Pièce d'or, monticule d'un fouisseur enfoui. */
+  COIN: 27,
+  MOUND: 28,
+  /** Décors d'événements : marchand, autel de sacrifice, faille temporelle. */
+  MERCHANT: 29,
+  ALTAR: 30,
+  RIFT: 31,
+  /** Dangers ennemis (teintés) : flaque, cible de mortier, obus, cercle d'alerte. */
+  ZONE_HAZARD: 32,
+  ZONE_TARGET: 33,
+  SHELL: 34,
+  ZONE_WARN: 35,
+  /** Surcouches d'ennemis (teintées) : arc de bouclier, bulle, protection, anneau d'aura. */
+  SHIELD_ARC: 36,
+  BUBBLE: 37,
+  GUARD: 38,
+  AURA: 39,
+  /** Projectile ennemi blanc (teinté par la couleur du tireur). */
+  BULLET_TINT: 40,
   /** Ennemis : ENEMY_BASE + index de type. */
   ENEMY_BASE: 64,
   /** Boss : BOSS_BASE + index de boss. */

@@ -1,4 +1,4 @@
-/** Joueur : déplacement, dash (recharge, invulnérabilité), dégâts subis. */
+/** Joueur : déplacement, dash (recharge, invulnérabilité), ralentissement, dégâts subis. */
 import { PLAYER } from '../content/data';
 import { Body, Life, Look, Pos, Vel } from '../engine/components';
 import { DT } from '../engine/constants';
@@ -23,6 +23,10 @@ export function updatePlayer(sim: RunSim): void {
 
   if (p.iFrames > 0) p.iFrames -= DT;
   if (p.dashCd > 0) p.dashCd -= DT;
+  if (p.slowT > 0) {
+    p.slowT -= DT;
+    if (p.slowT <= 0) p.slowAmt = 0;
+  }
   if (p.stats.regen > 0 && p.hp < p.stats.maxHp && p.hp > 0) {
     p.hp = Math.min(p.stats.maxHp, p.hp + p.stats.regen * DT);
     Life.hp[eid] = p.hp;
@@ -59,8 +63,9 @@ export function updatePlayer(sim: RunSim): void {
     Vel.x[eid] = p.dashX * speed;
     Vel.y[eid] = p.dashY * speed;
   } else {
-    Vel.x[eid] = mx * p.stats.speed;
-    Vel.y[eid] = my * p.stats.speed;
+    const speed = p.stats.speed * (1 - p.slowAmt);
+    Vel.x[eid] = mx * speed;
+    Vel.y[eid] = my * speed;
   }
   Pos.x[eid] += Vel.x[eid] * DT;
   Pos.y[eid] += Vel.y[eid] * DT;
@@ -94,6 +99,20 @@ export function damagePlayer(sim: RunSim, amount: number): boolean {
     sim.events.push(EV.RUN_END, 0, 0, 0, 0, 0);
   }
   return true;
+}
+
+/**
+ * Ralentit le joueur (givre ennemi) : la plus forte intensité en cours l'emporte, la durée
+ * est prolongée. Signalé au rendu seulement au début du ralentissement.
+ */
+export function slowPlayer(sim: RunSim, amount: number, seconds: number): void {
+  const p = sim.state.player;
+  if (sim.state.debug.invincible) return;
+  if (p.slowT <= 0) {
+    p.slowAmt = amount;
+    sim.events.push(EV.PLAYER_SLOWED, 0, 0, Pos.x[p.eid], Pos.y[p.eid], amount);
+  } else if (amount > p.slowAmt) p.slowAmt = amount;
+  if (seconds > p.slowT) p.slowT = seconds;
 }
 
 export function healPlayer(sim: RunSim, amount: number): void {

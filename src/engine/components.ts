@@ -32,16 +32,46 @@ export const Look = {
 export const Foe = {
   type: u8(),
   state: u8(),
+  /** Minuteurs du comportement : recharge, phase en cours, secondaire (traînée, rotation). */
   t0: f32(),
   t1: f32(),
+  t2: f32(),
   speed: f32(),
   dmg: f32(),
   xp: f32(),
   kbRes: f32(),
+  /** Cible ou direction verrouillée (téléportation, ruée, visée, ligne de horde). */
   tx: f32(),
   ty: f32(),
   elite: u8(),
+  /** Orientation (bouclier frontal, tourelles, sprites qui visent). */
+  face: f32(),
+  /** PV restants du bouclier frontal (comportement « shield »). */
+  shield: f32(),
+  /** Affixes d'élite (masque de bits, index de AFFIXES). */
+  affix: u16(),
+  /** Bulle d'absorption (affixe Bouclier) : PV, maximum, délai avant recharge. */
+  bubble: f32(),
+  bubbleMax: f32(),
+  bubbleT: f32(),
+  /** Minuteurs des affixes : invocation, salve, téléportation, traînée de flammes. */
+  summonT: f32(),
+  gunT: f32(),
+  blinkT: f32(),
+  trailT: f32(),
+  /** Destination d'une téléportation d'affixe. */
+  ax: f32(),
+  ay: f32(),
+  /** Protection d'un soutien : durée restante et multiplicateur des dégâts subis. */
+  guardT: f32(),
+  guard: f32(),
+  /** Enfoui (fouisseur) : ni ciblable, ni collision, ni contact. */
+  hidden: u8(),
+  /** FOE_FLAG : invoqué, copie de fission, enragé, téléportation d'affixe en cours. */
+  flags: u8(),
 };
+
+export const FOE_FLAG = { SUMMONED: 1, CHILD: 2, ENRAGED: 4, BLINKING: 8 } as const;
 
 export const MARK_SLOTS = 6;
 
@@ -114,11 +144,12 @@ export const Shot = {
   arc: f32(),
 };
 
-/** Projectile ennemi. */
-export const Bullet = { dmg: f32(), ttl: f32(), r: f32() };
+/** Projectile ennemi : dégâts, durée de vie, rayon, ralentissement infligé (givre). */
+export const Bullet = { dmg: f32(), ttl: f32(), r: f32(), slow: f32(), slowT: f32() };
 
-/** Gemme d'XP. */
-export const Gem = { value: f32(), pull: u8() };
+/** Gemme d'XP (kind 0) ou pièce d'or (kind 1). */
+export const Gem = { value: f32(), pull: u8(), kind: u8() };
+export const GEM_KIND = { XP: 0, COIN: 1 } as const;
 
 /** Zone au sol : nuage de réaction, télégraphe de boss, mine… */
 export const Zone = {
@@ -181,25 +212,40 @@ export const ALL_COMPONENTS = [
   Chest,
 ] as const;
 
-type Column = Float32Array | Int32Array | Uint8Array | Uint16Array | Uint32Array;
+export type Column = Float32Array | Int32Array | Uint8Array | Uint16Array | Uint32Array;
 
-/** Colonnes « une valeur par entité », collectées une fois (remise à zéro sans allocation). */
-const COLUMNS: Column[] = [];
-for (const c of ALL_COMPONENTS) {
-  for (const col of Object.values(c) as Column[]) if (col.length === N) COLUMNS.push(col);
+/** Colonnes « une valeur par entité » d'une liste de composants. */
+export function columnsOf(components: readonly object[]): Column[] {
+  const out: Column[] = [];
+  for (const c of components) {
+    for (const col of Object.values(c) as Column[]) if (col.length === N) out.push(col);
+  }
+  return out;
 }
 
-/** Remet à zéro les colonnes d'une entité à la réactivation (pas d'état résiduel). */
-export function resetEntity(eid: number): void {
-  for (let i = 0; i < COLUMNS.length; i++) COLUMNS[i][eid] = 0;
-  const m = eid * MARK_SLOTS;
-  for (let i = 0; i < MARK_SLOTS; i++) Status.markT[m + i] = 0;
-  const h = eid * SHOT_HIT_MEMORY;
-  for (let i = 0; i < SHOT_HIT_MEMORY; i++) Shot.hits[h + i] = -1;
-  const w = eid * WEAPON_SLOTS;
-  for (let i = 0; i < WEAPON_SLOTS; i++) WeaponHit.cd[w + i] = 0;
-  Look.scale[eid] = 1;
-  Look.alpha[eid] = 1;
-  Look.tint[eid] = 0xffffff;
-  Shot.target[eid] = -1;
+/**
+ * Remise à zéro d'une entité à sa réactivation, limitée aux composants de son archétype
+ * (quelques dizaines de colonnes au lieu de toutes) : aucun état résiduel, sans allocation.
+ */
+export function makeReset(components: readonly object[]): (eid: number) => void {
+  const cols = columnsOf(components);
+  const status = components.includes(Status);
+  const shot = components.includes(Shot);
+  return (eid: number): void => {
+    for (let i = 0; i < cols.length; i++) cols[i][eid] = 0;
+    if (status) {
+      const m = eid * MARK_SLOTS;
+      for (let i = 0; i < MARK_SLOTS; i++) Status.markT[m + i] = 0;
+      const w = eid * WEAPON_SLOTS;
+      for (let i = 0; i < WEAPON_SLOTS; i++) WeaponHit.cd[w + i] = 0;
+    }
+    if (shot) {
+      const h = eid * SHOT_HIT_MEMORY;
+      for (let i = 0; i < SHOT_HIT_MEMORY; i++) Shot.hits[h + i] = -1;
+      Shot.target[eid] = -1;
+    }
+    Look.scale[eid] = 1;
+    Look.alpha[eid] = 1;
+    Look.tint[eid] = 0xffffff;
+  };
 }

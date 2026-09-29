@@ -10,7 +10,7 @@ function play(sim: RunSim, ticks: number): void {
     sim.input.moveX = Math.cos(time * 0.6);
     sim.input.moveY = Math.sin(time * 0.43);
     if (t % 300 === 0) sim.input.dash = true;
-    if (sim.state.status === 'levelup') sim.choose(0);
+    sim.resolvePrompt();
     if (sim.state.status === 'dead' || sim.state.status === 'victory') break;
     sim.step();
     sim.events.clear();
@@ -91,7 +91,7 @@ describe('RunSim', () => {
     for (let t = 0; t < 60 * 90; t++) {
       sim.input.moveX = Math.cos(t / 120);
       sim.input.moveY = Math.sin(t / 150);
-      if (sim.state.status === 'levelup') sim.choose(0);
+      sim.resolvePrompt();
       sim.step();
       for (let i = 0; i < sim.events.count; i++) {
         if (sim.events.type[i] === 7) reactions++;
@@ -112,7 +112,7 @@ describe('RunSim', () => {
     expect(boss).toBeGreaterThanOrEqual(0);
     const patterns = new Set<number>();
     for (let t = 0; t < 60 * 40; t++) {
-      if (sim.state.status === 'levelup') sim.choose(0);
+      sim.resolvePrompt();
       sim.step();
       for (let i = 0; i < sim.events.count; i++)
         if (sim.events.type[i] === 21) patterns.add(sim.events.a[i]);
@@ -122,7 +122,7 @@ describe('RunSim', () => {
     // Fin rapide : on vide les PV du boss et la run se termine en victoire.
     Life.hp[sim.state.boss.eid] = 0;
     for (let t = 0; t < 60 * 3 && sim.state.status !== 'victory'; t++) {
-      if (sim.state.status === 'levelup') sim.choose(0);
+      sim.resolvePrompt();
       sim.step();
       sim.events.clear();
     }

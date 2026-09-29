@@ -65,10 +65,13 @@ function drawReward(sim: RunSim): ChestReward {
   return { kind: 'gold', index: -1, value: gold };
 }
 
-/** Ouvre un coffre : tirage, application, puis pause de la run pour l'animation. */
-export function openChest(sim: RunSim): void {
+/**
+ * Ouvre un coffre : tirage, application, puis pause de la run pour l'animation. `size` impose
+ * le nombre de récompenses (autel de sacrifice), sinon il dépend de la chance.
+ */
+export function openChest(sim: RunSim, size = 0): void {
   const st = sim.state;
-  const n = chestSize(sim.rng.loot.next(), st.player.stats.luck);
+  const n = size > 0 ? size : chestSize(sim.rng.loot.next(), st.player.stats.luck);
   const rewards: ChestReward[] = [];
   for (let i = 0; i < n; i++) rewards.push(drawReward(sim));
   st.chest = { rewards };

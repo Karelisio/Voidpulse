@@ -11,7 +11,7 @@ import {
   STAGES,
   WEAPONS,
 } from '../content/data';
-import { resetEntity, Pos } from '../engine/components';
+import { Foe, Pos } from '../engine/components';
 import { DT } from '../engine/constants';
 import { EventQueue } from '../engine/events';
 import type { EntityPool } from '../engine/pool';
@@ -19,8 +19,9 @@ import { Rng } from '../engine/rng';
 import { SpatialGrid } from '../engine/spatial';
 import { createGameWorld, type GameWorld } from '../engine/world';
 import { createBossState, spawnBoss, updateBoss } from './boss';
-import { processDeaths, updateBullets, updateShots, updateStatuses } from './combat';
-import { planStage, updateDirector, type StagePlan } from './director';
+import { updateBullets, updateShots, updateStatuses } from './combat';
+import { processDeaths } from './deaths';
+import { planStage, spawnElite, updateDirector, type StagePlan } from './director';
 import { separateEnemies, spawnEnemy, updateEnemies } from './enemies';
 import { dropChest, updatePickups } from './pickups';
 import { spawnPlayer, updatePlayer } from './player';
@@ -37,7 +38,15 @@ import {
 } from './progression';
 import { closeChest } from './loot';
 import { createResonance, startEveil, updateResonance } from './resonance';
-import type { RunState, SimInput } from './state';
+import {
+  buy,
+  closeAltar,
+  closeMerchant,
+  createRunEvents,
+  sacrifice,
+  startRunEvent,
+} from './runevents';
+import type { AltarOfferKind, RunEventKind, RunState, SimInput } from './state';
 import { addWeapon, levelUpWeapon, maxWeaponLevel, updateWeapons } from './weapons';
 import { updateZones } from './zones';
 
@@ -65,6 +74,8 @@ export class RunSim {
   /** Listes d'exclusion des réactions en chaîne (prisme, chaîne toxique). */
   readonly reactList = new Int32Array(32);
   readonly bossList = new Int32Array(1);
+  /** Ennemis visibles (hors fouisseurs enfouis) : contenu de la grille. */
+  private readonly gridList = new Int32Array(this.world.enemies.capacity);
   /** Point de sortie de spawnPoint (réutilisé : aucune allocation). */
   readonly point = { x: 0, y: 0 };
   readonly rng: { spawn: Rng; combat: Rng; ai: Rng; loot: Rng; levelup: Rng };
@@ -105,13 +116,17 @@ export class RunSim {
         dashY: 0,
         faceX: 0,
         faceY: -1,
+        slowT: 0,
+        slowAmt: 0,
         stats: baseStats(),
       },
       weapons: [],
       passives: [],
       resonance: createResonance(),
       director: {
-        eventIndex: 0,
+        waveIndex: 0,
+        target: 0,
+        hpScale: 1,
         bossSpawned: false,
         densityMult: 1,
         eliteT: PROGRESSION.elite.first,
@@ -126,6 +141,10 @@ export class RunSim {
         banished: new Set(),
       },
       chest: null,
+      events: createRunEvents(),
+      merchant: null,
+      altar: null,
+      bonus: { damage: 0, maxHp: 0 },
       stats: {
         kills: 0,
         killsByType: new Int32Array(ENEMIES.length),
@@ -138,6 +157,8 @@ export class RunSim {
         chests: 0,
         evolutions: 0,
         fragments: 0,
+        spent: 0,
+        runEvents: 0,
       },
       debug: { invincible: false },
     };
@@ -152,7 +173,7 @@ export class RunSim {
   /** Active une entité d'un pool, colonnes remises à zéro ; -1 si le pool est plein. */
   spawnIn(pool: EntityPool): number {
     const eid = pool.spawn();
-    if (eid >= 0) resetEntity(eid);
+    if (eid >= 0) pool.reset(eid);
     return eid;
   }
 
@@ -227,14 +248,14 @@ export class RunSim {
 
   private rebuildGrid(): void {
     const p = this.state.player.eid;
-    this.grid.rebuild(
-      Pos.x[p],
-      Pos.y[p],
-      this.world.enemies.active,
-      this.world.enemies.count,
-      Pos.x,
-      Pos.y,
-    );
+    const pool = this.world.enemies;
+    const list = this.gridList;
+    let n = 0;
+    for (let i = 0; i < pool.count; i++) {
+      const e = pool.active[i];
+      if (Foe.hidden[e] === 0) list[n++] = e;
+    }
+    this.grid.rebuild(Pos.x[p], Pos.y[p], list, n, Pos.x, Pos.y);
   }
 
   // --- Commandes (UI) ---------------------------------------------------------------------
@@ -260,6 +281,43 @@ export class RunSim {
     closeChest(this);
   }
 
+  /** Bots (tests, simulateur) : résout l'écran en cours avec le choix par défaut. */
+  resolvePrompt(): void {
+    switch (this.state.status) {
+      case 'levelup':
+        this.choose(0);
+        break;
+      case 'chest':
+        this.closeChest();
+        break;
+      case 'merchant':
+        this.closeMerchant();
+        break;
+      case 'altar':
+        this.closeAltar();
+        break;
+      default:
+    }
+  }
+
+  /** Marchand : achat d'une offre (false si vendue ou trop chère), départ. */
+  buy(i: number): boolean {
+    return buy(this, i);
+  }
+
+  closeMerchant(): void {
+    closeMerchant(this);
+  }
+
+  /** Autel : offrande (false si indisponible), fermeture (refus ou après l'offrande). */
+  sacrifice(kind: AltarOfferKind): boolean {
+    return sacrifice(this, kind);
+  }
+
+  closeAltar(): void {
+    closeAltar(this);
+  }
+
   // --- Debug ------------------------------------------------------------------------------
 
   debugSpawn(type: number, count: number): void {
@@ -267,6 +325,15 @@ export class RunSim {
       this.spawnPoint(20, 300);
       spawnEnemy(this, type % ENEMIES.length, this.point.x, this.point.y, 1);
     }
+  }
+
+  /** Élite d'un type donné (affixes selon le temps de jeu). */
+  debugElite(type: number): void {
+    spawnElite(this, this.state.time, this.state.director.hpScale, type % ENEMIES.length);
+  }
+
+  debugRunEvent(kind: RunEventKind): void {
+    startRunEvent(this, kind);
   }
 
   debugLevelUp(): void {

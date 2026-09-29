@@ -76,6 +76,10 @@ export function computeStats(sim: RunSim): PlayerStats {
       stats.elementMult[k] *= 1 + (per[ELEMENTS[k]] ?? 0) * n;
     }
   }
+  // Bonus de la run (autel, marchand).
+  const bonus = sim.state.bonus;
+  stats.maxHp = Math.max(10, stats.maxHp + bonus.maxHp);
+  stats.damageMult *= 1 + bonus.damage;
   return stats;
 }
 

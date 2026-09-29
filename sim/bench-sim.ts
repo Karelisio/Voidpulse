@@ -1,6 +1,6 @@
 /**
  * Mesure du coût CPU de la simulation seule (Node) dans le scénario de charge.
- *   npx tsx sim/bench-sim.ts [ennemis] [projectiles] [secondes]
+ *   npx tsx sim/bench-sim.ts [ennemis] [projectiles] [secondes] [mix]
  */
 import { weaponIndex } from '../src/content/data';
 import { benchTick, setupBench } from '../src/systems/bench';
@@ -9,7 +9,7 @@ import { RunSim } from '../src/systems/sim';
 const enemies = Number(process.argv[2] ?? 650);
 const shots = Number(process.argv[3] ?? 1100);
 const seconds = Number(process.argv[4] ?? 20);
-const cfg = { enemies, shots };
+const cfg = { enemies, shots, mix: process.argv[5] === 'mix' };
 const sim = new RunSim({ seed: 'bench' });
 for (const index of [weaponIndex('frost'), weaponIndex('arc')]) {
   sim.state.status = 'levelup';
@@ -23,7 +23,7 @@ const ticks = seconds * 60;
 for (let t = 0; t < ticks; t++) {
   sim.input.moveX = Math.cos(t / 90);
   sim.input.moveY = Math.sin(t / 110);
-  if (sim.state.status === 'levelup') sim.choose(0);
+  sim.resolvePrompt();
   benchTick(sim, cfg);
   const t0 = performance.now();
   sim.step();

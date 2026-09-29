@@ -1,13 +1,16 @@
 /**
  * Combat : formule de dégâts (critiques, exposition, fragilité, électrisation, entropie),
  * statuts des six éléments, marques de Résonance, zones d'effet, projectiles du joueur et
- * ennemis, dégâts sur la durée, morts (propagations de la flamme noire et du fléau, coffres).
+ * ennemis, boucliers et protections des ennemis, dégâts sur la durée, propagations de la
+ * flamme noire et du fléau (appelées par deaths.ts).
  */
 import {
   ELEMENTS,
+  ENEMY_PARAM,
   NO_ELEMENT,
   PLAYER,
   REACTIONS,
+  RUN_EVENTS,
   STATUS,
   elementIndex,
   reactionIndex,
@@ -30,10 +33,10 @@ import {
   WeaponHit,
 } from '../engine/components';
 import { DT, MAX_ENTITIES } from '../engine/constants';
+import { ARMORED_MULT, AFFIX, BUBBLE_DELAY } from './elites';
 import { MAX_ENEMY_RADIUS } from './enemies';
 import { EV, SLOT_REACTION } from './events';
-import { dropChest, dropGem } from './pickups';
-import { damagePlayer } from './player';
+import { damagePlayer, slowPlayer } from './player';
 import { applyMark } from './resonance';
 import type { RunSim } from './sim';
 import { blind } from './zones';
@@ -55,9 +58,9 @@ const PLAGUE = REACTIONS[reactionIndex('plague')];
 /**
  * Contexte du coup en cours, réglé par l'appelant juste avant `hitFoe` puis remis à zéro :
  * évite d'allonger la signature pour des cas rares (critique forcé, chance de critique
- * ajoutée, arcs désactivés).
+ * ajoutée, arcs désactivés, dégâts sur la durée qui ignorent boucliers et bulles).
  */
-export const HIT = { forceCrit: false, critBonus: 0, noArc: false };
+export const HIT = { forceCrit: false, critBonus: 0, noArc: false, dot: false };
 
 /** Emplacement d'arme à créditer des dégâts sur la durée, par ennemi. */
 const burnSlot = new Uint8Array(MAX_ENTITIES);
@@ -110,6 +113,14 @@ export function hitFoe(
   // Entropie : fraction des PV max (réduite contre les boss), hors critique.
   if (el === VOID && power > 0)
     dmg += power * Life.max[e] * (isBoss ? STATUS.entropy.bossFactor : 1);
+  if (!HIT.dot && !isBoss && (Foe.shield[e] > 0 || Foe.bubble[e] > 0)) {
+    dmg = absorb(sim, e, dmg, fromX, fromY);
+    if (dmg <= 0) {
+      sim.state.stats.damageBySlot[slot] += amount;
+      sim.events.push(EV.HIT, e, slot | (el << 8) | (1 << 17), Pos.x[e], Pos.y[e], 0, 0, true);
+      return;
+    }
+  }
   Life.hp[e] -= dmg;
   Look.flash[e] = 0.08;
   sim.state.stats.damageBySlot[slot] += dmg;
@@ -156,14 +167,51 @@ export function hitFoe(
   }
 }
 
-/** Multiplicateur des dégâts subis par un ennemi (exposition, fragilité, électrisation). */
+/**
+ * Multiplicateur des dégâts subis par un ennemi : exposition, fragilité, électrisation
+ * (additifs), puis protection d'un soutien et blindage d'élite (multiplicatifs).
+ */
 export function damageTakenMult(e: number, el: number): number {
   let mult = 1;
   if (Status.exposeT[e] > 0) mult += Status.exposeAmt[e];
   if (Status.brittleT[e] > 0) mult += STATUS.brittle;
   if (el === LIGHTNING && Status.shockT[e] > 0) mult += STATUS.shock.bonus;
+  if (Foe.guardT[e] > 0) mult *= Foe.guard[e];
+  if ((Foe.affix[e] & AFFIX.ARMORED) !== 0) mult *= ARMORED_MULT;
   return mult;
 }
+
+/**
+ * Boucliers : l'arc frontal absorbe les coups venus de face (dans son demi-angle) jusqu'à
+ * sa rupture ; la bulle d'élite absorbe tout coup direct puis se recharge après un délai.
+ * Renvoie les dégâts restants pour le corps.
+ */
+function absorb(sim: RunSim, e: number, dmg: number, fromX: number, fromY: number): number {
+  if (Foe.shield[e] > 0) {
+    const fx = fromX - Pos.x[e];
+    const fy = fromY - Pos.y[e];
+    const f = Math.sqrt(fx * fx + fy * fy);
+    const face = Foe.face[e];
+    if (f > 1e-3 && (fx * Math.cos(face) + fy * Math.sin(face)) / f > SHIELD_COS[Foe.type[e]]) {
+      Foe.shield[e] -= dmg;
+      if (Foe.shield[e] <= 0) {
+        Foe.shield[e] = 0;
+        sim.events.push(EV.SHIELD_BREAK, e, 0, Pos.x[e], Pos.y[e], 0);
+      }
+      return 0;
+    }
+  }
+  if (Foe.bubble[e] > 0) {
+    Foe.bubbleT[e] = BUBBLE_DELAY;
+    const taken = Math.min(Foe.bubble[e], dmg);
+    Foe.bubble[e] -= taken;
+    return dmg - taken;
+  }
+  return dmg;
+}
+
+/** Cosinus du demi-angle couvert par le bouclier frontal de chaque type d'ennemi. */
+const SHIELD_COS = Float32Array.from(ENEMY_PARAM.arc, (a) => (a > 0 ? Math.cos(a) : 1));
 
 /** Statut de l'élément `el` (sans marque). */
 export function applyStatus(
@@ -588,11 +636,13 @@ export function updateBullets(sim: RunSim): void {
   const player = sim.state.player.eid;
   const px = Pos.x[player];
   const py = Pos.y[player];
+  // Faille temporelle : les projectiles ennemis ralentissent aussi.
+  const bdt = sim.state.events.riftT > 0 ? DT * RUN_EVENTS.rift.slow : DT;
   for (let i = pool.count - 1; i >= 0; i--) {
     const b = pool.active[i];
-    Bullet.ttl[b] -= DT;
-    const x = Pos.x[b] + Vel.x[b] * DT;
-    const y = Pos.y[b] + Vel.y[b] * DT;
+    Bullet.ttl[b] -= bdt;
+    const x = Pos.x[b] + Vel.x[b] * bdt;
+    const y = Pos.y[b] + Vel.y[b] * bdt;
     Pos.x[b] = x;
     Pos.y[b] = y;
     const dx = x - px;
@@ -600,7 +650,9 @@ export function updateBullets(sim: RunSim): void {
     const d2 = dx * dx + dy * dy;
     const rr = Bullet.r[b] + PLAYER.radius;
     if (d2 < rr * rr) {
-      if (damagePlayer(sim, Bullet.dmg[b]) || sim.state.player.dashT <= 0) {
+      const hurt = damagePlayer(sim, Bullet.dmg[b]);
+      if (hurt && Bullet.slow[b] > 0) slowPlayer(sim, Bullet.slow[b], Bullet.slowT[b]);
+      if (hurt || sim.state.player.dashT <= 0) {
         pool.despawn(b);
         continue;
       }
@@ -637,6 +689,7 @@ function updateStatusPool(
   const stats = sim.state.player.stats;
   const toxDps = STATUS.toxin.dpsPerStack * stats.damageMult * stats.elementMult[POISON];
   const pct = isBoss ? STATUS.percentBossFactor : 1;
+  HIT.dot = true;
   for (let i = 0; i < n; i++) {
     const e = list[i];
     const dot = (tick + e) % dotPhase === 0 && Life.hp[e] > 0;
@@ -694,10 +747,11 @@ function updateStatusPool(
     const w = e * WEAPON_SLOTS;
     for (let k = 0; k < WEAPON_SLOTS; k++) if (WeaponHit.cd[w + k] > 0) WeaponHit.cd[w + k] -= DT;
   }
+  HIT.dot = false;
 }
 
 /** Flamme noire : à la mort, se propage aux voisins. */
-function spreadBlackflame(sim: RunSim, e: number): void {
+export function spreadBlackflame(sim: RunSim, e: number): void {
   const buf = takeBuffer(sim);
   if (!buf) return;
   const x = Pos.x[e];
@@ -718,7 +772,7 @@ function spreadBlackflame(sim: RunSim, e: number): void {
 }
 
 /** Fléau : à la mort, les statuts de l'ennemi contaminent ses voisins. */
-function spreadPlague(sim: RunSim, e: number): void {
+export function spreadPlague(sim: RunSim, e: number): void {
   const buf = takeBuffer(sim);
   if (!buf) return;
   const x = Pos.x[e];
@@ -769,25 +823,3 @@ function spreadPlague(sim: RunSim, e: number): void {
 }
 
 /** Morts d'ennemis : gemme, coffre d'élite, propagations, statistiques, retour au pool. */
-export function processDeaths(sim: RunSim): void {
-  const pool = sim.world.enemies;
-  const stats = sim.state.stats;
-  for (let i = pool.count - 1; i >= 0; i--) {
-    const e = pool.active[i];
-    if (Life.hp[e] > 0) continue;
-    // Les kamikazes qui explosent d'eux-mêmes ne comptent pas comme abattus.
-    if (Foe.state[e] !== 2) {
-      stats.kills++;
-      stats.killsByType[Foe.type[e]]++;
-      dropGem(sim, Pos.x[e], Pos.y[e], Foe.xp[e]);
-      sim.events.push(EV.KILL, e, Foe.type[e], Pos.x[e], Pos.y[e], Foe.xp[e]);
-      if (Foe.elite[e] !== 0) {
-        stats.elitesKilled++;
-        dropChest(sim, Pos.x[e], Pos.y[e]);
-      }
-    }
-    if (Status.blackT[e] > 0.3) spreadBlackflame(sim, e);
-    if (Status.plagueT[e] > 0) spreadPlague(sim, e);
-    pool.despawn(e);
-  }
-}

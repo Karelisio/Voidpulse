@@ -18,6 +18,8 @@ export class EntityPool {
     readonly capacity: number,
     maxEntities: number,
     create: () => number,
+    /** Remise à zéro des composants d'une entité (appelée à chaque activation). */
+    readonly reset: (eid: number) => void = () => undefined,
   ) {
     this.active = new Int32Array(capacity);
     this.free = new Int32Array(capacity);

@@ -3,15 +3,19 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { ZodType } from 'zod';
 import {
+  AffixDef,
   ARCHETYPES,
+  BIOMES,
   BossDef,
   ELEMENTS,
   EnemyDef,
+  type EnemyParam,
   PassiveDef,
   PlayerDef,
   ProgressionDef,
   ReactionDef,
   ResonanceDef,
+  RunEventsDef,
   StageDef,
   StatusDef,
   WeaponDef,
@@ -36,6 +40,8 @@ describe('données de /config', () => {
     check(PassiveDef.array(), 'passives.json');
     check(EnemyDef.array(), 'enemies.json');
     check(BossDef.array(), 'bosses.json');
+    check(AffixDef.array(), 'affixes.json');
+    check(RunEventsDef, 'runevents.json');
     for (const f of readdirSync(path.join(dir, 'stages'))) check(StageDef, `stages/${f}`);
   });
 
@@ -78,7 +84,63 @@ describe('données de /config', () => {
       expect(bosses.some((b) => b.id === stage.boss)).toBe(true);
       for (const [, mix] of stage.mix)
         for (const id of Object.keys(mix)) expect(enemies.has(id)).toBe(true);
-      for (const ev of stage.events) expect(enemies.has(ev.enemy)).toBe(true);
+      for (const w of stage.waves) {
+        expect(enemies.has(w.enemy)).toBe(true);
+        if (w.minion !== undefined) expect(enemies.has(w.minion)).toBe(true);
+        if (w.kind === 'escort') expect(w.minion).toBeDefined();
+      }
     }
+    const events = check(RunEventsDef, 'runevents.json');
+    expect(enemies.has(events.horde.enemy)).toBe(true);
+  });
+
+  it('offrent 40 ennemis (5 par biome) aux paramètres complets', () => {
+    const enemies = check(EnemyDef.array(), 'enemies.json');
+    const regular = enemies.filter((e) => e.biome !== 'event');
+    expect(regular).toHaveLength(40);
+    for (const b of BIOMES.filter((x) => x !== 'event')) {
+      expect(regular.filter((e) => e.biome === b)).toHaveLength(5);
+    }
+    const ids = new Set(enemies.map((e) => e.id));
+    expect(ids.size).toBe(enemies.length);
+    // Chaque famille demandée par la spec est représentée.
+    for (const b of ['swarm', 'tank', 'shooter', 'summoner', 'kamikaze', 'shield', 'teleporter']) {
+      expect(regular.some((e) => e.behavior === b)).toBe(true);
+    }
+    const required: Partial<Record<EnemyDef['behavior'], EnemyParam[]>> = {
+      shooter: ['range', 'fireCooldown', 'bulletSpeed', 'bulletDamage'],
+      kamikaze: ['triggerRange', 'fuse', 'blastRadius', 'blastDamage'],
+      teleporter: ['blinkCooldown', 'telegraph', 'blinkRange'],
+      summoner: ['range', 'summonCooldown', 'summonCount', 'cast'],
+      shield: ['arc', 'shield', 'turnRate'],
+      charger: ['chargeRange', 'windup', 'dashSpeed', 'dashTime', 'recover', 'chargeCooldown'],
+      mortar: ['range', 'fireCooldown', 'flight', 'blastRadius', 'blastDamage'],
+      turret: ['fireCooldown', 'count', 'bulletSpeed', 'bulletDamage', 'spin'],
+      support: ['auraRadius', 'pulse'],
+      burrower: [
+        'burrowCooldown',
+        'burrowTime',
+        'digSpeed',
+        'telegraph',
+        'emergeRadius',
+        'emergeDamage',
+      ],
+      stampede: ['coins'],
+    };
+    for (const e of enemies) {
+      for (const k of required[e.behavior] ?? []) {
+        expect(e.params[k], `${e.id}.${k}`).toBeGreaterThan(0);
+      }
+      if (e.behavior === 'summoner' || e.params.splitCount) {
+        expect(e.minion && ids.has(e.minion), `${e.id}.minion`).toBe(true);
+      }
+      if (e.behavior === 'support')
+        expect((e.params.guard ?? 0) + (e.params.heal ?? 0)).toBeGreaterThan(0);
+      if (e.params.poolTime) expect(e.params.poolRadius && e.params.poolDps).toBeTruthy();
+      if (e.params.trailEvery) expect(e.params.trailRadius && e.params.trailDps).toBeTruthy();
+    }
+    const affixes = check(AffixDef.array(), 'affixes.json');
+    expect(affixes.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(affixes.map((a) => a.id)).size).toBe(affixes.length);
   });
 });

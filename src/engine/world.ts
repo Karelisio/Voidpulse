@@ -19,6 +19,7 @@ import {
   GemTag,
   Life,
   Look,
+  makeReset,
   Orbit,
   OrbitTag,
   PlayerTag,
@@ -41,7 +42,7 @@ export const POOL_SIZES = {
   bullets: 600,
   orbits: 32,
   gems: 900,
-  zones: 256,
+  zones: 512,
   chests: 8,
 };
 
@@ -69,22 +70,46 @@ export function createGameWorld(sizes: PoolSizes = POOL_SIZES): GameWorld {
       for (const c of components) addComponent(ecs, eid, c);
       return eid;
     };
-  const pool = (name: keyof PoolSizes, ...components: object[]): EntityPool =>
-    new EntityPool(name, sizes[name], MAX_ENTITIES, archetype(...components));
+  const pool = (name: keyof PoolSizes): EntityPool => {
+    const components = ARCHETYPES[name];
+    return new EntityPool(
+      name,
+      sizes[name],
+      MAX_ENTITIES,
+      archetype(...components),
+      makeReset(components),
+    );
+  };
 
   return {
     ecs,
-    player: pool('player', PlayerTag, Pos, Vel, Body, Life, Look),
-    boss: pool('boss', BossTag, Pos, Vel, Body, Life, Look, Foe, Status),
-    enemies: pool('enemies', EnemyTag, Pos, Vel, Body, Life, Look, Foe, Status),
-    shots: pool('shots', ShotTag, Pos, Vel, Look, Shot),
-    bullets: pool('bullets', BulletTag, Pos, Vel, Look, Bullet),
-    orbits: pool('orbits', OrbitTag, Pos, Look, Orbit),
-    gems: pool('gems', GemTag, Pos, Vel, Look, Gem),
-    zones: pool('zones', ZoneTag, Pos, Look, Zone),
-    chests: pool('chests', ChestTag, Pos, Look, Chest),
+    player: pool('player'),
+    boss: pool('boss'),
+    enemies: pool('enemies'),
+    shots: pool('shots'),
+    bullets: pool('bullets'),
+    orbits: pool('orbits'),
+    gems: pool('gems'),
+    zones: pool('zones'),
+    chests: pool('chests'),
   };
 }
+
+/**
+ * Composants de chaque archétype. Seules leurs colonnes sont remises à zéro à l'activation :
+ * aucun système ne doit écrire une colonne hors de l'archétype de l'entité (vérifié en test).
+ */
+export const ARCHETYPES: Record<keyof PoolSizes, readonly object[]> = {
+  player: [PlayerTag, Pos, Vel, Body, Life, Look],
+  boss: [BossTag, Pos, Vel, Body, Life, Look, Foe, Status],
+  enemies: [EnemyTag, Pos, Vel, Body, Life, Look, Foe, Status],
+  shots: [ShotTag, Pos, Vel, Look, Shot],
+  bullets: [BulletTag, Pos, Vel, Look, Bullet],
+  orbits: [OrbitTag, Pos, Look, Orbit],
+  gems: [GemTag, Pos, Vel, Look, Gem],
+  zones: [ZoneTag, Pos, Look, Zone],
+  chests: [ChestTag, Pos, Look, Chest],
+};
 
 /** Nombre d'entités d'un archétype enregistrées dans le monde (outillage, debug). */
 export function countArchetype(world: GameWorld, tag: object): number {

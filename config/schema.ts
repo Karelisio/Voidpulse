@@ -4,8 +4,9 @@
  */
 import { z } from 'zod';
 import { ELEMENTS } from './elements';
+import { BEHAVIORS, BIOMES, ENEMY_PARAMS, RUN_EVENTS, type EnemyParam } from './keys';
 
-export { ELEMENTS };
+export { BEHAVIORS, BIOMES, ELEMENTS, ENEMY_PARAMS, RUN_EVENTS, type EnemyParam };
 export const Element = z.enum(ELEMENTS);
 export type Element = z.infer<typeof Element>;
 
@@ -200,13 +201,15 @@ export const PassiveDef = z.object({
 });
 export type PassiveDef = z.infer<typeof PassiveDef>;
 
-export const Behavior = z.enum(['swarm', 'tank', 'shooter', 'kamikaze', 'teleporter']);
+export const Behavior = z.enum(BEHAVIORS);
 export type Behavior = z.infer<typeof Behavior>;
 
 export const EnemyDef = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   name: z.string(),
+  biome: z.enum(BIOMES),
   behavior: Behavior,
+  description: z.string(),
   hp: positive,
   speed: positive,
   damage: nonNegative,
@@ -215,10 +218,78 @@ export const EnemyDef = z.object({
   mass: positive,
   knockbackRes: z.number().min(0).max(1),
   color: hex,
-  /** Paramètres propres au comportement. */
-  params: z.record(z.string(), z.number()).default({}),
+  /** Élément des projectiles et flaques (teinte, ralentissement du givre). */
+  element: Element.optional(),
+  /** Créature invoquée, ou libérée à la mort (fission). */
+  minion: z.string().optional(),
+  params: z.partialRecord(z.enum(ENEMY_PARAMS), z.number().nonnegative()).default({}),
 });
 export type EnemyDef = z.infer<typeof EnemyDef>;
+
+/** Affixe d'élite (tiré au hasard ; 1 à 3 selon le temps de jeu). */
+export const AffixDef = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  name: z.string(),
+  description: z.string(),
+  color: hex,
+  /** Comportements incompatibles (effet redondant). */
+  excludes: z.array(Behavior).default([]),
+  params: z.record(z.string(), z.number()),
+});
+export type AffixDef = z.infer<typeof AffixDef>;
+
+export const RunEventKind = z.enum(RUN_EVENTS);
+
+/** Événements en cours de run : marchand, autel de sacrifice, horde dorée, faille temporelle. */
+export const RunEventsDef = z.object({
+  /** Premier événement (s), puis intervalle aléatoire [min, max]. */
+  first: positive,
+  interval: z.tuple([positive, positive]),
+  /** Aucun événement dans cette fenêtre avant l'arrivée du boss. */
+  bossBuffer: nonNegative,
+  /** Distance d'apparition des marchands, autels et failles. */
+  distance: z.tuple([positive, positive]),
+  /** Or : probabilité qu'un ennemi abattu lâche une pièce ; pièces des élites. */
+  coinChance: z.number().min(0).max(1),
+  eliteCoins: z.number().int().nonnegative(),
+  merchant: z.object({
+    duration: positive,
+    radius: positive,
+    /** Prix × (1 + temps / priceScale). */
+    priceScale: positive,
+    offers: z.number().int().positive(),
+    stock: z.array(
+      z.object({
+        id: z.enum(['heal', 'weapon', 'passive', 'maxhp', 'reroll', 'chest']),
+        price: positive,
+        value: nonNegative,
+      }),
+    ),
+  }),
+  altar: z.object({
+    duration: positive,
+    radius: positive,
+    channel: positive,
+    blood: z.object({ cost: z.number().min(0).max(1), rewards: z.number().int().positive() }),
+    flesh: z.object({ cost: positive, damage: positive }),
+    gold: z.object({ cost: z.number().min(0).max(1), min: z.number().int().nonnegative() }),
+  }),
+  horde: z.object({
+    duration: positive,
+    every: positive,
+    count: z.number().int().positive(),
+    enemy: z.string(),
+  }),
+  rift: z.object({
+    duration: positive,
+    radius: positive,
+    time: positive,
+    /** Vitesse des ennemis et de leurs projectiles dans le temps suspendu. */
+    slow: z.number().min(0).max(1),
+    xp: positive,
+  }),
+});
+export type RunEventsDef = z.infer<typeof RunEventsDef>;
 
 export const ReactionDef = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
@@ -327,14 +398,24 @@ export const StageDef = z.object({
   mix: z.array(z.tuple([nonNegative, z.record(z.string(), nonNegative)])).min(1),
   /** Multiplicateur de PV des ennemis au fil du temps [secondes, facteur]. */
   hpScale: z.array(z.tuple([nonNegative, positive])).min(2),
-  events: z.array(
+  /** Vagues scénarisées. */
+  waves: z.array(
     z.object({
       at: nonNegative,
-      kind: z.enum(['ring', 'line', 'swarm']),
+      /**
+       * ring : cercle autour du joueur ; line : ligne qui avance ; swarm : essaim groupé ;
+       * pincer : deux essaims opposés ; escort : un meneur (élite si `elite`) et sa garde
+       * `minion` ; stampede : ligne qui traverse l'écran.
+       */
+      kind: z.enum(['ring', 'line', 'swarm', 'pincer', 'escort', 'stampede']),
       enemy: z.string(),
       count: z.number().int().positive(),
+      minion: z.string().optional(),
+      elite: z.boolean().optional(),
     }),
   ),
+  /** Événements de run imposés [secondes, type] ; sinon tirés au hasard (runevents.json). */
+  runEvents: z.array(z.tuple([nonNegative, RunEventKind])).optional(),
 });
 export type StageDef = z.infer<typeof StageDef>;
 
@@ -356,6 +437,8 @@ export const ProgressionDef = z.object({
     damage: positive,
     speed: positive,
     xp: positive,
+    /** Nombre d'affixes selon le temps [secondes, nombre] (palier atteint). */
+    affixes: z.array(z.tuple([nonNegative, z.number().int().nonnegative()])).min(1),
   }),
 });
 export type ProgressionDef = z.infer<typeof ProgressionDef>;

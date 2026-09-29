@@ -1,7 +1,10 @@
-/** Gemmes d'XP : apparition (fusion au-delà d'un seuil), aimantation, collecte, montée de niveau. */
+/**
+ * Gemmes d'XP et pièces d'or : apparition (fusion des gemmes au-delà d'un seuil), aimantation,
+ * collecte, montée de niveau ; coffres d'élite.
+ */
 import { PLAYER, PROGRESSION } from '../content/data';
 import { FRAME } from '../content/frames';
-import { Chest, Gem, Look, Pos, Vel } from '../engine/components';
+import { Chest, GEM_KIND, Gem, Look, Pos, Vel } from '../engine/components';
 import { DT } from '../engine/constants';
 import { EV } from './events';
 import { openChest } from './loot';
@@ -20,6 +23,7 @@ export function dropGem(sim: RunSim, x: number, y: number, value: number): void 
     let bestD2 = Infinity;
     for (let i = 0; i < pool.count; i++) {
       const g = pool.active[i];
+      if (Gem.kind[g] !== GEM_KIND.XP) continue;
       const dx = Pos.x[g] - x;
       const dy = Pos.y[g] - y;
       const d2 = dx * dx + dy * dy;
@@ -44,6 +48,30 @@ export function dropGem(sim: RunSim, x: number, y: number, value: number): void 
   Pos.py[g] = Pos.y[g];
   Gem.value[g] = value;
   Look.frame[g] = gemFrame(value);
+}
+
+/** Pièces d'or (fragments) : une entité par pièce, au plus 12 (la valeur est répartie). */
+export function dropCoins(sim: RunSim, x: number, y: number, count: number): void {
+  const n = Math.min(12, Math.max(1, Math.round(count)));
+  const value = count / n;
+  const pool = sim.world.gems;
+  for (let k = 0; k < n; k++) {
+    const g = sim.spawnIn(pool);
+    if (g < 0) {
+      // Réserve pleine : l'or est crédité directement.
+      sim.state.stats.fragments += value * (n - k);
+      return;
+    }
+    const a = sim.rng.loot.range(0, Math.PI * 2);
+    const r = n > 1 ? sim.rng.loot.range(6, 18) : 0;
+    Pos.x[g] = x + Math.cos(a) * r;
+    Pos.y[g] = y + Math.sin(a) * r;
+    Pos.px[g] = Pos.x[g];
+    Pos.py[g] = Pos.y[g];
+    Gem.value[g] = value;
+    Gem.kind[g] = GEM_KIND.COIN;
+    Look.frame[g] = FRAME.COIN;
+  }
 }
 
 /** Coffre d'élite posé au sol (ramassé au contact). */
@@ -84,10 +112,16 @@ export function updatePickups(sim: RunSim): void {
     }
     const d = Math.sqrt(d2);
     if (d < collect) {
-      const value = Gem.value[g] * p.stats.growth;
-      p.xp += value;
-      sim.state.stats.xpCollected += value;
-      sim.events.push(EV.XP, 0, 0, Pos.x[g], Pos.y[g], value, 0, true);
+      if (Gem.kind[g] === GEM_KIND.COIN) {
+        const value = Gem.value[g] * p.stats.greed;
+        sim.state.stats.fragments += value;
+        sim.events.push(EV.COIN, 0, 0, Pos.x[g], Pos.y[g], value, 0, true);
+      } else {
+        const value = Gem.value[g] * p.stats.growth;
+        p.xp += value;
+        sim.state.stats.xpCollected += value;
+        sim.events.push(EV.XP, 0, 0, Pos.x[g], Pos.y[g], value, 0, true);
+      }
       pool.despawn(g);
       continue;
     }

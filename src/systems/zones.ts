@@ -1,9 +1,11 @@
 /**
  * Zones au sol et effets persistants : nuages de réaction, mines et télégraphes du boss,
  * marques de téléportation, mines du joueur, flaques, frappes (orage), rayons, orbes de
- * surtension, puits d'implosion.
+ * surtension, puits d'implosion ; dangers ennemis (flaques, obus de mortier, alertes,
+ * explosions d'élite) et décors d'événements (marchand, autel, faille temporelle). Les zones
+ * ennemies suivent le temps suspendu de la faille.
  */
-import { PLAYER, REACTIONS, reactionIndex } from '../content/data';
+import { ENEMY_PARAM, PLAYER, REACTIONS, RUN_EVENTS, reactionIndex } from '../content/data';
 import { FRAME } from '../content/frames';
 import { Body, Life, Look, Pos, Status, Zone } from '../engine/components';
 import { DT } from '../engine/constants';
@@ -20,8 +22,9 @@ import {
   takeBuffer,
 } from './combat';
 import { MAX_ENEMY_RADIUS } from './enemies';
-import { EV, SLOT_REACTION } from './events';
-import { damagePlayer } from './player';
+import { EV, RUN_EVENT_KIND, RUN_EVENT_PHASE, SLOT_REACTION } from './events';
+import { damagePlayer, slowPlayer } from './player';
+import { enterRift, openAltar, openMerchant } from './runevents';
 import type { RunSim } from './sim';
 
 export const ZONE = {
@@ -41,7 +44,25 @@ export const ZONE = {
   SURGE: 9,
   /** Puits d'implosion : aspire puis détone. */
   WELL: 10,
+  /** Flaque ennemie (lave, poison) : blesse le joueur toutes les 0,5 s ; le givre ralentit. */
+  HAZARD: 11,
+  /** Obus de mortier en vol : Pos = cible, w/h = origine, param = type d'ennemi. */
+  MORTAR: 12,
+  /** Cercle d'alerte (surgissement d'un fouisseur) : purement visuel. */
+  WARN: 13,
+  /** Explosion différée d'une élite instable. */
+  VOLATILE: 14,
+  /** Décors d'événements : marchand, autel de sacrifice (param : progression), faille. */
+  MERCHANT: 15,
+  ALTAR: 16,
+  RIFT: 17,
 } as const;
+
+/** Zones ennemies : leur temps s'écoule au ralenti dans une faille temporelle. */
+const ENEMY_ZONE = new Uint8Array(32);
+for (const k of [1, 2, 3, 4, 11, 12, 13, 14]) ENEMY_ZONE[k] = 1;
+const HAZARD_TICK = 0.5;
+const FROST = 1;
 
 const FRAME_OF: Record<number, number> = {
   [ZONE.VAPOR]: FRAME.ZONE_VAPOR,
@@ -54,6 +75,13 @@ const FRAME_OF: Record<number, number> = {
   [ZONE.BEAM]: FRAME.ZONE_BEAM,
   [ZONE.SURGE]: FRAME.ZONE_SURGE,
   [ZONE.WELL]: FRAME.ZONE_WELL,
+  [ZONE.HAZARD]: FRAME.ZONE_HAZARD,
+  [ZONE.MORTAR]: FRAME.ZONE_TARGET,
+  [ZONE.WARN]: FRAME.ZONE_WARN,
+  [ZONE.VOLATILE]: FRAME.ZONE_WARN,
+  [ZONE.MERCHANT]: FRAME.MERCHANT,
+  [ZONE.ALTAR]: FRAME.ALTAR,
+  [ZONE.RIFT]: FRAME.RIFT,
 };
 
 const SURGE = REACTIONS[reactionIndex('surge')];
@@ -137,7 +165,7 @@ export function spawnVapor(
   spawnZone(sim, ZONE.VAPOR, x, y, r, dur, dmg, param);
 }
 
-/** Télégraphe rectangulaire (charge) : origine, longueur, largeur, angle. */
+/** Télégraphe rectangulaire (charge, visée) : origine, longueur, largeur, angle. */
 export function spawnLineZone(
   sim: RunSim,
   x: number,
@@ -146,12 +174,77 @@ export function spawnLineZone(
   width: number,
   rot: number,
   dur: number,
-): void {
+): number {
   const z = spawnZone(sim, ZONE.CHARGE_LINE, x, y, 0, dur, 0, 0);
-  if (z < 0) return;
+  if (z < 0) return -1;
   Zone.w[z] = length;
   Zone.h[z] = width;
   Zone.rot[z] = rot;
+  return z;
+}
+
+/**
+ * Flaque ennemie : une flaque de même teinte déjà présente à proximité est ravivée (durée,
+ * rayon) plutôt que d'en empiler une nouvelle — traînées lisibles, réserve de zones préservée.
+ */
+export function spawnHazard(
+  sim: RunSim,
+  x: number,
+  y: number,
+  r: number,
+  dps: number,
+  dur: number,
+  element: number,
+  tint: number,
+): void {
+  const pool = sim.world.zones;
+  const reach = r * 0.6;
+  for (let i = 0; i < pool.count; i++) {
+    const z = pool.active[i];
+    if (Zone.kind[z] !== ZONE.HAZARD || Look.tint[z] !== tint) continue;
+    const dx = x - Pos.x[z];
+    const dy = y - Pos.y[z];
+    if (dx * dx + dy * dy >= reach * reach) continue;
+    Zone.dur[z] = Math.max(Zone.dur[z], Zone.t[z] + dur);
+    Zone.r[z] = Math.min(r * 1.3, Math.max(Zone.r[z], r));
+    Zone.dmg[z] = Math.max(Zone.dmg[z], dps);
+    return;
+  }
+  const z = spawnZone(sim, ZONE.HAZARD, x, y, r, dur, dps, 0);
+  if (z < 0) return;
+  Zone.element[z] = element;
+  Zone.tickT[z] = HAZARD_TICK;
+  Look.tint[z] = tint;
+}
+
+/** Cercle d'alerte teinté (visuel). */
+export function spawnWarn(
+  sim: RunSim,
+  x: number,
+  y: number,
+  r: number,
+  dur: number,
+  tint: number,
+): void {
+  const z = spawnZone(sim, ZONE.WARN, x, y, r, dur, 0, 0);
+  if (z >= 0) Look.tint[z] = tint;
+}
+
+/** Retire les zones d'un type (départ du marchand, autel consommé). */
+export function despawnZones(sim: RunSim, kind: number): void {
+  const pool = sim.world.zones;
+  for (let i = pool.count - 1; i >= 0; i--) {
+    const z = pool.active[i];
+    if (Zone.kind[z] === kind) pool.despawn(z);
+  }
+}
+
+/** Le joueur est-il dans le disque de la zone (bord du joueur compris) ? */
+function touches(z: number, px: number, py: number, r: number): boolean {
+  const dx = px - Pos.x[z];
+  const dy = py - Pos.y[z];
+  const rr = r + PLAYER.radius;
+  return dx * dx + dy * dy < rr * rr;
 }
 
 /** Orbe de surtension : au-delà de SURGE_MAX, le plus ancien est ravivé. */
@@ -287,12 +380,14 @@ export function updateZones(sim: RunSim): void {
   const player = sim.state.player.eid;
   const px = Pos.x[player];
   const py = Pos.y[player];
+  const edt = sim.state.events.riftT > 0 ? DT * RUN_EVENTS.rift.slow : DT;
   for (let i = pool.count - 1; i >= 0; i--) {
     const z = pool.active[i];
-    Zone.t[z] += DT;
+    const kind = Zone.kind[z];
+    const zdt = ENEMY_ZONE[kind] !== 0 ? edt : DT;
+    Zone.t[z] += zdt;
     const t = Zone.t[z];
     const dur = Zone.dur[z];
-    const kind = Zone.kind[z];
     const life = dur > 0 ? t / dur : 1;
     switch (kind) {
       case ZONE.VAPOR: {
@@ -473,6 +568,107 @@ export function updateZones(sim: RunSim): void {
         if (t >= dur) {
           aoe(sim, Pos.x[z], Pos.y[z], Zone.r[z] * 0.7, Zone.dmg[z], SLOT_REACTION, 160, 0.3, 0, 0);
           sim.events.push(EV.EXPLOSION, 4, 0, Pos.x[z], Pos.y[z], Zone.r[z] * 0.7, 4);
+        }
+        break;
+      case ZONE.HAZARD:
+        Look.alpha[z] = Math.min(1, t * 5, (dur - t) * 1.5);
+        Zone.tickT[z] -= zdt;
+        if (Zone.tickT[z] <= 0) {
+          Zone.tickT[z] = HAZARD_TICK;
+          if (touches(z, px, py, Zone.r[z] * 0.85)) {
+            if (Zone.element[z] === FROST) slowPlayer(sim, 0.35, 0.8);
+            else damagePlayer(sim, Zone.dmg[z] * HAZARD_TICK);
+          }
+        }
+        break;
+      case ZONE.MORTAR:
+        Look.alpha[z] = 0.35 + 0.65 * life;
+        if (t >= dur) {
+          const type = Zone.param[z];
+          const r = Zone.r[z];
+          if (touches(z, px, py, r)) {
+            damagePlayer(sim, Zone.dmg[z]);
+            if (ENEMY_PARAM.slow[type] > 0) {
+              slowPlayer(sim, ENEMY_PARAM.slow[type], ENEMY_PARAM.slowTime[type]);
+            }
+          }
+          sim.events.push(EV.EXPLOSION, 5, 0, Pos.x[z], Pos.y[z], r, Zone.element[z]);
+          if (ENEMY_PARAM.poolTime[type] > 0) {
+            spawnHazard(
+              sim,
+              Pos.x[z],
+              Pos.y[z],
+              ENEMY_PARAM.poolRadius[type],
+              ENEMY_PARAM.poolDps[type],
+              ENEMY_PARAM.poolTime[type],
+              Zone.element[z],
+              Look.tint[z],
+            );
+          }
+        }
+        break;
+      case ZONE.VOLATILE:
+        Look.alpha[z] = 0.4 + 0.6 * life;
+        if (t >= dur) {
+          if (touches(z, px, py, Zone.r[z])) damagePlayer(sim, Zone.dmg[z]);
+          sim.events.push(EV.EXPLOSION, 6, 0, Pos.x[z], Pos.y[z], Zone.r[z], 255);
+        }
+        break;
+      case ZONE.MERCHANT:
+        Look.alpha[z] = Math.min(1, t * 2, (dur - t) * 2);
+        if (t >= dur) {
+          sim.events.push(
+            EV.RUN_EVENT,
+            RUN_EVENT_KIND.MERCHANT,
+            RUN_EVENT_PHASE.END,
+            Pos.x[z],
+            Pos.y[z],
+            0,
+          );
+        } else if (touches(z, px, py, Zone.r[z]) && sim.state.status === 'running') {
+          openMerchant(sim);
+        }
+        break;
+      case ZONE.ALTAR: {
+        Look.alpha[z] = Math.min(1, t * 2, (dur - t) * 2);
+        const ev = sim.state.events;
+        const channel = RUN_EVENTS.altar.channel;
+        if (t >= dur) {
+          ev.altarProgress = 0;
+          sim.events.push(
+            EV.RUN_EVENT,
+            RUN_EVENT_KIND.ALTAR,
+            RUN_EVENT_PHASE.END,
+            Pos.x[z],
+            Pos.y[z],
+            0,
+          );
+        } else if (touches(z, px, py, Zone.r[z] * 0.6)) {
+          ev.altarProgress += DT;
+          if (ev.altarProgress >= channel && sim.state.status === 'running') {
+            ev.altarProgress = 0;
+            openAltar(sim);
+          }
+        } else ev.altarProgress = Math.max(0, ev.altarProgress - DT * 2);
+        Zone.param[z] = ev.altarProgress / channel;
+        break;
+      }
+      case ZONE.RIFT:
+        Look.alpha[z] = Math.min(1, t * 2, (dur - t) * 2);
+        Look.rot[z] += 1.5 * DT;
+        if (t >= dur) {
+          sim.events.push(
+            EV.RUN_EVENT,
+            RUN_EVENT_KIND.RIFT,
+            RUN_EVENT_PHASE.END,
+            Pos.x[z],
+            Pos.y[z],
+            0,
+          );
+        } else if (touches(z, px, py, Zone.r[z] * 0.7)) {
+          enterRift(sim, Pos.x[z], Pos.y[z]);
+          pool.despawn(z);
+          continue;
         }
         break;
       default:

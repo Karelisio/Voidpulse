@@ -1,24 +1,95 @@
-/** Ennemis : apparition, comportements (5 archétypes), séparation des foules, contact. */
-import { ENEMIES, PLAYER, PROGRESSION } from '../content/data';
+/**
+ * Ennemis : apparition, 13 comportements (essaim, tank, tireur, kamikaze, téléporteur,
+ * invocateur, bouclier, chargeur, mortier, tourelle, soutien, fouisseur, ruée), traits communs
+ * (ondulation, bonds, traînée), séparation des foules et contact. Dans une faille temporelle,
+ * leurs déplacements et minuteurs tournent au ralenti (edt).
+ */
+import {
+  BEHAVIOR_OF,
+  ENEMIES,
+  ENEMY_ELEMENT,
+  ENEMY_MINION,
+  ENEMY_PARAM,
+  PLAYER,
+  PROGRESSION,
+  RUN_EVENTS,
+  colorOf,
+} from '../content/data';
 import { FRAME } from '../content/frames';
-import { Body, Bullet, Foe, Life, Look, Pos, Status, Vel } from '../engine/components';
+import {
+  Body,
+  Bullet,
+  FOE_FLAG,
+  Foe,
+  Life,
+  Look,
+  Pos,
+  Status,
+  Vel,
+  Zone,
+} from '../engine/components';
 import { DT } from '../engine/constants';
-import { EV, TELEGRAPH_KIND } from './events';
-import { damagePlayer } from './player';
+import { releaseBuffer, takeBuffer } from './combat';
+import { updateAffixes } from './elites';
+import { ENEMY_ACTION, EV, TELEGRAPH_KIND } from './events';
+import { damagePlayer, slowPlayer } from './player';
 import type { RunSim } from './sim';
-import { spawnZone, ZONE } from './zones';
+import { spawnHazard, spawnLineZone, spawnWarn, spawnZone, ZONE } from './zones';
 
-export const BEHAVIOR = { swarm: 0, tank: 1, shooter: 2, kamikaze: 3, teleporter: 4 } as const;
-/** Comportement de chaque type d'ennemi (index de config). */
-export const BEHAVIOR_OF = Uint8Array.from(ENEMIES.map((e) => BEHAVIOR[e.behavior]));
+export { BEHAVIOR_OF };
+
+/** Index de comportement (ordre de BEHAVIORS, config/keys.ts). */
+export const BEHAVIOR = {
+  swarm: 0,
+  tank: 1,
+  shooter: 2,
+  kamikaze: 3,
+  teleporter: 4,
+  summoner: 5,
+  shield: 6,
+  charger: 7,
+  mortar: 8,
+  turret: 9,
+  support: 10,
+  burrower: 11,
+  stampede: 12,
+} as const;
+
 /** Plus grand rayon d'ennemi ordinaire ou élite (marge des requêtes de grille). */
 export const MAX_ENEMY_RADIUS = Math.max(...ENEMIES.map((e) => e.radius)) * PROGRESSION.elite.scale;
 
-const STATE = { MOVE: 0, CHARGE: 1, EXPLODED: 2 } as const;
+/** Couleur de chaque type (teinte des projectiles, flaques et télégraphes). */
+export const ENEMY_COLOR = Uint32Array.from(ENEMIES.map((e) => colorOf(e.color)));
+
+/**
+ * États : déplacement, préparation (télégraphe, visée, incantation, élan), explosé (kamikaze :
+ * pas de mort créditée), ruée, récupération, enfouissement, sous terre, surgissement, disparu
+ * (ruée sortie de l'écran : retiré sans butin).
+ */
+export const STATE = {
+  MOVE: 0,
+  CHARGE: 1,
+  EXPLODED: 2,
+  DASH: 3,
+  RECOVER: 4,
+  DIG: 5,
+  UNDER: 6,
+  EMERGE: 7,
+  GONE: 8,
+} as const;
+
 /** Au-delà de cette distance au joueur, un ennemi est replacé devant lui. */
 const RELOCATE_DISTANCE = 1500;
+const TAU = Math.PI * 2;
+const DIG_TIME = 0.45;
+/** Durée de vie d'un membre de la horde dorée (s). */
+const STAMPEDE_LIFE = 9;
+/** Distance que les soutiens gardent avec le joueur. */
+const SUPPORT_RANGE = 240;
+/** Tourelle : distance sous laquelle elle cesse d'avancer. */
+const TURRET_HOLD = 190;
 
-const param = (type: number, key: string): number => ENEMIES[type].params[key] ?? 0;
+const P = ENEMY_PARAM;
 
 export function spawnEnemy(
   sim: RunSim,
@@ -44,16 +115,78 @@ export function spawnEnemy(
   Foe.dmg[e] = def.damage;
   Foe.xp[e] = def.xp;
   Foe.kbRes[e] = def.knockbackRes;
-  const beh = BEHAVIOR_OF[type];
-  if (beh === BEHAVIOR.shooter) Foe.t0[e] = sim.rng.spawn.range(0.6, param(type, 'fireCooldown'));
-  if (beh === BEHAVIOR.teleporter) Foe.t0[e] = sim.rng.spawn.range(1, param(type, 'blinkCooldown'));
+  const p = sim.state.player.eid;
+  Foe.face[e] = Math.atan2(Pos.y[p] - y, Pos.x[p] - x);
+  Look.rot[e] = Foe.face[e];
+  const rng = sim.rng.spawn;
+  switch (BEHAVIOR_OF[type]) {
+    case BEHAVIOR.shooter:
+    case BEHAVIOR.mortar:
+    case BEHAVIOR.turret:
+      Foe.t0[e] = rng.range(0.6, P.fireCooldown[type]);
+      break;
+    case BEHAVIOR.teleporter:
+      Foe.t0[e] = rng.range(1, P.blinkCooldown[type]);
+      break;
+    case BEHAVIOR.summoner:
+      Foe.t0[e] = rng.range(1.5, P.summonCooldown[type]);
+      break;
+    case BEHAVIOR.charger:
+      Foe.t0[e] = rng.range(0.8, P.chargeCooldown[type]);
+      break;
+    case BEHAVIOR.support:
+      Foe.t0[e] = rng.range(0.2, P.pulse[type]);
+      break;
+    case BEHAVIOR.burrower:
+      Foe.t0[e] = rng.range(1, P.burrowCooldown[type]);
+      break;
+    case BEHAVIOR.shield:
+      Foe.shield[e] = Life.max[e] * P.shield[type];
+      break;
+    case BEHAVIOR.stampede:
+      Foe.t1[e] = STAMPEDE_LIFE;
+      break;
+  }
+  if (P.trailEvery[type] > 0) Foe.t2[e] = rng.range(0, P.trailEvery[type]);
   Look.frame[e] = FRAME.ENEMY_BASE + type;
   const stats = sim.state.stats;
   if (sim.world.enemies.count > stats.peakEnemies) stats.peakEnemies = sim.world.enemies.count;
   return e;
 }
 
-function fireBullet(
+/** Créatures invoquées autour de `e` (XP réduite, jamais de pièce). */
+export function summonAround(
+  sim: RunSim,
+  e: number,
+  type: number,
+  count: number,
+  radius: number,
+): void {
+  if (type < 0) return;
+  const hpScale = sim.state.director.hpScale;
+  const a0 = sim.rng.ai.range(0, TAU);
+  for (let k = 0; k < count; k++) {
+    const a = a0 + (k / count) * TAU;
+    const m = spawnEnemy(
+      sim,
+      type,
+      Pos.x[e] + Math.cos(a) * radius,
+      Pos.y[e] + Math.sin(a) * radius,
+      hpScale,
+    );
+    if (m < 0) return;
+    Foe.flags[m] |= FOE_FLAG.SUMMONED;
+    Foe.xp[m] *= 0.5;
+  }
+}
+
+/** Les invocations s'arrêtent quand la foule dépasse nettement la densité visée. */
+export function canSummon(sim: RunSim): boolean {
+  const pool = sim.world.enemies;
+  return pool.count < Math.min(pool.capacity - 80, sim.state.director.target * 1.35 + 30);
+}
+
+export function fireBullet(
   sim: RunSim,
   x: number,
   y: number,
@@ -61,6 +194,10 @@ function fireBullet(
   dy: number,
   speed: number,
   dmg: number,
+  radius = 6,
+  tint = BULLET_TINT,
+  slow = 0,
+  slowT = 0,
 ): void {
   const b = sim.spawnIn(sim.world.bullets);
   if (b < 0) return;
@@ -72,20 +209,173 @@ function fireBullet(
   Vel.y[b] = dy * speed;
   Bullet.dmg[b] = dmg;
   Bullet.ttl[b] = 6;
-  Bullet.r[b] = 6;
-  Look.frame[b] = FRAME.BULLET;
+  Bullet.r[b] = radius;
+  Bullet.slow[b] = slow;
+  Bullet.slowT[b] = slowT;
+  Look.frame[b] = FRAME.BULLET_TINT;
+  Look.tint[b] = tint;
+  Look.scale[b] = radius / 6;
 }
 
-export { fireBullet };
+/** Teinte par défaut des projectiles ennemis (boss). */
+export const BULLET_TINT = 0xff4d6d;
+
+/** Salve en étoile de `count` projectiles à partir de l'angle `a0`. */
+export function radialBullets(
+  sim: RunSim,
+  x: number,
+  y: number,
+  count: number,
+  a0: number,
+  speed: number,
+  dmg: number,
+  radius: number,
+  tint: number,
+  slow: number,
+  slowT: number,
+): void {
+  for (let k = 0; k < count; k++) {
+    const a = a0 + (k / count) * TAU;
+    fireBullet(sim, x, y, Math.cos(a), Math.sin(a), speed, dmg, radius, tint, slow, slowT);
+  }
+}
+
+/** Tir d'un tireur : `count` projectiles en éventail d'ouverture `spread` autour de `angle`. */
+function fireSpread(sim: RunSim, type: number, x: number, y: number, angle: number): void {
+  const count = Math.max(1, P.count[type]);
+  const spread = P.spread[type];
+  const radius = P.bulletRadius[type] || 6;
+  for (let k = 0; k < count; k++) {
+    const a = count > 1 ? angle + (k / (count - 1) - 0.5) * spread : angle;
+    fireBullet(
+      sim,
+      x,
+      y,
+      Math.cos(a),
+      Math.sin(a),
+      P.bulletSpeed[type],
+      P.bulletDamage[type],
+      radius,
+      ENEMY_COLOR[type],
+      P.slow[type],
+      P.slowTime[type],
+    );
+  }
+}
+
+/** Explosion d'un kamikaze : souffle, épines, flaque, ralentissement ; pas de mort créditée. */
+function explode(sim: RunSim, e: number, type: number, x: number, y: number, d: number): void {
+  const radius = P.blastRadius[type];
+  if (d < radius + PLAYER.radius) {
+    damagePlayer(sim, P.blastDamage[type]);
+    if (P.slow[type] > 0) slowPlayer(sim, P.slow[type], P.slowTime[type]);
+  }
+  sim.events.push(EV.EXPLOSION, 0, 0, x, y, radius, ENEMY_ELEMENT[type]);
+  const spikes = P.deathBullets[type];
+  if (spikes > 0) {
+    radialBullets(
+      sim,
+      x,
+      y,
+      spikes,
+      sim.rng.ai.range(0, TAU),
+      P.bulletSpeed[type],
+      P.bulletDamage[type],
+      5,
+      ENEMY_COLOR[type],
+      0,
+      0,
+    );
+  }
+  if (P.poolTime[type] > 0) {
+    spawnHazard(
+      sim,
+      x,
+      y,
+      P.poolRadius[type],
+      P.poolDps[type],
+      P.poolTime[type],
+      ENEMY_ELEMENT[type],
+      ENEMY_COLOR[type],
+    );
+  }
+  Foe.state[e] = STATE.EXPLODED;
+  Life.hp[e] = 0;
+}
+
+/** Retire un ennemi sans mort créditée (ruée sortie du champ). */
+function vanish(e: number): void {
+  Foe.state[e] = STATE.GONE;
+  Life.hp[e] = 0;
+}
+
+/** Obus de mortier : cible le joueur en anticipant un peu son déplacement. */
+function launchShell(sim: RunSim, e: number, type: number, x: number, y: number): void {
+  const pe = sim.state.player.eid;
+  const flight = P.flight[type];
+  const tx = Pos.x[pe] + Vel.x[pe] * flight * 0.4;
+  const ty = Pos.y[pe] + Vel.y[pe] * flight * 0.4;
+  const z = spawnZone(
+    sim,
+    ZONE.MORTAR,
+    tx,
+    ty,
+    P.blastRadius[type],
+    flight,
+    P.blastDamage[type],
+    type,
+  );
+  if (z >= 0) {
+    // Origine de l'obus (arc dessiné par le rendu), élément de la flaque éventuelle.
+    Zone.w[z] = x;
+    Zone.h[z] = y;
+    Zone.element[z] = ENEMY_ELEMENT[type];
+    Look.tint[z] = ENEMY_COLOR[type];
+  }
+  Look.flash[e] = 0.1;
+  sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.MORTAR, e, x, y, 0);
+}
+
+/** Impulsion d'un soutien : protège ou soigne les alliés dans son aura. */
+function supportPulse(sim: RunSim, e: number, type: number, x: number, y: number): void {
+  const r = P.auraRadius[type];
+  const buf = takeBuffer(sim);
+  if (!buf) return;
+  const n = sim.grid.query(x, y, r + MAX_ENEMY_RADIUS, buf);
+  const guard = P.guard[type];
+  const heal = P.heal[type];
+  const hold = P.pulse[type] + 0.25;
+  let healed = 0;
+  for (let k = 0; k < n; k++) {
+    const o = buf[k];
+    if (o === e || Life.hp[o] <= 0 || Foe.hidden[o] !== 0) continue;
+    const ox = Pos.x[o] - x;
+    const oy = Pos.y[o] - y;
+    if (ox * ox + oy * oy > r * r) continue;
+    if (guard > 0) {
+      Foe.guardT[o] = hold;
+      Foe.guard[o] = guard;
+    }
+    if (heal > 0 && Life.hp[o] < Life.max[o]) {
+      Life.hp[o] = Math.min(Life.max[o], Life.hp[o] + heal * Life.max[o]);
+      healed++;
+    }
+  }
+  releaseBuffer(sim);
+  if (healed > 0) sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.HEAL, e, x, y, r);
+}
 
 export function updateEnemies(sim: RunSim): void {
   const pool = sim.world.enemies;
-  const player = sim.state.player.eid;
+  const st = sim.state;
+  const player = st.player.eid;
   const px = Pos.x[player];
   const py = Pos.y[player];
-  const time = sim.state.time;
-  const boss = sim.state.boss.eid;
+  const time = st.time;
+  const tick = st.tick;
+  const boss = st.boss.eid;
   const bossAlive = boss >= 0 && sim.world.boss.isActive(boss);
+  const edt = st.events.riftT > 0 ? DT * RUN_EVENTS.rift.slow : DT;
 
   for (let i = pool.count - 1; i >= 0; i--) {
     const e = pool.active[i];
@@ -101,9 +391,10 @@ export function updateEnemies(sim: RunSim): void {
     dy /= d;
 
     const frozen = Status.freezeT[e] > 0 || Status.stunT[e] > 0;
-    let speed = Foe.speed[e] * (1 - 0.55 * Status.chill[e]);
+    const slowed = 1 - 0.55 * Status.chill[e];
+    let speed = Foe.speed[e] * slowed;
     const blind = Status.blindT[e] > 0;
-    if (blind) {
+    if (blind && beh !== BEHAVIOR.stampede) {
       // Aveuglé (vapeur) : erre dans une direction pseudo-aléatoire stable.
       const a = e * 1.7 + time * 1.3;
       dx = Math.cos(a);
@@ -113,44 +404,43 @@ export function updateEnemies(sim: RunSim): void {
 
     let vx = 0;
     let vy = 0;
+    let contact = 1;
+    /** Distance à garder avec le joueur (tireurs, invocateurs, mortiers, soutiens), 0 sinon. */
+    let keep = 0;
     if (!frozen) {
       switch (beh) {
         case BEHAVIOR.shooter: {
-          const range = param(type, 'range');
+          const range = P.range[type];
+          const sniper = P.sniper[type] > 0;
           if (Foe.state[e] === STATE.MOVE) {
-            if (d > range * 0.95) {
-              vx = dx * speed;
-              vy = dy * speed;
-            } else if (d < range * 0.55) {
-              vx = -dx * speed;
-              vy = -dy * speed;
-            } else {
-              const side = e & 1 ? 1 : -1;
-              vx = -dy * speed * 0.6 * side;
-              vy = dx * speed * 0.6 * side;
-            }
-            Foe.t0[e] -= DT;
+            keep = range;
+            Foe.t0[e] -= edt;
             if (Foe.t0[e] <= 0 && d < range * 1.3 && !blind) {
+              const tele = P.telegraph[type] || 0.35;
               Foe.state[e] = STATE.CHARGE;
-              Foe.t1[e] = 0.35;
-              sim.events.push(EV.TELEGRAPH, TELEGRAPH_KIND.SHOOTER, e, x, y, 0.35, 0, true);
+              Foe.t1[e] = tele;
+              Foe.tx[e] = dx;
+              Foe.ty[e] = dy;
+              Foe.face[e] = Math.atan2(dy, dx);
+              if (sniper) {
+                const z = spawnLineZone(sim, x, y, range * 1.25, 5, Foe.face[e], tele);
+                if (z >= 0) Look.tint[z] = ENEMY_COLOR[type];
+                sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.AIM, e, x, y, 0);
+              } else {
+                sim.events.push(EV.TELEGRAPH, TELEGRAPH_KIND.SHOOTER, e, x, y, tele, 0, true);
+              }
             }
           } else {
             Look.flash[e] = 0.05;
-            Foe.t1[e] -= DT;
+            // Les tireurs ordinaires visent au dernier moment ; le tireur d'élite garde sa ligne.
+            if (!sniper) Foe.face[e] = Math.atan2(dy, dx);
+            Foe.t1[e] -= edt;
             if (Foe.t1[e] <= 0) {
-              fireBullet(
-                sim,
-                x,
-                y,
-                dx,
-                dy,
-                param(type, 'bulletSpeed'),
-                param(type, 'bulletDamage'),
-              );
-              sim.events.push(EV.ENEMY_SHOT, e, 0, x, y, 0, 0, true);
+              fireSpread(sim, type, x, y, Foe.face[e]);
+              if (sniper) sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.SNIPE, e, x, y, 0);
+              else sim.events.push(EV.ENEMY_SHOT, e, 0, x, y, 0, 0, true);
               Foe.state[e] = STATE.MOVE;
-              Foe.t0[e] = param(type, 'fireCooldown') * sim.rng.ai.range(0.85, 1.15);
+              Foe.t0[e] = P.fireCooldown[type] * sim.rng.ai.range(0.85, 1.15);
             }
           }
           break;
@@ -159,20 +449,16 @@ export function updateEnemies(sim: RunSim): void {
           if (Foe.state[e] === STATE.MOVE) {
             vx = dx * speed;
             vy = dy * speed;
-            if (d < param(type, 'triggerRange') && !blind) {
+            if (d < P.triggerRange[type] && !blind) {
               Foe.state[e] = STATE.CHARGE;
-              Foe.t0[e] = param(type, 'fuse');
+              Foe.t0[e] = P.fuse[type];
               sim.events.push(EV.TELEGRAPH, TELEGRAPH_KIND.KAMIKAZE, e, x, y, Foe.t0[e]);
             }
           } else {
-            Look.flash[e] = sim.state.tick % 8 < 4 ? 0.06 : 0;
-            Foe.t0[e] -= DT;
+            Look.flash[e] = tick % 8 < 4 ? 0.06 : 0;
+            Foe.t0[e] -= edt;
             if (Foe.t0[e] <= 0) {
-              const radius = param(type, 'blastRadius');
-              if (d < radius + PLAYER.radius) damagePlayer(sim, param(type, 'blastDamage'));
-              sim.events.push(EV.EXPLOSION, 0, 0, x, y, radius);
-              Foe.state[e] = STATE.EXPLODED;
-              Life.hp[e] = 0;
+              explode(sim, e, type, x, y, d);
               continue;
             }
           }
@@ -182,16 +468,17 @@ export function updateEnemies(sim: RunSim): void {
           if (Foe.state[e] === STATE.MOVE) {
             vx = dx * speed;
             vy = dy * speed;
-            Foe.t0[e] -= DT;
+            Foe.t0[e] -= edt;
             if (Foe.t0[e] <= 0 && d < 650 && !blind) {
-              const telegraph = param(type, 'telegraph');
-              const a = sim.rng.ai.range(0, Math.PI * 2);
-              const r = param(type, 'blinkRange');
+              const telegraph = P.telegraph[type];
+              const a = sim.rng.ai.range(0, TAU);
+              const r = P.blinkRange[type];
               Foe.tx[e] = px + Math.cos(a) * r;
               Foe.ty[e] = py + Math.sin(a) * r;
               Foe.state[e] = STATE.CHARGE;
               Foe.t1[e] = telegraph;
-              spawnZone(sim, ZONE.BLINK_MARK, Foe.tx[e], Foe.ty[e], 24, telegraph, 0, 0);
+              const z = spawnZone(sim, ZONE.BLINK_MARK, Foe.tx[e], Foe.ty[e], 24, telegraph, 0, 0);
+              if (z >= 0) Look.tint[z] = ENEMY_COLOR[type];
               sim.events.push(
                 EV.TELEGRAPH,
                 TELEGRAPH_KIND.BLINK,
@@ -202,8 +489,8 @@ export function updateEnemies(sim: RunSim): void {
               );
             }
           } else {
-            Foe.t1[e] -= DT;
-            Look.alpha[e] = 0.4 + 0.6 * Math.max(0, Foe.t1[e] / param(type, 'telegraph'));
+            Foe.t1[e] -= edt;
+            Look.alpha[e] = 0.4 + 0.6 * Math.max(0, Foe.t1[e] / P.telegraph[type]);
             if (Foe.t1[e] <= 0) {
               sim.events.push(EV.BLINK, e, 0, x, y, Foe.tx[e], Foe.ty[e]);
               Pos.x[e] = Foe.tx[e];
@@ -212,9 +499,201 @@ export function updateEnemies(sim: RunSim): void {
               Pos.py[e] = Pos.y[e];
               Look.alpha[e] = 1;
               Foe.state[e] = STATE.MOVE;
-              Foe.t0[e] = param(type, 'blinkCooldown') * sim.rng.ai.range(0.85, 1.15);
+              Foe.t0[e] = P.blinkCooldown[type] * sim.rng.ai.range(0.85, 1.15);
               continue;
             }
+          }
+          break;
+        }
+        case BEHAVIOR.summoner: {
+          const range = P.range[type];
+          if (Foe.state[e] === STATE.MOVE) {
+            keep = range;
+            Foe.t0[e] -= edt;
+            if (Foe.t0[e] <= 0 && d < range * 1.8 && !blind) {
+              if (canSummon(sim)) {
+                Foe.state[e] = STATE.CHARGE;
+                Foe.t1[e] = P.cast[type];
+                sim.events.push(EV.TELEGRAPH, TELEGRAPH_KIND.CAST, e, x, y, P.cast[type], 0, true);
+              } else Foe.t0[e] = 1;
+            }
+          } else {
+            Look.flash[e] = (tick & 7) < 4 ? 0.05 : 0;
+            Foe.t1[e] -= edt;
+            if (Foe.t1[e] <= 0) {
+              const r = Body.r[e] + 26;
+              summonAround(sim, e, ENEMY_MINION[type], P.summonCount[type], r);
+              sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.SUMMON, e, x, y, r);
+              Foe.state[e] = STATE.MOVE;
+              Foe.t0[e] = P.summonCooldown[type] * sim.rng.ai.range(0.85, 1.15);
+            }
+          }
+          break;
+        }
+        case BEHAVIOR.shield: {
+          // Le bouclier pivote vers le joueur à vitesse limitée : le contourner expose le flanc.
+          let diff = Math.atan2(dy, dx) - Foe.face[e];
+          diff -= Math.round(diff / TAU) * TAU;
+          const turn = P.turnRate[type] * edt;
+          Foe.face[e] += diff > turn ? turn : diff < -turn ? -turn : diff;
+          vx = dx * speed;
+          vy = dy * speed;
+          break;
+        }
+        case BEHAVIOR.charger: {
+          const s = Foe.state[e];
+          if (s === STATE.MOVE) {
+            vx = dx * speed;
+            vy = dy * speed;
+            Foe.t0[e] -= edt;
+            if (Foe.t0[e] <= 0 && d < P.chargeRange[type] && !blind) {
+              Foe.state[e] = STATE.CHARGE;
+              Foe.t1[e] = P.windup[type];
+              Foe.tx[e] = dx;
+              Foe.ty[e] = dy;
+              Foe.face[e] = Math.atan2(dy, dx);
+              const len = P.dashSpeed[type] * P.dashTime[type] + Body.r[e];
+              const z = spawnLineZone(sim, x, y, len, Body.r[e] * 2, Foe.face[e], P.windup[type]);
+              if (z >= 0) Look.tint[z] = ENEMY_COLOR[type];
+              sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.CHARGE, e, x, y, 0);
+            }
+          } else if (s === STATE.CHARGE) {
+            Look.flash[e] = (tick & 3) < 2 ? 0.05 : 0;
+            Foe.t1[e] -= edt;
+            if (Foe.t1[e] <= 0) {
+              Foe.state[e] = STATE.DASH;
+              Foe.t1[e] = P.dashTime[type];
+              sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.DASH, e, x, y, 0);
+            }
+          } else if (s === STATE.DASH) {
+            vx = Foe.tx[e] * P.dashSpeed[type] * slowed;
+            vy = Foe.ty[e] * P.dashSpeed[type] * slowed;
+            contact = 1.25;
+            Foe.t1[e] -= edt;
+            if (Foe.t1[e] <= 0) {
+              Foe.state[e] = STATE.RECOVER;
+              Foe.t1[e] = P.recover[type];
+            }
+          } else {
+            vx = dx * speed * 0.3;
+            vy = dy * speed * 0.3;
+            Foe.t1[e] -= edt;
+            if (Foe.t1[e] <= 0) {
+              Foe.state[e] = STATE.MOVE;
+              Foe.t0[e] = P.chargeCooldown[type] * sim.rng.ai.range(0.85, 1.15);
+            }
+          }
+          break;
+        }
+        case BEHAVIOR.mortar: {
+          const range = P.range[type];
+          keep = range;
+          Foe.t0[e] -= edt;
+          if (Foe.t0[e] <= 0 && d < range * 1.35 && !blind) {
+            Foe.t0[e] = P.fireCooldown[type] * sim.rng.ai.range(0.85, 1.15);
+            launchShell(sim, e, type, x, y);
+          }
+          break;
+        }
+        case BEHAVIOR.turret: {
+          if (d > TURRET_HOLD) {
+            vx = dx * speed;
+            vy = dy * speed;
+          }
+          Foe.face[e] += 0.5 * edt;
+          if (Foe.state[e] === STATE.MOVE) {
+            Foe.t0[e] -= edt;
+            if (Foe.t0[e] <= 0 && d < 720) {
+              Foe.state[e] = STATE.CHARGE;
+              Foe.t1[e] = P.telegraph[type] || 0.4;
+              sim.events.push(EV.TELEGRAPH, TELEGRAPH_KIND.VOLLEY, e, x, y, Foe.t1[e], 0, true);
+            }
+          } else {
+            Look.flash[e] = (tick & 3) < 2 ? 0.05 : 0;
+            Foe.t1[e] -= edt;
+            if (Foe.t1[e] <= 0) {
+              Foe.t2[e] += P.spin[type];
+              radialBullets(
+                sim,
+                x,
+                y,
+                P.count[type],
+                Foe.face[e] + Foe.t2[e],
+                P.bulletSpeed[type],
+                P.bulletDamage[type],
+                P.bulletRadius[type] || 6,
+                ENEMY_COLOR[type],
+                P.slow[type],
+                P.slowTime[type],
+              );
+              sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.VOLLEY, e, x, y, 0);
+              Foe.state[e] = STATE.MOVE;
+              Foe.t0[e] = P.fireCooldown[type] * sim.rng.ai.range(0.9, 1.1);
+            }
+          }
+          break;
+        }
+        case BEHAVIOR.support: {
+          keep = SUPPORT_RANGE;
+          Foe.t0[e] -= edt;
+          if (Foe.t0[e] <= 0) {
+            Foe.t0[e] = P.pulse[type];
+            supportPulse(sim, e, type, x, y);
+          }
+          break;
+        }
+        case BEHAVIOR.burrower: {
+          const s = Foe.state[e];
+          if (s === STATE.MOVE) {
+            vx = dx * speed;
+            vy = dy * speed;
+            Foe.t0[e] -= edt;
+            if (Foe.t0[e] <= 0 && d < 560 && !blind) {
+              Foe.state[e] = STATE.DIG;
+              Foe.t1[e] = DIG_TIME;
+              sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.BURROW, e, x, y, 0);
+            }
+          } else if (s === STATE.DIG) {
+            Foe.t1[e] -= edt;
+            Look.alpha[e] = Math.max(0.2, Foe.t1[e] / DIG_TIME);
+            if (Foe.t1[e] <= 0) {
+              Foe.state[e] = STATE.UNDER;
+              Foe.t1[e] = P.burrowTime[type];
+              Foe.hidden[e] = 1;
+              Look.frame[e] = FRAME.MOUND;
+              Look.alpha[e] = 1;
+            }
+          } else if (s === STATE.UNDER) {
+            vx = dx * P.digSpeed[type] * slowed;
+            vy = dy * P.digSpeed[type] * slowed;
+            Foe.t1[e] -= edt;
+            if (d < 24 || Foe.t1[e] <= 0) {
+              Foe.state[e] = STATE.EMERGE;
+              Foe.t1[e] = P.telegraph[type];
+              spawnWarn(sim, x, y, P.emergeRadius[type], P.telegraph[type], ENEMY_COLOR[type]);
+            }
+          } else {
+            Foe.t1[e] -= edt;
+            if (Foe.t1[e] <= 0) {
+              Foe.hidden[e] = 0;
+              Look.frame[e] = FRAME.ENEMY_BASE + type;
+              const r = P.emergeRadius[type];
+              if (d < r + PLAYER.radius) damagePlayer(sim, P.emergeDamage[type]);
+              sim.events.push(EV.EXPLOSION, 7, 0, x, y, r, 255);
+              sim.events.push(EV.ENEMY_ACTION, ENEMY_ACTION.EMERGE, e, x, y, r);
+              Foe.state[e] = STATE.MOVE;
+              Foe.t0[e] = P.burrowCooldown[type] * sim.rng.ai.range(0.85, 1.15);
+            }
+          }
+          break;
+        }
+        case BEHAVIOR.stampede: {
+          vx = Foe.tx[e] * speed;
+          vy = Foe.ty[e] * speed;
+          Foe.t1[e] -= edt;
+          if (Foe.t1[e] <= 0) {
+            vanish(e);
+            continue;
           }
           break;
         }
@@ -222,7 +701,59 @@ export function updateEnemies(sim: RunSim): void {
           vx = dx * speed;
           vy = dy * speed;
       }
+
+      // Garder ses distances : s'approcher, reculer ou tourner autour du joueur. Écrit sur
+      // place (pas d'appel : les doubles passés à une fonction non inlinée sont alloués).
+      if (keep > 0) {
+        if (d > keep * 0.95) {
+          vx = dx * speed;
+          vy = dy * speed;
+        } else if (d < keep * 0.55) {
+          vx = -dx * speed;
+          vy = -dy * speed;
+        } else {
+          const side = e & 1 ? 0.6 : -0.6;
+          vx = -dy * speed * side;
+          vy = dx * speed * side;
+        }
+      }
+
+      // Traits de déplacement (hors attaques).
+      if (Foe.state[e] === STATE.MOVE) {
+        const wave = P.wave[type];
+        if (wave > 0) {
+          const s = Math.sin(time * P.waveFreq[type] * TAU + e * 1.3) * wave * speed;
+          vx -= dy * s;
+          vy += dx * s;
+        }
+        const hopOn = P.hopOn[type];
+        if (hopOn > 0) {
+          const phase = (time + e * 0.37) % (hopOn + P.hopOff[type]);
+          const k = phase < hopOn ? P.hopBoost[type] : 0.1;
+          vx *= k;
+          vy *= k;
+        }
+      }
+      const trail = P.trailEvery[type];
+      if (trail > 0 && Foe.hidden[e] === 0) {
+        Foe.t2[e] -= edt;
+        if (Foe.t2[e] <= 0) {
+          Foe.t2[e] = trail;
+          spawnHazard(
+            sim,
+            x,
+            y,
+            P.trailRadius[type],
+            P.trailDps[type],
+            P.trailTime[type],
+            ENEMY_ELEMENT[type],
+            ENEMY_COLOR[type],
+          );
+        }
+      }
     }
+    if (Foe.affix[e] !== 0 && updateAffixes(sim, e, d, frozen, edt)) continue;
+    if (Foe.guardT[e] > 0) Foe.guardT[e] -= DT;
 
     // Recul (amorti), déplacement.
     vx += Status.kx[e];
@@ -231,11 +762,11 @@ export function updateEnemies(sim: RunSim): void {
     Status.ky[e] *= 0.82;
     Vel.x[e] = vx;
     Vel.y[e] = vy;
-    let nx = x + vx * DT;
-    let ny = y + vy * DT;
+    let nx = x + vx * edt;
+    let ny = y + vy * edt;
 
     // Les ennemis ne traversent pas le boss.
-    if (bossAlive) {
+    if (bossAlive && Foe.hidden[e] === 0) {
       const bx = nx - Pos.x[boss];
       const by = ny - Pos.y[boss];
       const rr = Body.r[boss] + Body.r[e];
@@ -248,14 +779,22 @@ export function updateEnemies(sim: RunSim): void {
     }
     Pos.x[e] = nx;
     Pos.y[e] = ny;
-    if (vx * vx + vy * vy > 4) Look.rot[e] = Math.atan2(vy, vx);
+    if (beh === BEHAVIOR.shield || beh === BEHAVIOR.turret) Look.rot[e] = Foe.face[e];
+    else if (Foe.state[e] === STATE.CHARGE && beh === BEHAVIOR.shooter) Look.rot[e] = Foe.face[e];
+    else if (vx * vx + vy * vy > 4) Look.rot[e] = Math.atan2(vy, vx);
     if (Look.flash[e] > 0) Look.flash[e] -= DT;
 
     // Contact avec le joueur.
-    if (!frozen && Foe.dmg[e] > 0 && d < Body.r[e] + PLAYER.radius) damagePlayer(sim, Foe.dmg[e]);
+    if (!frozen && Foe.hidden[e] === 0 && Foe.dmg[e] > 0 && d < Body.r[e] + PLAYER.radius) {
+      damagePlayer(sim, Foe.dmg[e] * contact);
+    }
 
-    // Trop loin : replacé devant le joueur (la densité reste constante).
+    // Trop loin : replacé devant le joueur (la densité reste constante) ; une ruée disparaît.
     if (d > RELOCATE_DISTANCE) {
+      if (beh === BEHAVIOR.stampede) {
+        vanish(e);
+        continue;
+      }
       sim.spawnPoint(50, 150);
       Pos.x[e] = sim.point.x;
       Pos.y[e] = sim.point.y;
@@ -268,6 +807,7 @@ export function updateEnemies(sim: RunSim): void {
 /**
  * Séparation des foules : répulsion positionnelle entre ennemis qui se chevauchent
  * (au plus 10 voisins). Au-delà de 400 ennemis, chacun n'est traité qu'un tick sur deux.
+ * Les fouisseurs enfouis ne sont pas dans la grille et ne poussent personne.
  */
 export function separateEnemies(sim: RunSim): void {
   const pool = sim.world.enemies;
@@ -280,6 +820,7 @@ export function separateEnemies(sim: RunSim): void {
   for (let i = 0; i < n; i++) {
     if (stagger && (i & 1) !== parity) continue;
     const e = pool.active[i];
+    if (Foe.hidden[e] !== 0) continue;
     const x = Pos.x[e];
     const y = Pos.y[e];
     const r = Body.r[e];

@@ -3,15 +3,19 @@
  * Index numériques pour la simulation (tableaux SoA) : type d'ennemi, élément, réaction.
  */
 import { ELEMENTS, type ElementId } from '../../config/elements';
+import { BEHAVIORS, ENEMY_PARAMS, type BehaviorId, type EnemyParam } from '../../config/keys';
 import type {
+  AffixDef,
   BossDef,
   EnemyDef,
   PassiveDef,
   ReactionDef,
+  RunEventsDef,
   StageDef,
   StatusDef,
   WeaponDef,
 } from '../../config/schema';
+import affixesJson from '../../config/affixes.json';
 import bossesJson from '../../config/bosses.json';
 import enemiesJson from '../../config/enemies.json';
 import passivesJson from '../../config/passives.json';
@@ -19,11 +23,13 @@ import playerJson from '../../config/player.json';
 import progressionJson from '../../config/progression.json';
 import reactionsJson from '../../config/reactions.json';
 import resonanceJson from '../../config/resonance.json';
+import runEventsJson from '../../config/runevents.json';
 import statusJson from '../../config/status.json';
 import protoStageJson from '../../config/stages/proto.json';
 import weaponsJson from '../../config/weapons.json';
 
 export type {
+  AffixDef,
   BossDef,
   EnemyDef,
   PassiveDef,
@@ -31,13 +37,14 @@ export type {
   ProgressionDef,
   ReactionDef,
   ResonanceDef,
+  RunEventsDef,
   StageDef,
   StatusDef,
   WeaponDef,
   WeaponParams,
   WeaponStats,
 } from '../../config/schema';
-export { ELEMENTS, type ElementId };
+export { BEHAVIORS, ELEMENTS, ENEMY_PARAMS, type BehaviorId, type ElementId, type EnemyParam };
 
 export const PLAYER = playerJson;
 export const WEAPONS = weaponsJson as WeaponDef[];
@@ -49,6 +56,35 @@ export const STATUS: StatusDef = statusJson;
 export const BOSSES = bossesJson as BossDef[];
 export const PROGRESSION = progressionJson;
 export const STAGES: Partial<Record<string, StageDef>> = { proto: protoStageJson as StageDef };
+// Paramètres hétérogènes selon l'affixe : le JSON est validé par config.test.ts.
+export const AFFIXES = affixesJson as unknown as AffixDef[];
+export const RUN_EVENTS = runEventsJson as RunEventsDef;
+
+/** Paramètres d'ennemis en colonnes (index = type d'ennemi, 0 si absent). */
+export const ENEMY_PARAM = Object.fromEntries(
+  ENEMY_PARAMS.map((k) => [k, Float32Array.from(ENEMIES.map((e) => e.params[k] ?? 0))]),
+) as Record<EnemyParam, Float32Array>;
+
+/** Comportement de chaque type d'ennemi (index dans BEHAVIORS). */
+export const BEHAVIOR_OF = Uint8Array.from(
+  ENEMIES.map((e) => BEHAVIORS.indexOf(e.behavior)),
+);
+
+/** Élément de chaque type d'ennemi (index dans ELEMENTS, 255 si aucun). */
+export const ENEMY_ELEMENT = Uint8Array.from(
+  ENEMIES.map((e) => (e.element ? ELEMENTS.indexOf(e.element) : 255)),
+);
+
+/** Créature invoquée ou libérée par chaque type (index d'ennemi, -1 si aucune). */
+export const ENEMY_MINION = Int32Array.from(
+  ENEMIES.map((e) => (e.minion ? ENEMIES.findIndex((m) => m.id === e.minion) : -1)),
+);
+
+export function affixIndex(id: string): number {
+  const i = AFFIXES.findIndex((a) => a.id === id);
+  if (i < 0) throw new Error(`Affixe inconnu : ${id}`);
+  return i;
+}
 
 /** Élément « aucun » (dégâts de réaction, contact…) : n'applique pas de marque. */
 export const NO_ELEMENT = 255;

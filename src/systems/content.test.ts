@@ -46,7 +46,7 @@ function foe(sim: RunSim, dx: number, dy: number, hp = 1e6): number {
 
 function run(sim: RunSim, seconds: number): void {
   for (let t = 0; t < seconds * 60; t++) {
-    if (sim.state.status === 'levelup') sim.choose(0);
+    sim.resolvePrompt();
     if (sim.state.status === 'chest') sim.closeChest();
     sim.step();
     sim.events.clear();
@@ -368,7 +368,7 @@ describe('élites, coffres, évolutions', () => {
     sim.events.clear();
     expect(sim.state.stats.elitesKilled).toBe(1);
     for (let t = 0; t < 10 && sim.state.status !== 'chest'; t++) {
-      if (sim.state.status === 'levelup') sim.choose(0);
+      sim.resolvePrompt();
       sim.step();
     }
     expect(sim.state.status).toBe('chest');

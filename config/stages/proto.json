@@ -64,7 +64,7 @@
     [240, 2.1],
     [360, 2.8]
   ],
-  "events": [
+  "waves": [
     {
       "at": 25,
       "kind": "ring",
@@ -79,15 +79,16 @@
     },
     {
       "at": 110,
-      "kind": "swarm",
+      "kind": "pincer",
       "enemy": "bomber",
       "count": 12
     },
     {
       "at": 160,
-      "kind": "ring",
+      "kind": "escort",
       "enemy": "brute",
-      "count": 8
+      "count": 10,
+      "minion": "mite"
     },
     {
       "at": 210,
@@ -96,10 +97,24 @@
       "count": 10
     },
     {
+      "at": 245,
+      "kind": "escort",
+      "enemy": "brute",
+      "count": 12,
+      "minion": "spitter",
+      "elite": true
+    },
+    {
       "at": 260,
       "kind": "ring",
       "enemy": "mite",
       "count": 40
     }
+  ],
+  "runEvents": [
+    [75, "merchant"],
+    [140, "horde"],
+    [195, "rift"],
+    [235, "altar"]
   ]
 }

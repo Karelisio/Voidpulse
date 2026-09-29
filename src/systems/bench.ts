@@ -2,6 +2,7 @@
  * Scénario de charge (menu debug et mesure des performances) : maintient N ennemis coriaces
  * et M projectiles du joueur autour de lui, en plus des armes normales.
  */
+import { ENEMIES } from '../content/data';
 import { FRAME } from '../content/frames';
 import { Life, Look, Pos, Shot, SHOT_HIT_MEMORY, Vel } from '../engine/components';
 import { spawnEnemy } from './enemies';
@@ -11,7 +12,12 @@ import type { RunSim } from './sim';
 export interface BenchConfig {
   enemies: number;
   shots: number;
+  /** Tous les types d'ennemis (tirs, invocations, flaques…) plutôt que les 3 premiers. */
+  mix?: boolean;
 }
+
+/** Ennemis ordinaires (hors horde dorée, placée en fin de liste). */
+const REGULAR = ENEMIES.filter((e) => e.biome !== 'event').length;
 
 export function setupBench(sim: RunSim, cfg: BenchConfig): void {
   sim.state.debug.invincible = true;
@@ -33,7 +39,8 @@ function topUp(sim: RunSim, cfg: BenchConfig): void {
   while (sim.world.enemies.count < cfg.enemies && guard++ < 200) {
     const a = rng.range(0, Math.PI * 2);
     const r = rng.range(120, 700);
-    const e = spawnEnemy(sim, rng.int(3), px + Math.cos(a) * r, py + Math.sin(a) * r, 40);
+    const type = cfg.mix ? rng.int(REGULAR) : rng.int(3);
+    const e = spawnEnemy(sim, type, px + Math.cos(a) * r, py + Math.sin(a) * r, 40);
     if (e < 0) break;
     Life.hp[e] = Life.max[e];
   }

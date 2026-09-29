@@ -5,7 +5,7 @@
  */
 import type { BossDef, PassiveDef, StageDef, WeaponDef, WeaponStats } from '../content/data';
 
-export type RunStatus = 'running' | 'levelup' | 'chest' | 'dead' | 'victory';
+export type RunStatus = 'running' | 'levelup' | 'chest' | 'merchant' | 'altar' | 'dead' | 'victory';
 
 export interface SimInput {
   /** Direction de déplacement (norme ≤ 1). */
@@ -76,6 +76,9 @@ export interface PlayerState {
   dashY: number;
   faceX: number;
   faceY: number;
+  /** Ralentissement (givre ennemi) : durée restante et intensité (fraction de vitesse ôtée). */
+  slowT: number;
+  slowAmt: number;
   stats: PlayerStats;
 }
 
@@ -123,7 +126,12 @@ export interface ResonanceState {
 }
 
 export interface DirectorState {
-  eventIndex: number;
+  /** Prochaine vague scénarisée (index dans stage.waves). */
+  waveIndex: number;
+  /** Densité visée ce tick (plafond des invocations). */
+  target: number;
+  /** Multiplicateur de PV des ennemis ce tick (invocations, fissions). */
+  hpScale: number;
   bossSpawned: boolean;
   densityMult: number;
   /** Délai avant la prochaine élite (s). */
@@ -182,6 +190,76 @@ export interface LevelUpState {
   banished: Set<string>;
 }
 
+export type RunEventKind = 'merchant' | 'altar' | 'horde' | 'rift';
+
+/** Événements de run : calendrier et effets en cours. */
+export interface RunEventsState {
+  /** Instant du prochain événement tiré au hasard (s). */
+  nextAt: number;
+  /** Types déjà tirés dans le cycle en cours (masque) : tous passent avant une répétition. */
+  bag: number;
+  /** Prochain événement imposé par le stage (index dans stage.runEvents). */
+  index: number;
+  /** Horde dorée : temps restant et délai avant la prochaine ligne. */
+  hordeT: number;
+  hordeSpawnT: number;
+  /** Faille temporelle : temps suspendu restant. */
+  riftT: number;
+  /** Autel : progression de l'invocation (s passées dans le cercle). */
+  altarProgress: number;
+  /** Nombre d'événements déclenchés (statistiques, quêtes). */
+  count: number;
+  /** Coffres achetés chez le marchand, posés à son départ. */
+  pendingChests: number;
+  /** Coffre promis par l'autel (nombre de récompenses), ouvert à sa fermeture. */
+  pendingChestSize: number;
+}
+
+export type MerchantItem = 'heal' | 'weapon' | 'passive' | 'maxhp' | 'reroll' | 'chest';
+
+export interface MerchantOffer {
+  item: MerchantItem;
+  /** Arme ou passif concerné (index de config), -1 sinon. */
+  index: number;
+  /** Niveau obtenu, PV ou relances gagnés. */
+  value: number;
+  price: number;
+  sold: boolean;
+}
+
+export interface MerchantState {
+  offers: MerchantOffer[];
+}
+
+export type AltarOfferKind = 'blood' | 'flesh' | 'gold';
+
+export interface AltarOffer {
+  kind: AltarOfferKind;
+  available: boolean;
+}
+
+/** Résultat d'une offrande (mis en forme par l'interface). */
+export interface AltarResult {
+  kind: 'chest' | 'damage' | 'evolution' | 'levels' | 'heal';
+  /** Armes évoluées ou améliorées (index de config). */
+  weapons: number[];
+  /** Taille du coffre ou bonus de dégâts. */
+  value: number;
+}
+
+export interface AltarState {
+  offers: AltarOffer[];
+  /** Offrande choisie, null avant le choix. */
+  chosen: AltarOfferKind | null;
+  result: AltarResult | null;
+}
+
+/** Bonus permanents de la run (autel, marchand). */
+export interface RunBonus {
+  damage: number;
+  maxHp: number;
+}
+
 export interface RunStats {
   kills: number;
   killsByType: Int32Array;
@@ -194,8 +272,11 @@ export interface RunStats {
   elitesKilled: number;
   chests: number;
   evolutions: number;
-  /** Fragments (monnaie méta) ramassés. */
+  /** Fragments (or de la run, monnaie méta) ramassés, moins les achats. */
   fragments: number;
+  /** Or dépensé chez le marchand et sur l'autel. */
+  spent: number;
+  runEvents: number;
 }
 
 export interface RunState {
@@ -211,6 +292,10 @@ export interface RunState {
   boss: BossState;
   levelUp: LevelUpState;
   chest: ChestState | null;
+  events: RunEventsState;
+  merchant: MerchantState | null;
+  altar: AltarState | null;
+  bonus: RunBonus;
   stats: RunStats;
   debug: { invincible: boolean };
 }
