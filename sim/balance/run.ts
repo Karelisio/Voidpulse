@@ -7,7 +7,7 @@ import { ascensionOpen } from '../../src/meta/account';
 import { ascensionSelected } from '../../src/meta/ascension';
 import { metaBonus, type MetaBonus } from '../../src/meta/bonus';
 import { buildRun, type ModeRun } from '../../src/modes/modes';
-import { defaultSave, type SaveData } from '../../src/save/schema';
+import { defaultSave, type Difficulty, type SaveData } from '../../src/save/schema';
 import { DT } from '../../src/engine/constants';
 import { RunSim } from '../../src/systems/sim';
 import { Bot } from './bot';
@@ -22,6 +22,8 @@ export interface RunSetupSim {
   save?: SaveData;
   /** Limite de temps de jeu simulé (s). */
   maxSeconds?: number;
+  /** Difficulté (Normal par défaut). */
+  difficulty?: Difficulty;
 }
 
 export interface RunOutcome {
@@ -57,6 +59,7 @@ export function playRun(setup: RunSetupSim): PlayedRun {
     ascension: save && ascensionOpen(save) ? ascensionSelected(save, setup.stage) : 0,
     now: new Date(0),
     nonce: setup.seed,
+    difficulty: setup.difficulty,
   });
   const meta = metaBonus(save ?? defaultSave());
   const sim = new RunSim({

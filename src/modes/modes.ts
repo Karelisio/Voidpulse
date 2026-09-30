@@ -16,6 +16,7 @@ import {
   type CharacterDef,
   type ModeId,
   type PactDef,
+  type RunModKey,
   type StageDef,
   type WeeklyRulesetDef,
 } from '../content/data';
@@ -23,7 +24,8 @@ import { Rng } from '../engine/rng';
 import { t } from '../i18n';
 import { ascensionMods, MAX_ASCENSION } from '../meta/ascension';
 import type { RunOptions } from '../systems/sim';
-import type { RunRules } from '../systems/state';
+import type { RunMods, RunRules } from '../systems/state';
+import type { Difficulty } from '../save/schema';
 
 export type ModeInfo = ModesDefMode;
 type ModesDefMode = (typeof MODES.modes)[number];
@@ -113,6 +115,22 @@ export interface RunSetup {
   now: Date;
   /** Graine des parties libres. */
   nonce: string;
+  /** Difficulté choisie (Normal par défaut) : ignorée par les défis et le Hardcore. */
+  difficulty?: Difficulty;
+}
+
+/** Modes où la difficulté s'applique (les défis et le Hardcore sont les mêmes pour tous). */
+const DIFFICULTY_MODES: readonly ModeId[] = ['campaign', 'endless', 'bossrush'];
+
+/** Ajoute les multiplicateurs de la difficulté « Détente » aux règles de la partie. */
+function applyDifficulty(run: ModeRun, setup: RunSetup): ModeRun {
+  if (setup.difficulty !== 'relaxed' || !DIFFICULTY_MODES.includes(setup.mode)) return run;
+  const rules = run.options.rules ?? {};
+  const mods: Partial<RunMods> = { ...rules.mods };
+  for (const [k, v] of Object.entries(MODES.difficulty.relaxed) as [RunModKey, number][]) {
+    mods[k] = (mods[k] ?? 1) * v;
+  }
+  return { ...run, options: { ...run.options, rules: { ...rules, mods } } };
 }
 
 export interface ModeRun {
@@ -144,6 +162,10 @@ function startingWeapon(character: CharacterDef, elements: readonly string[]): s
 }
 
 export function buildRun(setup: RunSetup): ModeRun {
+  return applyDifficulty(buildModeRun(setup), setup);
+}
+
+function buildModeRun(setup: RunSetup): ModeRun {
   const info = MODE_INFO[setup.mode];
   const character = CHARACTERS.find((c) => c.id === setup.character) ?? CHARACTERS[0];
   const stage = STAGES[setup.stage] ?? CAMPAIGN[0];

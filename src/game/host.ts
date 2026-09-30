@@ -52,6 +52,7 @@ export class GameHost {
     q.damageNumbers = d.damageNumbers;
     q.shake = d.shake;
     q.reduceFlashes = d.reduceFlashes;
+    q.effectsOpacity = d.effectsOpacity;
     this.renderer.applyQuality();
     this.loop.fpsCap = d.fpsCap;
     this.renderer.hud.setAccent(hudAccent(d));

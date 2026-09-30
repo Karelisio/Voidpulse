@@ -52,6 +52,14 @@ export default defineStrings(
     swatchAria: 'Couleur {hex}',
     hudAccent: 'Accent sur le HUD',
     hudScale: 'Taille du HUD',
+    effects: 'Intensité des effets',
+    effectsHint:
+      'Tirs, étincelles et explosions : plus discrets, les tirs ennemis se voient mieux.',
+    difficulty: 'Difficulté',
+    difficultyHint:
+      'Campagne, Infini et Boss Rush, à partir de la prochaine partie. Détente : ennemis moins nombreux, moins résistants et qui font moins mal. Les défis ne changent pas.',
+    difficultyRelaxed: 'Détente',
+    difficultyNormal: 'Normal',
     colorblind: 'Daltonisme',
     colorblindOff: 'Désactivé',
     colorblindDeuteranopia: 'Deutéranopie',
@@ -132,6 +140,13 @@ export default defineStrings(
     swatchAria: 'Color {hex}',
     hudAccent: 'Accent on HUD',
     hudScale: 'HUD size',
+    effects: 'Effects intensity',
+    effectsHint: 'Shots, sparks and blasts: dimmer ones make enemy fire easier to see.',
+    difficulty: 'Difficulty',
+    difficultyHint:
+      'Campaign, Endless and Boss Rush, from the next run. Relaxed: fewer, weaker enemies that deal less damage. Challenges stay the same.',
+    difficultyRelaxed: 'Relaxed',
+    difficultyNormal: 'Normal',
     colorblind: 'Color blindness',
     colorblindOff: 'Off',
     colorblindDeuteranopia: 'Deuteranopia',

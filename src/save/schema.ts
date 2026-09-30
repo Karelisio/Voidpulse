@@ -8,6 +8,8 @@ export const SAVE_VERSION = 1;
 
 export type ThemeId = 'arcade' | 'material' | 'light' | 'dark';
 export type Language = 'fr' | 'en';
+/** Détente : ennemis moins durs (Campagne, Infini, Boss Rush) ; Normal : l'équilibrage prévu. */
+export type Difficulty = 'relaxed' | 'normal';
 
 export interface AudioPrefs {
   master: number;
@@ -38,6 +40,8 @@ export interface DisplayPrefs {
   reduceFlashes: boolean;
   fpsCap: 30 | 60;
   hudScale: number;
+  /** Opacité des effets des armes du joueur (tirs, étincelles, anneaux, rayons). */
+  effectsOpacity: number;
   theme: ThemeId;
   language: Language;
   /** Palette adaptée au daltonisme (couleurs des éléments en jeu et dans les menus). */
@@ -83,6 +87,8 @@ export interface ProfileData {
   bestScore: number;
   /** Dernier stage choisi. */
   stage: string;
+  /** Difficulté de la Campagne, de l'Infini et du Boss Rush. */
+  difficulty: Difficulty;
   /** Stages terminés (boss final vaincu) : chacun ouvre le suivant. */
   cleared: string[];
   /** Boss vaincus au moins une fois (identifiants). */
@@ -251,6 +257,7 @@ export function defaultSave(now = Date.now()): SaveData {
       reduceFlashes: false,
       fpsCap: 60,
       hudScale: 1,
+      effectsOpacity: 0.7,
       theme: 'arcade',
       language: 'fr',
       colorblind: 'off',
@@ -281,6 +288,7 @@ export function defaultSave(now = Date.now()): SaveData {
       bestRank: -1,
       bestScore: 0,
       stage: 'forest',
+      difficulty: 'relaxed',
       cleared: [],
       bosses: [],
       stageBest: {},

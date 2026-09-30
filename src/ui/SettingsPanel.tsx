@@ -207,6 +207,20 @@ function ControlsTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void)
   const c = d.controls;
   return (
     <>
+      <Row label={t('settings.difficulty')} hint={t('settings.difficultyHint')}>
+        <Choice
+          value={d.profile.difficulty}
+          options={[
+            { value: 'relaxed', label: t('settings.difficultyRelaxed') },
+            { value: 'normal', label: t('settings.difficultyNormal') },
+          ]}
+          onChange={(v) => {
+            set((s) => {
+              s.profile.difficulty = v;
+            });
+          }}
+        />
+      </Row>
       <Row label={t('settings.sensitivity')}>
         <Slider
           id="sensitivity"
@@ -439,6 +453,21 @@ function DisplayTab({ d, set }: { d: SaveData; set: (fn: (d: SaveData) => void) 
           </Row>
         </>
       )}
+      <Row label={t('settings.effects')} hint={t('settings.effectsHint')}>
+        <Slider
+          id="effects-opacity"
+          value={p.effectsOpacity}
+          min={0.3}
+          max={1}
+          step={0.1}
+          format={(v) => `${String(Math.round(v * 100))} %`}
+          onChange={(v) => {
+            set((s) => {
+              s.display.effectsOpacity = v;
+            });
+          }}
+        />
+      </Row>
       <Row label={t('settings.hudScale')}>
         <Slider
           id="hud-scale"

@@ -86,32 +86,44 @@ function drawShotGeneric(p: Pen): void {
   );
 }
 
-function drawBullet(p: Pen): void {
-  p.fill(
-    0xff3e7a,
-    0.95,
-    (c) => {
-      circle(c, 5.2);
-    },
-    10,
-  );
-  p.fill(PALETTE.white, 1, (c) => {
-    circle(c, 2.2);
+/**
+ * Contour sombre des projectiles ennemis : ils restent lisibles par-dessus les tirs et effets
+ * lumineux du joueur (dessinés en fusion normale, au-dessus d'eux).
+ */
+function bulletRim(p: Pen, r: number): void {
+  p.fill(0x07040f, 0.9, (c) => {
+    circle(c, r);
   });
 }
 
-/** Projectile ennemi blanc (teinté par la couleur du tireur). */
-function drawBulletTint(p: Pen): void {
+function drawBullet(p: Pen): void {
+  bulletRim(p, 8.8);
   p.fill(
-    PALETTE.white,
-    0.85,
+    0xff3e7a,
+    1,
     (c) => {
-      circle(c, 5.2);
+      circle(c, 6.4);
     },
-    9,
+    8,
   );
   p.fill(PALETTE.white, 1, (c) => {
-    circle(c, 2.4);
+    circle(c, 2.8);
+  });
+}
+
+/** Projectile ennemi blanc (teinté par la couleur du tireur ; le contour reste sombre). */
+function drawBulletTint(p: Pen): void {
+  bulletRim(p, 8.8);
+  p.fill(
+    PALETTE.white,
+    1,
+    (c) => {
+      circle(c, 6.4);
+    },
+    8,
+  );
+  p.fill(PALETTE.white, 1, (c) => {
+    circle(c, 3);
   });
 }
 
@@ -172,13 +184,14 @@ function drawTarget(p: Pen): void {
 
 /** Obus de mortier en vol. */
 function drawShell(p: Pen): void {
+  bulletRim(p, 9);
   p.fill(
     PALETTE.white,
-    0.9,
+    1,
     (c) => {
       circle(c, 6.5);
     },
-    10,
+    8,
   );
   p.fill(PALETTE.white, 1, (c) => {
     circle(c, 3, -1.5, -1.5);
@@ -648,7 +661,7 @@ export function buildAtlas(): Atlas {
   });
   add(`f${FRAME.SHOT_FIRE}`, 36, 20, drawShotFire);
   add(`f${FRAME.SHOT_GENERIC}`, 20, 20, drawShotGeneric);
-  add(`f${FRAME.BULLET}`, 26, 26, drawBullet);
+  add(`f${FRAME.BULLET}`, 32, 32, drawBullet);
   add(`f${FRAME.GEM_S}`, 20, 20, (p) => {
     drawGem(p, 5, PALETTE.cyan);
   });
@@ -687,13 +700,13 @@ export function buildAtlas(): Atlas {
   add(`f${FRAME.RIFT}`, 96, 96, drawRift);
   add(`f${FRAME.ZONE_HAZARD}`, 128, 128, drawHazard);
   add(`f${FRAME.ZONE_TARGET}`, 128, 128, drawTarget);
-  add(`f${FRAME.SHELL}`, 24, 24, drawShell);
+  add(`f${FRAME.SHELL}`, 30, 30, drawShell);
   add(`f${FRAME.ZONE_WARN}`, 128, 128, drawWarn);
   add(`f${FRAME.SHIELD_ARC}`, 64, 64, drawShieldArc);
   add(`f${FRAME.BUBBLE}`, 72, 72, drawBubble);
   add(`f${FRAME.GUARD}`, 24, 24, drawGuard);
   add(`f${FRAME.AURA}`, 128, 128, drawAura);
-  add(`f${FRAME.BULLET_TINT}`, 26, 26, drawBulletTint);
+  add(`f${FRAME.BULLET_TINT}`, 32, 32, drawBulletTint);
   add('arrow', 32, 32, drawArrow);
   add('spark', 16, 16, (p) => {
     p.fill(

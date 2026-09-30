@@ -40,6 +40,8 @@ export interface QualitySettings {
   shake: number;
   /** Réduction des flashs (accessibilité). */
   reduceFlashes: boolean;
+  /** Opacité des tirs et effets (0,3 à 1) : les projectiles ennemis ressortent mieux. */
+  effectsOpacity?: number;
 }
 
 export const DEFAULT_QUALITY: QualitySettings = {
@@ -122,8 +124,9 @@ export class GameRenderer {
     this.gems = new SpriteLayer(900, atlas.frames[FRAME.GEM_S], 'add');
     this.enemies = new SpriteLayer(1400, atlas.frames[FRAME.ENEMY_BASE], 'normal');
     this.marks = new SpriteLayer(2400, fx.spark, 'add');
-    this.shells = new SpriteLayer(96, atlas.frames[FRAME.SHELL], 'add');
-    this.bullets = new SpriteLayer(600, atlas.frames[FRAME.BULLET], 'add');
+    // Projectiles ennemis : fusion normale (contour sombre visible), dessinés par-dessus les effets.
+    this.shells = new SpriteLayer(96, atlas.frames[FRAME.SHELL], 'normal');
+    this.bullets = new SpriteLayer(600, atlas.frames[FRAME.BULLET], 'normal');
     this.shots = new SpriteLayer(2200, atlas.frames[FRAME.SHOT_FIRE], 'add');
     this.orbits = new SpriteLayer(32, atlas.frames[FRAME.ORB_FROST], 'add');
     this.sparks = new FxLayer(1600, fx.spark);
@@ -145,12 +148,12 @@ export class GameRenderer {
       this.boss,
       this.player,
       this.orbits.container,
-      this.shells.container,
-      this.bullets.container,
       this.shots.container,
       this.sparks.layer.container,
       this.rings.layer.container,
       this.beams.layer.container,
+      this.shells.container,
+      this.bullets.container,
       this.numbers.layer.container,
     );
     this.flash.alpha = 0;
@@ -205,6 +208,16 @@ export class GameRenderer {
 
   applyQuality(): void {
     this.sparks.density = this.quality.particles;
+    const fx = Math.max(0.3, Math.min(1, this.quality.effectsOpacity ?? 1));
+    for (const c of [
+      this.shots.container,
+      this.orbits.container,
+      this.sparks.layer.container,
+      this.rings.layer.container,
+      this.beams.layer.container,
+    ]) {
+      c.alpha = fx;
+    }
     this.numbers.enabled = this.quality.damageNumbers;
     this.camera.shakeScale = this.quality.shake;
   }

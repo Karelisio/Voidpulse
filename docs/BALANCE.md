@@ -59,3 +59,9 @@ Validation finale : `npm run balance -- accounts --accounts 4 --runs 60`.
 - **Déblocages** : 12 à 16 des 20 premières parties apportent quelque chose (cible : une toutes les 1 à 2 parties).
 - **Campagne** (8 stages, boss final) : 3,5 à 5 h. Aucun stage ne bloque plus un compte (la toundra en bloquait un avant le réglage 7).
 - **Au-delà** : niveau de compte 15-18 sur 50 après 10-13 h (la courbe d'XP en √score ralentit ; ~70 à 100 h pour le maximum), ~165 rangs de talents achetés sur un arbre de ≈ 248 000 fragments, puis Ascension (20 paliers × 8 stages), Paragon, reliques et maîtrise : la progression reste visible bien au-delà de 100 h.
+
+## Difficulté « Détente »
+
+Retour des premières parties sur téléphone : le jeu est nettement plus dur pour un humain que pour le bot (qui voit tout l'écran à chaque image et ne se laisse pas surprendre par les effets). Réglage **Difficulté** (Réglages → Commandes), **Détente par défaut** : en Campagne, Infini et Boss Rush, dégâts des ennemis × 0,6, PV × 0,8, vitesse des projectiles × 0,8, densité × 0,85 (`config/modes.json#difficulty`, cumulé avec l'Ascension). Les défis du jour et de la semaine et le Hardcore restent identiques pour tous. **Normal** conserve l'équilibrage mesuré ci-dessus.
+
+Mesure (forêt, compte neuf, habileté 0,3, 12 parties) : victoires 4/12 en Normal, 7/12 en Détente.
