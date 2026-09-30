@@ -3,10 +3,11 @@
  * mesure des dégâts par seconde (fenêtre glissante de 5 s) par arme, réactions et Éveil.
  */
 import { useEffect, useRef, useState } from 'react';
-import { BOSSES, ENEMIES, PASSIVES, WEAPONS } from '../content/data';
 import type { GameHost } from '../game/host';
 import { num, t, useLang, type TKey } from '../i18n';
 import { SLOT_EVEIL, SLOT_REACTION } from '../systems/events';
+import { Picker } from './Picker';
+import { bossItems, enemyItems, passiveItems, weaponItems } from './pickerItems';
 
 const WINDOW = 5;
 
@@ -59,6 +60,7 @@ export function TrainingPanel({ host }: { host: GameHost }) {
   const [, refresh] = useState(0);
   const dps = useDps(host);
   const sim = host.sim;
+  const urls = host.renderer.atlas.iconUrls;
   const total = dps.reduce((s, l) => s + l.dps, 0);
   const act = (fn: () => void) => () => {
     fn();
@@ -79,19 +81,12 @@ export function TrainingPanel({ host }: { host: GameHost }) {
       {open && (
         <div className="debug-body">
           <div className="debug-row">
-            <select
-              aria-label={t('training.weapon')}
+            <Picker
+              label={t('training.weapon')}
               value={weapon}
-              onChange={(e) => {
-                setWeapon(Number(e.target.value));
-              }}
-            >
-              {WEAPONS.map((w, i) => (
-                <option key={w.id} value={i}>
-                  {w.name}
-                </option>
-              ))}
-            </select>
+              items={weaponItems(urls)}
+              onChange={setWeapon}
+            />
             <button
               id="tr-weapon"
               onClick={act(() => {
@@ -116,19 +111,12 @@ export function TrainingPanel({ host }: { host: GameHost }) {
             </button>
           </div>
           <div className="debug-row">
-            <select
-              aria-label={t('training.passive')}
+            <Picker
+              label={t('training.passive')}
               value={passive}
-              onChange={(e) => {
-                setPassive(Number(e.target.value));
-              }}
-            >
-              {PASSIVES.map((p, i) => (
-                <option key={p.id} value={i}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+              items={passiveItems(urls)}
+              onChange={setPassive}
+            />
             <button
               onClick={act(() => {
                 sim.debugPassive(passive);
@@ -138,19 +126,12 @@ export function TrainingPanel({ host }: { host: GameHost }) {
             </button>
           </div>
           <div className="debug-row">
-            <select
-              aria-label={t('training.enemy')}
+            <Picker
+              label={t('training.enemy')}
               value={enemy}
-              onChange={(e) => {
-                setEnemy(Number(e.target.value));
-              }}
-            >
-              {ENEMIES.map((x, i) => (
-                <option key={x.id} value={i}>
-                  {x.name}
-                </option>
-              ))}
-            </select>
+              items={enemyItems()}
+              onChange={setEnemy}
+            />
             {[1, 10, 50].map((n) => (
               <button
                 key={n}
@@ -171,19 +152,12 @@ export function TrainingPanel({ host }: { host: GameHost }) {
             </button>
           </div>
           <div className="debug-row">
-            <select
-              aria-label={t('training.boss')}
+            <Picker
+              label={t('training.boss')}
               value={boss}
-              onChange={(e) => {
-                setBoss(Number(e.target.value));
-              }}
-            >
-              {BOSSES.map((b, i) => (
-                <option key={b.id} value={i}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
+              items={bossItems()}
+              onChange={setBoss}
+            />
             <button
               onClick={act(() => {
                 sim.debugBoss(boss);

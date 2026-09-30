@@ -19,7 +19,7 @@ import { cardView, rewardView, rouletteIcons } from './cards';
 import { ChestOverlay } from './ChestOverlay';
 import { PactOverlay, type PactView } from './PactOverlay';
 import { buildRun, MODE_INFO } from '../modes/modes';
-import { colorOf, ENEMIES, WEAPONS } from '../content/data';
+import { colorOf } from '../content/data';
 import { heat } from '../systems/pacts';
 import { AltarOverlay, MerchantOverlay } from './EventOverlays';
 import { altarResultText, altarView, merchantView } from './events';
@@ -27,6 +27,8 @@ import { EndOverlay } from './EndOverlay';
 import { LevelUpOverlay } from './LevelUpOverlay';
 import { MusicViz } from './MusicViz';
 import { TrainingPanel } from './TrainingPanel';
+import { Picker } from './Picker';
+import { enemyItems, weaponItems } from './pickerItems';
 import { buildSummary, type RunRecord } from './summary';
 
 declare global {
@@ -95,6 +97,7 @@ function setupRun(bench: boolean, again = false): ActiveRun {
     ascension: ascensionOpen(prefs) ? ascensionSelected(prefs, stage) : 0,
     now: new Date(),
     nonce: `run-${String(Date.now())}`,
+    difficulty: bench ? 'normal' : prefs.profile.difficulty,
   });
   const meta = metaBonus(prefs);
   if (bench) run.options.pactChoice = false;
@@ -517,19 +520,13 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                 ))}
               </div>
               <div className="debug-row">
-                <select
+                <Picker
                   id="debug-weapon"
+                  label={t('training.weapon')}
                   value={debugWeapon}
-                  onChange={(e) => {
-                    setDebugWeapon(Number(e.target.value));
-                  }}
-                >
-                  {WEAPONS.map((w, i) => (
-                    <option key={w.id} value={i}>
-                      {w.name}
-                    </option>
-                  ))}
-                </select>
+                  items={weaponItems(host.renderer.atlas.iconUrls)}
+                  onChange={setDebugWeapon}
+                />
                 <button
                   onClick={() => {
                     host.sim.debugWeapon(debugWeapon);
@@ -546,19 +543,13 @@ export function RunScreen({ bench, onQuit }: { bench: boolean; onQuit: () => voi
                 </button>
               </div>
               <div className="debug-row">
-                <select
+                <Picker
                   id="debug-enemy"
+                  label={t('training.enemy')}
                   value={debugEnemy}
-                  onChange={(e) => {
-                    setDebugEnemy(Number(e.target.value));
-                  }}
-                >
-                  {ENEMIES.map((e, i) => (
-                    <option key={e.id} value={i}>
-                      {e.name}
-                    </option>
-                  ))}
-                </select>
+                  items={enemyItems()}
+                  onChange={setDebugEnemy}
+                />
                 {[1, 10, 50].map((n) => (
                   <button
                     key={n}

@@ -654,6 +654,18 @@ export const ModesDef = z.object({
     deathKeep: z.number().min(0).max(1),
   }),
   training: z.object({ stage: z.string() }),
+  /**
+   * Difficulté « Détente » (Campagne, Infini, Boss Rush) : multiplicateurs de base des ennemis.
+   * « Normal » n'en applique aucun ; défis et Hardcore restent identiques pour tous.
+   */
+  difficulty: z.object({
+    relaxed: z.object({
+      enemyDamage: positive,
+      enemyHp: positive,
+      bulletSpeed: positive,
+      density: positive,
+    }),
+  }),
 });
 export type ModesDef = z.infer<typeof ModesDef>;
 

@@ -81,7 +81,9 @@
         "id": "boss-uniquement",
         "name": "Boss uniquement",
         "description": "Aucune foule : six boss d'affilée. XP +50 %.",
-        "mods": { "xp": 1.5 },
+        "mods": {
+          "xp": 1.5
+        },
         "elements": [],
         "fixedMaxHp": 0,
         "bossOnly": true,
@@ -91,7 +93,10 @@
         "id": "un-seul-pv",
         "name": "Un seul PV",
         "description": "Le moindre coup est fatal. XP et ramassage +30 %.",
-        "mods": { "xp": 1.3, "pickup": 1.3 },
+        "mods": {
+          "xp": 1.3,
+          "pickup": 1.3
+        },
         "elements": [],
         "fixedMaxHp": 1,
         "bossOnly": false,
@@ -101,7 +106,11 @@
         "id": "canon-de-verre",
         "name": "Canon de verre",
         "description": "Dégâts doublés, PV max −60 %, coups ennemis +50 %.",
-        "mods": { "damage": 2, "maxHp": 0.4, "enemyDamage": 1.5 },
+        "mods": {
+          "damage": 2,
+          "maxHp": 0.4,
+          "enemyDamage": 1.5
+        },
         "elements": [],
         "fixedMaxHp": 0,
         "bossOnly": false,
@@ -111,7 +120,11 @@
         "id": "maree-humaine",
         "name": "Marée",
         "description": "Ennemis +70 %, mais 40 % plus fragiles. +1 projectile.",
-        "mods": { "density": 1.7, "enemyHp": 0.6, "amount": 1 },
+        "mods": {
+          "density": 1.7,
+          "enemyHp": 0.6,
+          "amount": 1
+        },
         "elements": [],
         "fixedMaxHp": 0,
         "bossOnly": false,
@@ -121,7 +134,11 @@
         "id": "chasse",
         "name": "Chasse aux élites",
         "description": "Des élites sans cesse, avec un affixe de plus. Chance +30 %.",
-        "mods": { "eliteRate": 0.3, "eliteAffixes": 1, "luck": 0.3 },
+        "mods": {
+          "eliteRate": 0.3,
+          "eliteAffixes": 1,
+          "luck": 0.3
+        },
         "elements": [],
         "fixedMaxHp": 0,
         "bossOnly": false,
@@ -131,7 +148,12 @@
         "id": "frenesie",
         "name": "Frénésie",
         "description": "Ennemis et projectiles plus rapides ; vous aussi. XP +25 %.",
-        "mods": { "enemySpeed": 1.35, "bulletSpeed": 1.3, "speed": 1.2, "xp": 1.25 },
+        "mods": {
+          "enemySpeed": 1.35,
+          "bulletSpeed": 1.3,
+          "speed": 1.2,
+          "xp": 1.25
+        },
         "elements": [],
         "fixedMaxHp": 0,
         "bossOnly": false,
@@ -141,7 +163,9 @@
         "id": "brasier",
         "name": "Brasier",
         "description": "Seules les armes de feu sont proposées. Zone +20 %.",
-        "mods": { "area": 1.2 },
+        "mods": {
+          "area": 1.2
+        },
         "elements": ["fire"],
         "fixedMaxHp": 0,
         "bossOnly": false,
@@ -165,5 +189,13 @@
   },
   "training": {
     "stage": "proto"
+  },
+  "difficulty": {
+    "relaxed": {
+      "enemyDamage": 0.6,
+      "enemyHp": 0.8,
+      "bulletSpeed": 0.8,
+      "density": 0.85
+    }
   }
 }

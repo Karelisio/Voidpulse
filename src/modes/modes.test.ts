@@ -89,6 +89,21 @@ describe('construction des parties', () => {
     expect(sim.state.status).toBe('running');
   });
 
+  it('difficulté Détente : ennemis allégés en Campagne, rien dans les défis', () => {
+    const relaxed = MODES.difficulty.relaxed;
+    const campaign = buildRun(setup({ difficulty: 'relaxed' }));
+    expect(campaign.options.rules?.mods).toMatchObject(relaxed);
+    expect(buildRun(setup({ difficulty: 'normal' })).options.rules?.mods).toBeUndefined();
+    // Cumul avec l'Ascension (multiplicateurs).
+    const asc = ascensionMods(3);
+    const both = buildRun(setup({ difficulty: 'relaxed', ascension: 3 })).options.rules?.mods;
+    expect(both?.enemyHp).toBeCloseTo((asc.enemyHp ?? 1) * relaxed.enemyHp);
+    for (const mode of ['daily', 'weekly', 'hardcore'] as const) {
+      const normal = buildRun(setup({ mode }));
+      expect(buildRun(setup({ mode, difficulty: 'relaxed' })).options).toEqual(normal.options);
+    }
+  });
+
   it('les modes libres gardent le choix du joueur ; le défi du jour l’impose', () => {
     const free = buildRun(setup());
     expect(free.options).toMatchObject({ character: 'nova', stage: 'desert', pactChoice: true });

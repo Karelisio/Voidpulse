@@ -4,6 +4,7 @@ import { defineStrings } from '../define';
 export default defineStrings(
   {
     toggle: 'ATELIER',
+    groupEvents: 'Événements',
     weapon: 'Arme',
     passive: 'Passif',
     enemy: 'Ennemi',
@@ -27,6 +28,7 @@ export default defineStrings(
   },
   {
     toggle: 'WORKSHOP',
+    groupEvents: 'Events',
     weapon: 'Weapon',
     passive: 'Passive',
     enemy: 'Enemy',
